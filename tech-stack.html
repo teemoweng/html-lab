@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的工具栈</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0f;
+      color: #e8e8ec;
+      font-family: -apple-system, "SF Pro Text", "PingFang SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+    header p {
+      margin-top: 8px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    /* ── Core flow banner ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      background: #16161a;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 20px 32px;
+      margin-bottom: 48px;
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 20px;
+    }
+    .flow-node .icon { font-size: 22px; }
+    .flow-node .label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #aaa;
+      letter-spacing: 0.3px;
+    }
+    .flow-arrow {
+      color: #333;
+      font-size: 18px;
+      padding: 0 4px;
+    }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #16161a;
+      border: 1px solid #1e1e24;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #2e2e3a; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #1e1e24;
+    }
+    .card-icon { font-size: 18px; }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Tool rows ── */
+    .tool-list { padding: 8px 0; }
+
+    .tool-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 20px;
+      border-bottom: 1px solid #1a1a20;
+    }
+    .tool-row:last-child { border-bottom: none; }
+
+    .tool-name {
+      font-weight: 600;
+      color: #d8d8e8;
+      font-size: 13px;
+      min-width: 130px;
+      flex-shrink: 0;
+    }
+    .tool-name .sub {
+      display: block;
+      font-weight: 400;
+      font-size: 11px;
+      color: #555;
+      margin-top: 1px;
+    }
+    .tool-desc {
+      color: #666;
+      font-size: 12px;
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+      white-space: nowrap;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0.2px;
+    }
+    .badge-primary   { background: #1a2f1a; color: #4caf6e; border: 1px solid #2a4a2a; }
+    .badge-secondary { background: #1a1f2e; color: #6b8cce; border: 1px solid #232a40; }
+    .badge-inactive  { background: #1e1e1e; color: #555;    border: 1px solid #2a2a2a; }
+    .badge-trial     { background: #2a1f10; color: #c8843a; border: 1px solid #3a2810; }
+
+    /* ── Note block ── */
+    .note {
+      margin: 0 20px 14px;
+      padding: 10px 14px;
+      background: #111116;
+      border-left: 3px solid #2a2a3a;
+      border-radius: 0 8px 8px 0;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* ── Wide card spans full width ── */
+    .card-wide { grid-column: 1 / -1; }
+
+    /* ── Section label inside card ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #333;
+      padding: 10px 20px 4px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      margin-top: 56px;
+      color: #333;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>我的工具栈</h1>
+  <p>AI 工具 · 效率工具 · 开发环境</p>
+</header>
+
+<!-- Core flow -->
+<div class="flow">
+  <div class="flow-node"><span class="icon">🎙️</span><span class="label">Typeless</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node"><span class="icon">🤖</span><span class="label">Claude Code</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node"><span class="icon">📝</span><span class="label">.md 文件</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node"><span class="icon">🪨</span><span class="label">Obsidian</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node"><span class="icon">🐙</span><span class="label">GitHub</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node"><span class="icon">🤖</span><span class="label">AI 处理</span></div>
+</div>
+
+<div class="grid">
+
+  <!-- Claude 系列 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🧠</span>
+      <span class="card-title">Claude 系列 · 主力 AI</span>
+    </div>
+    <div class="tool-list">
+      <div class="section-label">macOS 客户端</div>
+      <div class="tool-row">
+        <div class="tool-name">Chat<span class="sub">Claude 客户端</span></div>
+        <div class="tool-desc">日常轻量聊天、PDF / Word 简单编辑</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Co-work<span class="sub">Claude 客户端</span></div>
+        <div class="tool-desc">学校作业、调研整理类项目（非开发）</div>
+      </div>
+      <div class="section-label">命令行</div>
+      <div class="tool-row">
+        <div class="tool-name">Claude Code<span class="sub">CLI · Ghostty</span></div>
+        <div class="tool-desc">Vibe Coding、产品设计开发；Remote Control 支持手机无缝接入</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 其他大模型 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">💬</span>
+      <span class="card-title">其他大模型</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">ChatGPT<span class="sub">OpenAI</span></div>
+        <div class="tool-desc">日常备选；GPT Image 2 生图能力突出 <span class="badge badge-secondary">常用</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">DeepSeek</div>
+        <div class="tool-desc">API 接入个人项目，性价比极高 <span class="badge badge-secondary">常用</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Gemini<span class="sub">Google</span></div>
+        <div class="tool-desc">暂无明确使用场景 <span class="badge badge-inactive">基本不用</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 语音输入 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🎙️</span>
+      <span class="card-title">语音输入</span>
+    </div>
+    <div class="tool-list">
+      <div class="section-label">电脑端</div>
+      <div class="tool-row">
+        <div class="tool-name">Typeless <span class="badge badge-primary">主力</span></div>
+        <div class="tool-desc">支持个人词库，识别准确率高，大规模使用</div>
+      </div>
+      <div class="section-label">手机端</div>
+      <div class="tool-row">
+        <div class="tool-name">豆包输入法</div>
+        <div class="tool-desc">日常聊天</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Typeless</div>
+        <div class="tool-desc">与 AI 沟通；配合 Remote Control 在手机上操控终端项目</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 知识库 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🗂️</span>
+      <span class="card-title">知识库 · 文件管理</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">Typora <span class="badge badge-primary">主力</span></div>
+        <div class="tool-desc">阅读与编辑单个 .md 文件，界面简洁优雅</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Obsidian <span class="badge badge-primary">主力</span></div>
+        <div class="tool-desc">组织管理，"Capacity" 文件夹体系；iCloud 同步；接入 Claude 延伸内容</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">GitHub</div>
+        <div class="tool-desc">本地项目同步存储，.md 文件在线可读</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">飞书</div>
+        <div class="tool-desc">历史遗留文件，待迁移整理 <span class="badge badge-inactive">历史</span></div>
+      </div>
+    </div>
+    <div class="note">核心链路：本地 → Obsidian → GitHub → AI，.md 格式全程无缝流转</div>
+  </div>
+
+  <!-- 终端 & 编程工具 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">💻</span>
+      <span class="card-title">终端 & 编程工具</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">Ghostty <span class="badge badge-primary">终端模拟器</span></div>
+        <div class="tool-desc">运行 Claude Code CLI，比 Terminal 更好看</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Claude Code <span class="badge badge-primary">主力</span></div>
+        <div class="tool-desc">AI 编程工具，CLI 模式，核心开发工具</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Codex<span class="sub">OpenAI CLI</span></div>
+        <div class="tool-desc">OpenAI 的 CLI 编程工具，最近较少使用 <span class="badge badge-secondary">备选</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">VS Code</div>
+        <div class="tool-desc">已被 Ghostty + Claude Code 替代 <span class="badge badge-inactive">基本不用</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 创作与设计 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🎨</span>
+      <span class="card-title">创作与设计</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">GPT Image 2<span class="sub">ChatGPT</span></div>
+        <div class="tool-desc">主力生图工具，能力突出</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">即梦 AI</div>
+        <div class="tool-desc">文生视频，主力工具</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Excalidraw<span class="sub">+ Excalicord</span></div>
+        <div class="tool-desc">演示 / 白板，由张 Zara 部署建立</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Claude Design</div>
+        <div class="tool-desc">前端页面设计、PPT（探索中）；部分场景已被 Claude Code 替代 <span class="badge badge-trial">探索中</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">CleanShot X</div>
+        <div class="tool-desc">截屏与录屏合一</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 邮件 + 资讯 合并一行 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">📬</span>
+      <span class="card-title">邮件管理</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">网易邮箱大师 <span class="badge badge-primary">主力</span></div>
+        <div class="tool-desc">管理 163 + Gmail，体验最稳定</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Outlook</div>
+        <div class="tool-desc">学校邮箱，毕业后账号回收 <span class="badge badge-inactive">临时</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Filo</div>
+        <div class="tool-desc">AI 邮件应用，在试用中，体验待观察 <span class="badge badge-trial">试用</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 资讯 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">📡</span>
+      <span class="card-title">资讯</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">AI Hot 导航站</div>
+        <div class="tool-desc">由"数字生命卡兹克"维护，获取 AI 行业每日资讯</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>持续更新中 · 基于 .md 文件生成</p>
+</footer>
+
+</body>
+</html>

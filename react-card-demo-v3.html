@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React 组件 · 杂志版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --surface: #F2EFE8;
+      --text: #1A1A18;
+      --muted: #999990;
+      --accent: #E8400A;
+      --accent-light: #fdf0eb;
+      --border: #E0DDD6;
+      --white: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+    }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+      border-bottom: 3px solid var(--text);
+      padding: 14px 56px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+    }
+
+    .masthead-issue {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .masthead-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 22px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .masthead-date {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ── ACCENT BAR ── */
+    .accent-bar {
+      background: var(--accent);
+      height: 3px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-left {
+      padding: 64px 56px 64px 56px;
+      border-right: none;
+    }
+
+    .hero-divider {
+      background: var(--border);
+      margin: 48px 0;
+    }
+
+    .hero-right {
+      padding: 64px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .hero-kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .hero-kicker-line {
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .hero-kicker-text {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .hero-headline {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(52px, 6vw, 80px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .hero-headline em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-deck {
+      font-size: 15px;
+      line-height: 1.75;
+      color: #555;
+      max-width: 340px;
+      border-left: 2px solid var(--accent);
+      padding-left: 16px;
+    }
+
+    .hero-pull-quote {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 22px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .hero-pull-quote cite {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 32px;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 32px 56px 0;
+    }
+
+    .section-label-text {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .section-label-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── CARDS GRID ── */
+    .cards-section {
+      padding: 32px 56px 56px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-top: 24px;
+    }
+
+    .card {
+      background: var(--white);
+      padding: 36px 32px 40px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.15s; }
+    .card:nth-child(3) { animation-delay: 0.25s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-number {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .card-headline {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .card-rule {
+      width: 32px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .card-body-text {
+      font-size: 13px;
+      line-height: 1.8;
+      color: #666;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 4px 9px;
+      border-radius: 2px;
+      margin-top: 20px;
+    }
+
+    /* ── CODE SPREAD ── */
+    .code-spread {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-left {
+      padding: 56px;
+      border-right: 1px solid var(--border);
+    }
+
+    .code-right {
+      padding: 56px;
+      background: var(--text);
+    }
+
+    .spread-kicker {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .spread-heading {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 32px;
+      line-height: 1.2;
+      margin-bottom: 28px;
+    }
+
+    .annotation-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .annotation-item {
+      display: flex;
+      gap: 16px;
+    }
+
+    .anno-num {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--accent);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 24px;
+    }
+
+    .anno-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #555;
+      padding-top: 2px;
+    }
+
+    .anno-text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* code block */
+    pre {
+      font-family: 'DM Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.9;
+      color: #aaa;
+      overflow-x: auto;
+    }
+
+    .kw   { color: #f9a875; }
+    .fn   { color: #79d5f7; }
+    .str  { color: #a8e6a3; }
+    .tag  { color: #f47e7e; }
+    .attr { color: #d4c5f9; }
+    .cmt  { color: #555; font-style: italic; }
+
+    .code-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 20px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 3px solid var(--text);
+      padding: 16px 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .footer-right {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 900px) {
+      .masthead { grid-template-columns: 1fr; gap: 6px; padding: 14px 24px; }
+      .masthead-date { text-align: left; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-divider { display: none; }
+      .hero-left, .hero-right { padding: 40px 24px; }
+      .cards-section { grid-template-columns: 1fr; padding: 0; }
+      .section-label-row { padding: 24px 24px 0; }
+      .code-spread { grid-template-columns: 1fr; }
+      .code-left, .code-right { padding: 40px 24px; }
+      .footer { padding: 16px 24px; flex-direction: column; gap: 8px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+const cards = [
+  {
+    number: "No. 01",
+    headline: "函数即组件",
+    body: "组件本质是一个 JavaScript 函数。它接收外部数据（props），返回描述界面的 JSX。没有魔法，只有函数。",
+    tag: "核心概念",
+  },
+  {
+    number: "No. 02",
+    headline: "写一次，无限复用",
+    body: "同一个 Card 组件传入不同的标题和描述，就能渲染出无数张卡片。代码只写一遍，节省重复劳动。",
+    tag: "可复用性",
+  },
+  {
+    number: "No. 03",
+    headline: "小组件拼成大页面",
+    body: "导航、卡片、按钮，每个组件各司其职。把它们组合起来，就构成了完整的应用程序。",
+    tag: "可组合性",
+  },
+]
+
+function Card({ number, headline, body, tag }) {
+  return (
+    <article className="card">
+      <span className="card-number">{number}</span>
+      <h3 className="card-headline">{headline}</h3>
+      <div className="card-rule" />
+      <p className="card-body-text">{body}</p>
+      <span className="card-tag">{tag}</span>
+    </article>
+  )
+}
+
+function App() {
+  return (
+    <>
+      <header className="masthead">
+        <span className="masthead-issue">React 入门 · 第一期</span>
+        <h1 className="masthead-title">The Component</h1>
+        <span className="masthead-date">2026 年 5 月</span>
+      </header>
+      <div className="accent-bar" />
+
+      <section className="hero">
+        <div className="hero-left">
+          <div className="hero-kicker">
+            <div className="hero-kicker-line" />
+            <span className="hero-kicker-text">特别报道</span>
+          </div>
+          <h2 className="hero-headline">
+            理解<br/><em>组件，</em><br/>理解一切
+          </h2>
+          <p className="hero-deck">
+            React 的全部体系建立在一个简单的想法上：界面是由一个个独立的、可复用的"组件"拼装而成的。理解了这个，你就理解了 React。
+          </p>
+        </div>
+        <div className="hero-divider" />
+        <div className="hero-right">
+          <blockquote className="hero-pull-quote">
+            "组件就像乐高积木——每一块形状不同，但拼在一起就能搭出任何东西。"
+            <cite>— React 设计哲学</cite>
+          </blockquote>
+          <div className="hero-stats">
+            <div>
+              <div className="stat-num">1×</div>
+              <div className="stat-label">代码定义</div>
+            </div>
+            <div>
+              <div className="stat-num">∞</div>
+              <div className="stat-label">次复用</div>
+            </div>
+            <div>
+              <div className="stat-num">3</div>
+              <div className="stat-label">核心概念</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="section-label-row">
+        <span className="section-label-text">三个核心概念</span>
+        <div className="section-label-rule" />
+      </div>
+      <div className="cards-section">
+        {cards.map((c, i) => <Card key={i} {...c} />)}
+      </div>
+
+      <section className="code-spread">
+        <div className="code-left">
+          <p className="spread-kicker">代码解析</p>
+          <h3 className="spread-heading">用十行代码说清楚一切</h3>
+          <ul className="annotation-list">
+            <li className="annotation-item">
+              <span className="anno-num">①</span>
+              <p className="anno-text"><strong>定义组件</strong>——用 function 声明一个大写开头的函数，这就是一个 React 组件</p>
+            </li>
+            <li className="annotation-item">
+              <span className="anno-num">②</span>
+              <p className="anno-text"><strong>接收 props</strong>——函数参数就是外部传入的数据，标题、描述都从这里来</p>
+            </li>
+            <li className="annotation-item">
+              <span className="anno-num">③</span>
+              <p className="anno-text"><strong>返回 JSX</strong>——看起来像 HTML，但其实是 JavaScript，描述这个组件长什么样</p>
+            </li>
+            <li className="annotation-item">
+              <span className="anno-num">④</span>
+              <p className="anno-text"><strong>复用三次</strong>——{`<Card />`} 写三次，传不同数据，出来三张不同的卡片</p>
+            </li>
+          </ul>
+        </div>
+        <div className="code-right">
+          <p className="code-label">// Card.jsx</p>
+          <pre dangerouslySetInnerHTML={{__html:
+`<span class="cmt">// ① 定义组件</span>
+<span class="kw">function</span> <span class="fn">Card</span>({ title, desc }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="cmt">{/* ③ 返回 JSX */}</span>
+      <span class="tag">&lt;h2&gt;</span>{ title }<span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span>{ desc }<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}
+
+<span class="cmt">// ④ 复用三次</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">title</span>=<span class="str">"函数即组件"</span>  <span class="cmt">{/* ② props */}</span>
+        <span class="attr">desc</span>=<span class="str">"接收数据，返回界面"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">title</span>=<span class="str">"写一次，无限复用"</span>
+        <span class="attr">desc</span>=<span class="str">"代码只写一遍"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">title</span>=<span class="str">"小组件拼成大页面"</span>
+        <span class="attr">desc</span>=<span class="str">"组合起来就是应用"</span>
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}`}} />
+        </div>
+      </section>
+
+      <footer className="footer">
+        <span className="footer-left">The Component</span>
+        <span className="footer-right">frontend-design skill · Playfair Display + DM Sans · v3</span>
+      </footer>
+    </>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />)
+</script>
+</body>
+</html>

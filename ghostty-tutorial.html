@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghostty 新手指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;700;800&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1420;
+    --bg3: #111b2b;
+    --border: #1e2d42;
+    --text: #c9d8ec;
+    --text-dim: #5a7a9a;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --gold: #f0c040;
+    --mono: 'Syne Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --serif: 'Noto Serif SC', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    box-shadow: 0 0 12px var(--accent), 0 0 24px rgba(0,229,255,0.3);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 28px; height: 28px;
+    border: 1px solid rgba(0,229,255,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.3s, height 0.3s, opacity 0.3s;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 99;
+    opacity: 0.4;
+  }
+
+  /* ── Header ── */
+  header {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 10vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPulse 8s ease-in-out infinite;
+  }
+
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .header-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    animation: glowFloat 6s ease-in-out infinite;
+  }
+
+  .header-glow2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,107,53,0.06) 0%, transparent 70%);
+    bottom: 0; left: 5vw;
+    animation: glowFloat 8s ease-in-out infinite reverse;
+  }
+
+  @keyframes glowFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 4px 12px;
+    display: inline-block;
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  h1 .line1 { display: block; color: #fff; }
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, #0080ff 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 480px;
+    line-height: 1.8;
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    padding: 12px 28px;
+    border: none;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: bold;
+  }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 1.5s 1s ease both;
+  }
+
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollDown 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollDown {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── Sections ── */
+  section {
+    padding: 100px 10vw;
+    position: relative;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.6s ease;
+  }
+
+  .section-title {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.6s 0.1s ease;
+  }
+
+  .section-desc {
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1.8;
+    max-width: 560px;
+    margin-bottom: 60px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.6s 0.15s ease;
+  }
+
+  .visible .section-label,
+  .visible .section-title,
+  .visible .section-desc {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── Comparison Section ── */
+  .compare-section { background: var(--bg); }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .compare-col {
+    background: var(--bg2);
+    padding: 0;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.6s ease;
+  }
+
+  .compare-col:first-child { transition-delay: 0.2s; }
+  .compare-col:last-child { transition-delay: 0.35s; }
+
+  .visible .compare-col { opacity: 1; transform: none; }
+
+  .compare-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .compare-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot { background: #aaa; }
+  .ghostty-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .compare-name {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--text);
+  }
+
+  .compare-name.ghostty { color: var(--accent); }
+
+  .compare-items { padding: 24px 0; }
+
+  .compare-item {
+    padding: 20px 32px;
+    border-bottom: 1px solid rgba(30,45,66,0.5);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: background 0.2s;
+  }
+
+  .compare-item:hover { background: rgba(0,229,255,0.03); }
+  .compare-item:last-child { border-bottom: none; }
+
+  .compare-icon {
+    width: 20px; height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .compare-text h4 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .compare-text p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-top: 6px;
+  }
+
+  .badge-good { background: rgba(127,255,107,0.15); color: var(--accent3); border: 1px solid rgba(127,255,107,0.3); }
+  .badge-ok { background: rgba(90,122,154,0.15); color: var(--text-dim); border: 1px solid var(--border); }
+  .badge-warn { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.3); }
+
+  /* ── Feature Cards ── */
+  .features-section { background: var(--bg2); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .feature-card {
+    background: var(--bg2);
+    padding: 36px 32px;
+    transition: background 0.3s;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+
+  .feature-card:hover { background: var(--bg3); }
+
+  .visible .feature-card { opacity: 1; transform: none; }
+  .visible .feature-card:nth-child(1) { transition-delay: 0.1s; }
+  .visible .feature-card:nth-child(2) { transition-delay: 0.2s; }
+  .visible .feature-card:nth-child(3) { transition-delay: 0.3s; }
+  .visible .feature-card:nth-child(4) { transition-delay: 0.4s; }
+  .visible .feature-card:nth-child(5) { transition-delay: 0.5s; }
+  .visible .feature-card:nth-child(6) { transition-delay: 0.6s; }
+
+  .feature-number {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 24px;
+  }
+
+  .feature-icon-wrap {
+    width: 48px; height: 48px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .feature-card:hover .feature-icon-wrap {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,229,255,0.15);
+  }
+
+  .feature-card h3 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .feature-card p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* ── Keyboard Section ── */
+  .keyboard-section { background: var(--bg); }
+
+  .kbd-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+  }
+
+  .kbd-group {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+
+  .visible .kbd-group { opacity: 1; transform: none; }
+  .visible .kbd-group:nth-child(1) { transition-delay: 0.1s; }
+  .visible .kbd-group:nth-child(2) { transition-delay: 0.2s; }
+  .visible .kbd-group:nth-child(3) { transition-delay: 0.3s; }
+  .visible .kbd-group:nth-child(4) { transition-delay: 0.4s; }
+
+  .kbd-group-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .kbd-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(30,45,66,0.4);
+    transition: all 0.15s;
+  }
+
+  .kbd-row:hover { padding-left: 6px; }
+  .kbd-row:last-child { border-bottom: none; }
+
+  .kbd-desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  .kbd-combo {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
+
+  kbd {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid #1a2535;
+    padding: 3px 8px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* ── Terminal Demo ── */
+  .demo-section {
+    background: var(--bg2);
+    padding: 100px 10vw;
+  }
+
+  .terminal-window {
+    background: #030608;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(32px);
+    transition: all 0.7s 0.2s ease;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,255,0.05);
+  }
+
+  .visible .terminal-window { opacity: 1; transform: none; }
+
+  .terminal-bar {
+    background: #0d1520;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .traffic-lights { display: flex; gap: 8px; }
+  .tl {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .tl-r { background: #ff5f57; }
+  .tl-y { background: #febc2e; }
+  .tl-g { background: #28c840; }
+
+  .terminal-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    flex: 1;
+    text-align: center;
+  }
+
+  .terminal-body {
+    padding: 24px 28px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    line-height: 1.8;
+    min-height: 280px;
+  }
+
+  .t-line { display: flex; gap: 8px; margin-bottom: 2px; }
+  .t-prompt { color: var(--accent3); }
+  .t-cmd { color: #e8eaf0; }
+  .t-out { color: var(--text-dim); }
+  .t-success { color: var(--accent3); }
+  .t-warn { color: var(--gold); }
+  .t-error { color: var(--accent2); }
+  .t-info { color: var(--accent); }
+
+  .t-cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--accent);
+    vertical-align: middle;
+    animation: blink 1.2s step-end infinite;
+    margin-left: 2px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── Config Section ── */
+  .config-section { background: var(--bg); }
+
+  .config-block {
+    background: #030608;
+    border: 1px solid var(--border);
+    padding: 32px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 2;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s 0.2s ease;
+  }
+
+  .visible .config-block { opacity: 1; transform: none; }
+
+  .cfg-comment { color: var(--text-dim); }
+  .cfg-key { color: var(--accent); }
+  .cfg-eq { color: var(--text-dim); }
+  .cfg-val { color: var(--accent3); }
+  .cfg-val-str { color: var(--gold); }
+  .cfg-section-head {
+    color: var(--accent2);
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ── Tips ── */
+  .tips-section { background: var(--bg2); }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .tip-card {
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.5s ease;
+  }
+
+  .visible .tip-card { opacity: 1; transform: none; }
+  .visible .tip-card:nth-child(1) { transition-delay: 0.05s; }
+  .visible .tip-card:nth-child(2) { transition-delay: 0.1s; }
+  .visible .tip-card:nth-child(3) { transition-delay: 0.15s; }
+  .visible .tip-card:nth-child(4) { transition-delay: 0.2s; }
+  .visible .tip-card:nth-child(5) { transition-delay: 0.25s; }
+
+  .tip-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,255,0.03), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .tip-card:hover::before { opacity: 1; }
+  .tip-card:hover { border-color: rgba(0,229,255,0.3); }
+
+  .tip-num {
+    font-family: var(--mono);
+    font-size: 2rem;
+    color: var(--border);
+    font-weight: bold;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+
+  .tip-card h4 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .tip-card p {
+    font-size: 0.84rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .tip-card code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    background: var(--bg3);
+    padding: 2px 6px;
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding: 60px 10vw;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .footer-brand {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-brand span { color: var(--accent); }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    cursor: none;
+  }
+
+  .footer-links a:hover { color: var(--accent); }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    padding: 20px 10vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(8,12,16,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(30,45,66,0.5);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    cursor: none;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 0 10vw;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent), #0080ff, var(--accent2));
+    z-index: 1000;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    section { padding: 60px 6vw; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<nav>
+  <a class="nav-logo" href="#">GHOSTTY//</a>
+  <ul class="nav-links">
+    <li><a href="#compare">对比</a></li>
+    <li><a href="#features">特性</a></li>
+    <li><a href="#shortcuts">快捷键</a></li>
+    <li><a href="#config">配置</a></li>
+    <li><a href="#tips">技巧</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<header>
+  <div class="header-grid"></div>
+  <div class="header-glow"></div>
+  <div class="header-glow2"></div>
+
+  <span class="tag">新手完全指南 · 2025</span>
+  <h1>
+    <span class="line1">终端，</span>
+    <span class="line2">重新定义。</span>
+  </h1>
+  <p class="subtitle">
+    Ghostty 是一款 GPU 加速的现代终端模拟器。如果你刚从 macOS 自带的 Terminal 切过来——欢迎，这份指南带你从零上手。
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="#compare">开始阅读</a>
+    <a class="btn btn-ghost" href="#shortcuts">直接看快捷键</a>
+  </div>
+
+  <div class="scroll-hint">
+    <span>向下滚动</span>
+    <div class="scroll-line"></div>
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<!-- Compare -->
+<section class="compare-section" id="compare">
+  <div class="section-label">第一章</div>
+  <div class="section-title">它和 Terminal 有什么不同？</div>
+  <div class="section-desc">macOS 自带的终端够用，但 Ghostty 在渲染性能、功能密度和开发体验上走得更远。</div>
+
+  <div class="compare-grid">
+    <!-- Terminal col -->
+    <div class="compare-col">
+      <div class="compare-header">
+        <div class="compare-dot terminal-dot"></div>
+        <span class="compare-name">macOS Terminal</span>
+      </div>
+      <div class="compare-items">
+        <div class="compare-item">
+          <div class="compare-icon">🖥</div>
+          <div class="compare-text">
+            <h4>CPU 软件渲染</h4>
+            <p>使用 CPU 绘制文字，内容多时会卡顿，滚动长日志明显掉帧。</p>
+            <span class="badge badge-ok">NORMAL</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">🔤</div>
+          <div class="compare-text">
+            <h4>有限的字体支持</h4>
+            <p>不支持字体连字（ligatures），显示 <code style="font-family:monospace;color:#ccc">!=</code> 就是 <code style="font-family:monospace;color:#ccc">!=</code>，没有特殊渲染。</p>
+            <span class="badge badge-ok">BASIC</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">🗂</div>
+          <div class="compare-text">
+            <h4>标签页体验一般</h4>
+            <p>有标签页，但无法快速分屏——只能开新窗口。</p>
+            <span class="badge badge-ok">LIMITED</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">⚙️</div>
+          <div class="compare-text">
+            <h4>GUI 偏好设置</h4>
+            <p>通过图形界面点击配置，迁移和同步配置文件需要手动截图记录。</p>
+            <span class="badge badge-ok">CLICK-BASED</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">🌈</div>
+          <div class="compare-text">
+            <h4>颜色支持有限</h4>
+            <p>基本的 256 色，不支持真彩色（24-bit True Color）。</p>
+            <span class="badge badge-warn">256 COLOR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ghostty col -->
+    <div class="compare-col">
+      <div class="compare-header">
+        <div class="compare-dot ghostty-dot"></div>
+        <span class="compare-name ghostty">Ghostty</span>
+      </div>
+      <div class="compare-items">
+        <div class="compare-item">
+          <div class="compare-icon">⚡</div>
+          <div class="compare-text">
+            <h4>GPU 加速渲染</h4>
+            <p>使用显卡（GPU）直接渲染，大文件、长日志滚动如丝般顺滑，从不掉帧。</p>
+            <span class="badge badge-good">GPU POWERED</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">✨</div>
+          <div class="compare-text">
+            <h4>字体连字 + 细粒度控制</h4>
+            <p>支持连字渲染，<code style="font-family:monospace;color:#00e5ff">!=</code> 会变成 ≠，代码更美观易读。</p>
+            <span class="badge badge-good">LIGATURES</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">⬜</div>
+          <div class="compare-text">
+            <h4>原生分屏支持</h4>
+            <p>内置左右/上下分屏，一个窗口同时看代码和日志，无需第三方工具。</p>
+            <span class="badge badge-good">BUILT-IN SPLITS</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">📄</div>
+          <div class="compare-text">
+            <h4>纯文本配置文件</h4>
+            <p>所有配置写在 <code style="font-family:monospace;color:#00e5ff">~/.config/ghostty/config</code>，一行文字，版本管理友好。</p>
+            <span class="badge badge-good">CODE-AS-CONFIG</span>
+          </div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-icon">🎨</div>
+          <div class="compare-text">
+            <h4>真彩色 + 主题系统</h4>
+            <p>完整 24-bit 真彩色支持，内置数十个精心设计的颜色主题。</p>
+            <span class="badge badge-good">TRUE COLOR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Features -->
+<section class="features-section" id="features">
+  <div class="section-label">第二章</div>
+  <div class="section-title">六大核心特性</div>
+  <div class="section-desc">这些是 Ghostty 最值得了解的能力，每一项都直接影响你的日常使用体验。</div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-number">// 01</div>
+      <div class="feature-icon-wrap">⚡</div>
+      <h3>零延迟输入</h3>
+      <p>Ghostty 使用自研渲染引擎，从按键到字符出现的延迟极低（&lt;1ms），打字如同直接刻在屏幕上。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">// 02</div>
+      <div class="feature-icon-wrap">⬜</div>
+      <h3>灵活分屏</h3>
+      <p>⌘D 左右分屏，⌘⇧D 上下分屏。在同一窗口里跑服务器日志的同时编写代码，告别 Alt+Tab。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">// 03</div>
+      <div class="feature-icon-wrap">🔗</div>
+      <h3>超链接识别</h3>
+      <p>终端里的 URL 自动变成可点击链接。⌘+Click 直接在浏览器打开，不需要复制粘贴。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">// 04</div>
+      <div class="feature-icon-wrap">📦</div>
+      <h3>原生 macOS 集成</h3>
+      <p>不是 Electron，是真正的原生 App。系统字体渲染、暗色模式、全屏动画全部和 macOS 无缝衔接。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">// 05</div>
+      <div class="feature-icon-wrap">🖼</div>
+      <h3>图片协议支持</h3>
+      <p>支持 Kitty 图片协议，可以在终端里直接渲染图片预览，配合 ranger 等文件管理器体验极佳。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-number">// 06</div>
+      <div class="feature-icon-wrap">⌘</div>
+      <h3>完整快捷键查询</h3>
+      <p>菜单栏 Help → Show Key Bindings 可以看到所有快捷键；配置文件也支持完全自定义按键映射。</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Terminal Demo -->
+<section class="demo-section" id="demo">
+  <div class="section-label">实际上手</div>
+  <div class="section-title">第一次打开 Ghostty</div>
+  <div class="section-desc">打开 Ghostty，你会看到一个干净的黑色窗口和闪烁的光标——这就是你的新起点。</div>
+
+  <div class="terminal-window">
+    <div class="terminal-bar">
+      <div class="traffic-lights">
+        <div class="tl tl-r"></div>
+        <div class="tl tl-y"></div>
+        <div class="tl tl-g"></div>
+      </div>
+      <div class="terminal-title">ghostty — zsh — 120×38</div>
+    </div>
+    <div class="terminal-body">
+      <div class="t-line"><span class="t-prompt">→</span><span class="t-cmd">whoami</span></div>
+      <div class="t-line"><span class="t-out">teemo</span></div>
+      <div class="t-line"><span class="t-prompt">→</span><span class="t-cmd">ls -la</span></div>
+      <div class="t-line"><span class="t-out">total 32</span></div>
+      <div class="t-line"><span class="t-success">drwxr-xr-x</span><span class="t-out">&nbsp; 8 teemo staff  256 May 14 &nbsp;.</span></div>
+      <div class="t-line"><span class="t-success">drwxr-xr-x</span><span class="t-out">&nbsp;12 teemo staff  384 May 12 &nbsp;..</span></div>
+      <div class="t-line"><span class="t-warn">-rw-r--r--</span><span class="t-out">&nbsp; 1 teemo staff 1024 May 14 &nbsp;.zshrc</span></div>
+      <div class="t-line"><span class="t-success">drwxr-xr-x</span><span class="t-out">&nbsp; 4 teemo staff  128 May 13 &nbsp;Documents</span></div>
+      <div class="t-line"><span class="t-prompt">→</span><span class="t-cmd">echo "欢迎来到 Ghostty"</span></div>
+      <div class="t-line"><span class="t-info">欢迎来到 Ghostty</span></div>
+      <div class="t-line"><span class="t-prompt">→</span><span class="t-cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Shortcuts -->
+<section class="keyboard-section" id="shortcuts">
+  <div class="section-label">第三章</div>
+  <div class="section-title">必记快捷键</div>
+  <div class="section-desc">先记住这 20 个。掌握它们，你的操作效率会翻倍。</div>
+
+  <div class="kbd-groups">
+    <div class="kbd-group">
+      <div class="kbd-group-title">// 窗口与标签</div>
+      <div class="kbd-row">
+        <span class="kbd-desc">新建标签页</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>T</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">关闭当前标签页</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>W</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">切换到下一个标签</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>]</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">切换到上一个标签</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>[</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">新建窗口</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>N</kbd></div>
+      </div>
+    </div>
+
+    <div class="kbd-group">
+      <div class="kbd-group-title">// 分屏操作</div>
+      <div class="kbd-row">
+        <span class="kbd-desc">左右分屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>D</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">上下分屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>D</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">移动到左侧分屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>⌥</kbd><kbd>←</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">移动到右侧分屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>⌥</kbd><kbd>→</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">关闭当前分屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>W</kbd></div>
+      </div>
+    </div>
+
+    <div class="kbd-group">
+      <div class="kbd-group-title">// 字体与显示</div>
+      <div class="kbd-row">
+        <span class="kbd-desc">放大字体</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>+</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">缩小字体</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>-</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">重置字体大小</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>0</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">进入全屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>↩</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">查看所有快捷键</span>
+        <div class="kbd-combo"><kbd>Help</kbd><kbd>→ Key Bindings</kbd></div>
+      </div>
+    </div>
+
+    <div class="kbd-group">
+      <div class="kbd-group-title">// 滚动与复制</div>
+      <div class="kbd-row">
+        <span class="kbd-desc">向上滚动一页</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>Page Up</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">向下滚动一页</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>Page Down</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">复制选中文字</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>C</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">粘贴</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>V</kbd></div>
+      </div>
+      <div class="kbd-row">
+        <span class="kbd-desc">清屏</span>
+        <div class="kbd-combo"><kbd>⌘</kbd><kbd>K</kbd></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Config -->
+<section class="config-section" id="config">
+  <div class="section-label">第四章</div>
+  <div class="section-title">配置你的 Ghostty</div>
+  <div class="section-desc">配置文件在 <code style="font-family:monospace;color:#00e5ff">~/.config/ghostty/config</code>，用任何编辑器打开就能修改。下面是一份适合新手的推荐配置。</div>
+
+  <div class="config-block">
+<span class="cfg-comment"># Ghostty 新手推荐配置</span>
+<span class="cfg-comment"># 文件路径: ~/.config/ghostty/config</span>
+<span class="cfg-comment"># 修改后重启 Ghostty 即可生效</span>
+
+<span class="cfg-section-head"># ── 外观 ──────────────────────────────</span>
+<span class="cfg-key">theme</span> <span class="cfg-eq">=</span> <span class="cfg-val-str">Dracula</span>             <span class="cfg-comment"># 主题（可选: GitHub Dark, Tokyo Night, Catppuccin...）</span>
+<span class="cfg-key">font-family</span> <span class="cfg-eq">=</span> <span class="cfg-val-str">JetBrains Mono</span> <span class="cfg-comment"># 推荐等宽字体，支持连字</span>
+<span class="cfg-key">font-size</span> <span class="cfg-eq">=</span> <span class="cfg-val">14</span>              <span class="cfg-comment"># 字体大小（适合 Retina 屏）</span>
+<span class="cfg-key">font-thicken</span> <span class="cfg-eq">=</span> <span class="cfg-val">true</span>          <span class="cfg-comment"># 字体加粗渲染，在 Retina 屏更清晰</span>
+
+<span class="cfg-section-head"># ── 窗口 ──────────────────────────────</span>
+<span class="cfg-key">window-padding-x</span> <span class="cfg-eq">=</span> <span class="cfg-val">16</span>      <span class="cfg-comment"># 左右内边距（像素）</span>
+<span class="cfg-key">window-padding-y</span> <span class="cfg-eq">=</span> <span class="cfg-val">16</span>      <span class="cfg-comment"># 上下内边距</span>
+<span class="cfg-key">macos-titlebar-style</span> <span class="cfg-eq">=</span> <span class="cfg-val-str">hidden</span> <span class="cfg-comment"># 隐藏标题栏，更沉浸</span>
+<span class="cfg-key">background-opacity</span> <span class="cfg-eq">=</span> <span class="cfg-val">0.95</span>  <span class="cfg-comment"># 背景微透明（0.0~1.0）</span>
+
+<span class="cfg-section-head"># ── 行为 ──────────────────────────────</span>
+<span class="cfg-key">scrollback-limit</span> <span class="cfg-eq">=</span> <span class="cfg-val">10000</span>   <span class="cfg-comment"># 回滚行数（默认 3276，建议调大）</span>
+<span class="cfg-key">copy-on-select</span> <span class="cfg-eq">=</span> <span class="cfg-val">true</span>      <span class="cfg-comment"># 选中即复制（像 Linux 一样）</span>
+<span class="cfg-key">mouse-hide-while-typing</span> <span class="cfg-eq">=</span> <span class="cfg-val">true</span> <span class="cfg-comment"># 打字时隐藏鼠标光标</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Tips -->
+<section class="tips-section" id="tips">
+  <div class="section-label">第五章</div>
+  <div class="section-title">新手必知的 5 个技巧</div>
+  <div class="section-desc">这些细节很多老用户也不知道，提前掌握让你少走弯路。</div>
+
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-num">01</div>
+      <h4>选中文字自动复制</h4>
+      <p>在配置里加上 <code>copy-on-select = true</code> 后，鼠标选中任何文字就自动进入剪贴板，⌘V 直接粘贴，省去 ⌘C 的步骤。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">02</div>
+      <h4>忘了快捷键怎么办？</h4>
+      <p>打开菜单栏 <code>Help → Show Key Bindings</code>，所有快捷键一览无余。或者去 <code>Ghostty → Settings</code> 直接编辑配置文件自定义按键。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">03</div>
+      <h4>⌘+Click 打开链接</h4>
+      <p>终端输出里的 URL 会自动变成可点击的蓝色链接。按住 <code>⌘</code> 再点，就在浏览器里打开，不需要复制粘贴。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">04</div>
+      <h4>实时重载配置</h4>
+      <p>修改 <code>~/.config/ghostty/config</code> 保存后，在 Ghostty 里按 <code>⌘⇧,</code> 立即重载配置，无需重启，改了主题马上看到效果。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">05</div>
+      <h4>拖拽文件到终端</h4>
+      <p>把 Finder 里的文件直接拖进 Ghostty 窗口，文件的完整路径会自动粘贴到命令行，不用手动输入长路径。</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-brand">GHOSTTY<span>//</span>新手指南 · 2025</div>
+  <div class="footer-links">
+    <a href="https://ghostty.org" target="_blank">官网</a>
+    <a href="https://ghostty.org/docs" target="_blank">文档</a>
+    <a href="https://github.com/mitchellh/ghostty" target="_blank">GitHub</a>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  // Ring follows with lag
+  (function animate() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animate);
+  })();
+
+  document.addEventListener('mousedown', () => {
+    cursor.style.width = '14px';
+    cursor.style.height = '14px';
+    ring.style.width = '40px';
+    ring.style.height = '40px';
+    ring.style.opacity = '0.5';
+  });
+  document.addEventListener('mouseup', () => {
+    cursor.style.width = '8px';
+    cursor.style.height = '8px';
+    ring.style.width = '28px';
+    ring.style.height = '28px';
+    ring.style.opacity = '1';
+  });
+
+  // Progress bar
+  const bar = document.getElementById('progressBar');
+  document.addEventListener('scroll', () => {
+    const pct = (scrollY / (document.body.scrollHeight - innerHeight)) * 100;
+    bar.style.width = pct + '%';
+  });
+
+  // Intersection observer for reveal animations
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('section').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

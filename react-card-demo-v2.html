@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React 组件 · 演示 v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Azeret+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --text: #f5f0e8;
+      --muted: #555;
+      --accent: #c8ff00;
+      --accent-dim: rgba(200,255,0,0.08);
+      --border: #222;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Azeret Mono', monospace;
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+    }
+
+    .header-meta {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 48px 60px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      max-width: 800px;
+      margin-bottom: 32px;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.8;
+    }
+
+    .hero-bg-num {
+      position: absolute;
+      right: -20px;
+      top: -40px;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: 320px;
+      color: rgba(255,255,255,0.02);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── CARDS SECTION ── */
+    .cards-section {
+      padding: 64px 48px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 36px 32px;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: border-color 0.25s, transform 0.25s, background 0.25s;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.22s; }
+    .card:nth-child(3) { animation-delay: 0.34s; }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      background: var(--surface2);
+      transform: translateY(-3px);
+      z-index: 1;
+    }
+
+    .card:hover .card-num {
+      color: rgba(200,255,0,0.12);
+    }
+
+    .card-num {
+      position: absolute;
+      bottom: -16px;
+      right: 16px;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: 96px;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      transition: color 0.25s;
+      user-select: none;
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(200,255,0,0.3);
+      padding: 3px 8px;
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: #888;
+      line-height: 1.8;
+    }
+
+    .card-accent-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .card:hover .card-accent-line {
+      width: 100%;
+    }
+
+    /* ── CODE SECTION ── */
+    .code-section {
+      border-top: 1px solid var(--border);
+      padding: 64px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .code-explanation h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .code-explanation h3 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .code-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .code-point {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .point-marker {
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--accent);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .point-text {
+      font-size: 12.5px;
+      color: #888;
+      line-height: 1.7;
+    }
+
+    .point-text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .code-block {
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .code-toolbar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .code-filename {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .code-body {
+      padding: 20px 20px;
+      overflow-x: auto;
+    }
+
+    .code-body pre {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 12px;
+      line-height: 1.9;
+      color: #aaa;
+    }
+
+    .kw  { color: #c8ff00; }
+    .fn  { color: #79d5f7; }
+    .str { color: #f9a875; }
+    .tag { color: #f47e7e; }
+    .attr{ color: #c8ff00; opacity: 0.7; }
+    .cmt { color: #444; font-style: italic; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .footer-note span {
+      color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .code-section { grid-template-columns: 1fr; }
+      .hero { padding: 48px 24px 40px; }
+      .cards-section, .code-section { padding: 48px 24px; }
+      .header, .footer { padding: 16px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+
+const cards = [
+  {
+    icon: "⚛",
+    tag: "핵심 개념",
+    num: "01",
+    title: "함수가 곧 컴포넌트",
+    title_zh: "函数即组件",
+    desc: "组件就是一个普通的 JavaScript 函数。它接收数据（props），返回界面（JSX）。仅此而已。",
+  },
+  {
+    icon: "◈",
+    tag: "재사용성",
+    num: "02",
+    title: "한 번 쓰고 무한 재사용",
+    title_zh: "写一次，无限复用",
+    desc: "同一个 Card 组件可以用不同的 title 和 desc 渲染 3 次、30 次、300 次——代码只写一遍。",
+  },
+  {
+    icon: "◧",
+    tag: "조합",
+    num: "03",
+    title: "작은 것이 모여 큰 것을",
+    title_zh: "小组件拼成大页面",
+    desc: "导航 + 卡片 + 按钮 + 输入框，每个组件独立负责一件事，组合起来就是完整的应用。",
+  },
+]
+
+function Card({ icon, tag, num, title, title_zh, desc }) {
+  return (
+    <div className="card">
+      <div className="card-accent-line" />
+      <span className="card-icon">{icon}</span>
+      <span className="card-tag">{tag}</span>
+      <h3 className="card-title">{title_zh}</h3>
+      <p className="card-desc">{desc}</p>
+      <div className="card-num">{num}</div>
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <>
+      <header className="header">
+        <div className="header-logo">REACT.ZINE</div>
+        <div className="header-meta">Issue 001 · 组件入门</div>
+      </header>
+
+      <section className="hero">
+        <div className="hero-bg-num">C</div>
+        <p className="hero-eyebrow">// React 核心概念</p>
+        <h1 className="hero-title">
+          什么是
+          <span>组件</span>
+        </h1>
+        <p className="hero-desc">
+          组件是 React 的基本单位。理解了组件，你就理解了 React 的全部——函数、数据、界面，三件事，一个概念。
+        </p>
+      </section>
+
+      <section className="cards-section">
+        <div className="section-header">
+          <span className="section-title">三个维度</span>
+          <div className="section-line" />
+        </div>
+        <div className="cards-grid">
+          {cards.map((c, i) => <Card key={i} {...c} />)}
+        </div>
+      </section>
+
+      <section className="code-section">
+        <div className="code-explanation">
+          <h3>用<em>代码</em>说话</h3>
+          <ul className="code-points">
+            <li className="code-point">
+              <div className="point-marker">1</div>
+              <p className="point-text"><strong>定义组件</strong>——就是写一个函数，函数名大写开头，返回 JSX（看起来像 HTML 的语法）</p>
+            </li>
+            <li className="code-point">
+              <div className="point-marker">2</div>
+              <p className="point-text"><strong>接收 props</strong>——函数的参数，就是外部传进来的数据，卡片的标题、描述都从这里来</p>
+            </li>
+            <li className="code-point">
+              <div className="point-marker">3</div>
+              <p className="point-text"><strong>复用三次</strong>——<code>&lt;Card /&gt;</code> 写三次，传不同的 title，就出来三张不同的卡片</p>
+            </li>
+          </ul>
+        </div>
+
+        <div className="code-block">
+          <div className="code-toolbar">
+            <div className="code-dot" />
+            <div className="code-dot" />
+            <div className="code-dot" />
+            <span className="code-filename">Card.jsx</span>
+          </div>
+          <div className="code-body">
+            <pre>{`<span class="cmt">// 1. 定义组件（就是一个函数）</span>
+<span class="kw">function</span> <span class="fn">Card</span>({ title, desc }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> className=<span class="str">"card"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;h2&gt;</span>{ title }<span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span>{ desc }<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}
+
+<span class="cmt">// 2. 复用三次，传入不同的数据</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">title</span>=<span class="str">"函数即组件"</span>
+        <span class="attr">desc</span>=<span class="str">"接收数据，返回界面"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">title</span>=<span class="str">"写一次，无限复用"</span>
+        <span class="attr">desc</span>=<span class="str">"代码只写一遍"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">title</span>=<span class="str">"小组件拼成大页面"</span>
+        <span class="attr">desc</span>=<span class="str">"组合起来就是应用"</span>
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}`}</pre>
+          </div>
+        </div>
+      </section>
+
+      <footer className="footer">
+        <span className="footer-note">用 <span>React 18</span> + <span>Unbounded</span> + <span>Azeret Mono</span> 制作</span>
+        <span className="footer-note">frontend-design skill · v2</span>
+      </footer>
+    </>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />)
+</script>
+</body>
+</html>

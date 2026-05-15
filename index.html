@@ -1,526 +1,311 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>金铲铲之战 · AI 个性化活动推送方案</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=2">
+<title>html-lab · Teemo Weng</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf6f0; --bg2: #f3ece1; --bg3: #e9dfd1;
+  --fg: #1c1208; --fg2: #6b5440; --fg3: #b09a82;
+  --accent: oklch(62% 0.19 42); --accent2: oklch(52% 0.19 42);
+  --border: rgba(180,120,60,0.15); --card: rgba(255,255,255,0.7);
+  --card-hover: rgba(255,255,255,0.9); --shadow: 0 8px 32px rgba(100,60,20,0.10);
+  --radius: 12px;
+}
+[data-theme="dark"] {
+  --bg: #1a1410; --bg2: #231c15; --bg3: #2d241a;
+  --fg: #f5ede0; --fg2: #b09a82; --fg3: #6b5440;
+  --accent: oklch(68% 0.19 42); --accent2: oklch(58% 0.19 42);
+  --border: rgba(180,120,60,0.18); --card: rgba(255,255,255,0.04);
+  --card-hover: rgba(255,200,120,0.07); --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
+  background: var(--bg); color: var(--fg);
+  transition: background 0.4s, color 0.4s; min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 60px;
+  background: rgba(26,20,16,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+[data-theme="light"] nav { background: rgba(250,246,240,0.85); }
+.nav-logo { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); letter-spacing: 0.05em; text-decoration: none; }
+.nav-back { font-size: 12px; color: var(--fg3); text-decoration: none; font-family: 'JetBrains Mono', monospace; transition: color 0.2s; }
+.nav-back:hover { color: var(--accent); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.btn-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--fg2); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+/* HERO */
+.hero {
+  padding: 80px 40px 48px;
+  max-width: 1100px; margin: 0 auto;
+}
+.hero-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-size: clamp(32px, 5vw, 52px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 16px;
+}
+.hero-title span { color: var(--accent); }
+.hero-desc { font-size: 15px; color: var(--fg2); line-height: 1.7; max-width: 540px; }
+
+/* FILTER */
+.filter-bar {
+  max-width: 1100px; margin: 0 auto 32px;
+  padding: 0 40px; display: flex; gap: 8px; flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 14px; border-radius: 99px; font-size: 12px;
+  font-family: 'JetBrains Mono', monospace; cursor: pointer;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--fg3); transition: all 0.2s; letter-spacing: 0.04em;
+}
+.filter-btn.active, .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn.active { background: rgba(180,120,60,0.08); }
+
+/* GRID */
+.grid {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 40px 80px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  transition: all 0.25s; text-decoration: none; color: inherit;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(180,120,60,0.04) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.25s;
+}
+.card:hover { border-color: var(--accent); background: var(--card-hover); transform: translateY(-3px); box-shadow: var(--shadow); }
+.card:hover::before { opacity: 1; }
+.card[data-hidden="true"] { display: none; }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 8px; border: 1px solid var(--border); border-radius: 4px;
+  white-space: nowrap;
+}
+.card-arrow { font-size: 16px; color: var(--fg3); transition: color 0.2s; flex-shrink: 0; }
+.card:hover .card-arrow { color: var(--accent); }
+.card-title { font-size: 16px; font-weight: 600; line-height: 1.3; }
+.card-desc { font-size: 13px; color: var(--fg2); line-height: 1.6; flex: 1; }
+.card-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px;
+}
+.card-filename {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--fg3); letter-spacing: 0.03em;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border); padding: 28px 40px;
+  text-align: center; color: var(--fg3); font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+footer span { color: var(--accent); }
+
+@media (max-width: 640px) {
+  nav, .hero, .filter-bar, .grid { padding-left: 20px; padding-right: 20px; }
+  .hero { padding-top: 48px; }
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-<div id="progress"></div>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <div class="brand">
-      <div class="brand-mark">铲</div>
-      <div><div class="brand-text">金铲铲个性化活动中枢</div><div class="brand-sub">AI Strategy · 弈士指挥台</div></div>
-    </div>
-    <div class="topnav">
-      <a href="#problem">问题</a>
-      <a href="#players">玩家</a>
-      <a href="#pool">活动池</a>
-      <a href="#flow">AI链路</a>
-      <a href="#models">模型</a>
-      <a href="#cards">活动卡</a>
-      <a href="#metrics">评估</a>
-    </div>
+<nav>
+  <a class="nav-logo" href="#">html<span style="color:var(--fg3)">-</span>lab</a>
+  <div class="nav-right">
+    <a class="nav-back" href="https://teemoweng.github.io">← teemoweng.github.io</a>
+    <button class="btn-icon" onclick="toggleTheme()" id="theme-btn">☀</button>
   </div>
 </nav>
 
-<div class="page">
-
-<!-- HERO -->
-<section class="sec hero reveal" id="hero">
-  <div class="hero-copy">
-    <div class="stage-tag"><div class="stage-dot"></div>Stage 1-1 · AI 策略运营笔试作品</div>
-    <h2>不是每个玩家，<br>都该看到<em>同一张</em><br>活动卡</h2>
-    <p class="hero-sub">面向《金铲铲之战》的 AI 个性化活动推送方案。用玩家分层、活动匹配、内容生成与实验验证，重构活动运营的最后一公里。</p>
-    <div class="hero-meta">
-      <div class="meta-card"><span>目标游戏</span><strong>金铲铲之战</strong></div>
-      <div class="meta-card"><span>核心目标</span><strong>提升活动参与率</strong></div>
-      <div class="meta-card"><span>方案输出</span><strong>AI 个性化活动卡片</strong></div>
-    </div>
-    <div class="hero-actions">
-      <a class="btn-gold" href="#problem">查看方案</a>
-      <a class="btn-ghost" href="#cards">看活动卡示例</a>
-    </div>
-    <div class="hero-tags">
-      <span class="tag">玩家分层</span><span class="tag">活动匹配</span><span class="tag">模板生成</span><span class="tag">A/B 测试</span>
-    </div>
-  </div>
-  <div class="hero-stage">
-    <div class="panel hero-panel">
-      <div class="panel-head"><div class="status-dot"></div><p>AI Activity Command Center · LIVE</p></div>
-      <div class="panel-ribbon"><span>活动中台</span><span>赛季棋盘</span><span>个性化分发</span></div>
-      <div class="hero-grid">
-        <article class="fcard fcard-rank"><div class="fcard-label">冲段激励卡</div><h4>距离下一档奖励只差一步</h4><p>周末 1.5 倍符石精粹开启，今晚最适合冲一波。</p></article>
-        <article class="fcard fcard-fun"><div class="fcard-label">趣味挑战卡</div><h4>今天不卷标准排位</h4><p>来一局高费爽局，适合今晚和好友开黑。</p></article>
-        <article class="fcard fcard-grow"><div class="fcard-label">成长引导卡</div><h4>先完成这 3 个任务</h4><p>最快拿到第一批奖励，也更容易看懂当前赛季。</p></article>
-        <article class="fcard fcard-ret"><div class="fcard-label">回归召回卡</div><h4>这次回来不用从头补课</h4><p>系统已经替你追了一大截，先回来看看也不亏。</p></article>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<div class="stats-row reveal">
-  <div class="stat-card"><div class="stat-gold"><div class="stat-coin">G</div><div class="stat-num" data-count="4">0</div></div><span>类核心玩家</span><strong>上分 / 娱乐 / 新手 / 回流</strong></div>
-  <div class="stat-card"><div class="stat-gold"><div class="stat-coin">G</div><div class="stat-num" data-count="4">0</div></div><span>类核心活动池</span><strong>冲分 / 趣味 / 成长 / 回归</strong></div>
-  <div class="stat-card"><div class="stat-gold"><div class="stat-coin">G</div><div class="stat-num" data-count="1">0</div></div><span>套推荐引擎</span><strong>规则筛选 + 模型排序 + 生成</strong></div>
-  <div class="stat-card"><div class="stat-gold"><div class="stat-coin">G</div><div class="stat-num" data-count="1">0</div></div><span>个验证闭环</span><strong>指标看板 + A/B 测试</strong></div>
+<div class="hero">
+  <div class="hero-label">Open Lab</div>
+  <h1 class="hero-title">HTML <span>Lab</span></h1>
+  <p class="hero-desc">A collection of interactive HTML outputs — tutorials, tools, reports, and experiments. Built with AI, shipped as static pages.</p>
 </div>
 
-<!-- PROBLEM -->
-<section class="sec reveal" id="problem">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">01</span>
-    <p class="eyebrow">Problem Definition · Stage 2-1</p>
-    <h2>从统一广播，到差异化触达</h2>
-  </div>
-  <div class="problem-grid">
-    <div class="panel prose-panel">
-      <p class="lead">《金铲铲之战》的活动并不稀缺，稀缺的是"让对的人，在对的时机，看见对的活动"。</p>
-      <p>上分玩家在意段位和版本答案，休闲玩家更在意轻松和新鲜感，新手需要明确引导，回流玩家则最怕重新补课。</p>
-      <p>当他们收到同一套活动推送时，损耗的不是活动数量，而是活动相关性。</p>
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filter('all', this)">All</button>
+  <button class="filter-btn" onclick="filter('guide', this)">Guides</button>
+  <button class="filter-btn" onclick="filter('project', this)">Projects</button>
+  <button class="filter-btn" onclick="filter('demo', this)">Demos</button>
+  <button class="filter-btn" onclick="filter('tool', this)">Tools</button>
+</div>
+
+<div class="grid">
+
+  <a class="card" href="netease-ai-game/" data-cat="project">
+    <div class="card-top">
+      <span class="card-tag">Project</span>
+      <span class="card-arrow">↗</span>
     </div>
-    <div class="problem-right">
-      <div class="panel compare-panel">
-        <div class="compare-col old"><h4>传统推送</h4><ul><li>同样的活动页</li><li>同样的标题</li><li>同样的入口</li><li>同样的推送时机</li></ul></div>
-        <div class="compare-col new"><h4>AI 个性化推送</h4><ul><li>识别当前玩家类型</li><li>匹配更适合的活动池</li><li>生成不同表达方式</li><li>在更可能响应的时间触达</li></ul></div>
-      </div>
-      <div class="panel quote-panel">
-        <p class="mini">现实侧证</p>
-        <p>2025 年 1 月，《金铲铲之战》官方在"纳财聚福礼"活动帖中提到，过去版本收到了玩家对活动参与的反馈，因此在"天选福星"返场时，对活动类型与入口进行了重新梳理整合。</p>
-        <a href="https://www.taptap.cn/moment/628185331623003938" target="_blank" rel="noreferrer">查看来源 →</a>
-      </div>
+    <div class="card-title">金铲铲之战 · AI 个性化活动推送方案</div>
+    <div class="card-desc">网易互娱 AI 策略运营笔试作品。基于玩家画像的 AI 推荐系统设计，覆盖用户分层、算法选择、内容生成与 A/B 测试方案。</div>
+    <div class="card-meta">
+      <span class="card-filename">netease-ai-game/</span>
     </div>
-  </div>
-</section>
+  </a>
 
-<!-- PLAYERS: CHAMPION CARDS -->
-<section class="sec reveal" id="players">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">02</span>
-    <p class="eyebrow">Player Segments · Stage 2-2</p>
-    <h2>同一片棋盘，不同的玩家目标</h2>
-    <p>玩家不是被动接收活动的人，而是被不同动机驱动的决策者。</p>
-  </div>
-  <div class="champion-grid">
-
-    <!-- 上分冲段 · Gold 4-cost -->
-    <article class="champ-card champ-gold">
-      <div class="champ-portrait">
-        <div class="champ-cost"><span class="gem gem-4"></span><span class="gem gem-4"></span><span class="gem gem-4"></span><span class="gem gem-4"></span></div>
-        <div class="hex-frame"><span class="hex-char">段</span></div>
-        <div class="champ-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      </div>
-      <div class="champ-body">
-        <p class="champ-tier">Gold Tier · Competitive Climber</p>
-        <h3>上分冲段玩家</h3>
-        <p class="champ-role">Competitive Climber</p>
-        <p class="champ-quote">我想更快上分，而不是被无关活动打断节奏。</p>
-        <ul class="champ-stats"><li>登录稳定，排位参与高</li><li>对版本变化敏感</li><li>关注段位、胜率与效率</li></ul>
-        <div class="champ-traits">
-          <span class="trait trait-g">排位玩家</span>
-          <span class="trait trait-g">版本党</span>
-          <span class="trait trait-s">胜率导向</span>
-        </div>
-      </div>
-    </article>
-
-    <!-- 休闲娱乐 · Silver 2-cost -->
-    <article class="champ-card champ-silver">
-      <div class="champ-portrait">
-        <div class="champ-cost"><span class="gem gem-2"></span><span class="gem gem-2"></span></div>
-        <div class="hex-frame"><span class="hex-char">闲</span></div>
-        <div class="champ-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      </div>
-      <div class="champ-body">
-        <p class="champ-tier">Silver Tier · Casual Fun Seeker</p>
-        <h3>休闲娱乐玩家</h3>
-        <p class="champ-role">Casual Fun Seeker</p>
-        <p class="champ-quote">我想轻松玩得开心，不想每次都像打考试。</p>
-        <ul class="champ-stats"><li>活跃不一定稳定</li><li>更偏好友开黑和轻松模式</li><li>更容易被新鲜玩法吸引</li></ul>
-        <div class="champ-traits">
-          <span class="trait trait-s">开黑组</span>
-          <span class="trait trait-s">轻量用户</span>
-          <span class="trait trait-b">社交型</span>
-        </div>
-      </div>
-    </article>
-
-    <!-- 新手入坑 · Bronze 1-cost -->
-    <article class="champ-card champ-bronze">
-      <div class="champ-portrait">
-        <div class="champ-cost"><span class="gem gem-1"></span></div>
-        <div class="hex-frame"><span class="hex-char">新</span></div>
-        <div class="champ-stars"><span class="star">★</span><span class="star">★</span></div>
-      </div>
-      <div class="champ-body">
-        <p class="champ-tier">Bronze Tier · Newcomer</p>
-        <h3>新手入坑玩家</h3>
-        <p class="champ-role">Newcomer</p>
-        <p class="champ-quote">我需要知道先做什么，才能更快融入这个赛季。</p>
-        <ul class="champ-stats"><li>对赛季结构不熟</li><li>需要清晰引导而非复杂选择</li><li>更需要快速建立成就感</li></ul>
-        <div class="champ-traits">
-          <span class="trait trait-b">成长中</span>
-          <span class="trait trait-b">待引导</span>
-          <span class="trait trait-s">潜力用户</span>
-        </div>
-      </div>
-    </article>
-
-    <!-- 回流玩家 · Prismatic 5-cost -->
-    <article class="champ-card champ-prismatic">
-      <div class="champ-portrait">
-        <div class="champ-cost"><span class="gem gem-5"></span><span class="gem gem-5"></span><span class="gem gem-5"></span><span class="gem gem-5"></span><span class="gem gem-5"></span></div>
-        <div class="hex-frame"><span class="hex-char">归</span></div>
-        <div class="champ-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
-      </div>
-      <div class="champ-body">
-        <p class="champ-tier">Prismatic Tier · Returnee</p>
-        <h3>回流玩家</h3>
-        <p class="champ-role">Returnee · High Value</p>
-        <p class="champ-quote">别让我一回来就重新学一整套，我需要先找回熟悉感。</p>
-        <ul class="champ-stats"><li>曾经活跃，但对当前版本认知断层</li><li>容易因为补课成本再次流失</li><li>依赖低门槛回归承接</li></ul>
-        <div class="champ-traits">
-          <span class="trait trait-p">沉默期</span>
-          <span class="trait trait-p">老玩家</span>
-          <span class="trait trait-g">高价值</span>
-        </div>
-      </div>
-    </article>
-
-  </div>
-</section>
-
-<!-- ACTIVITY POOL -->
-<section class="sec reveal" id="pool">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">03</span>
-    <p class="eyebrow">Activity Pool · Stage 3-1</p>
-    <h2>活动不是不够多，而是没有被准确分发</h2>
-  </div>
-  <div class="pool-grid">
-    <article class="pool-card pool-rank"><p class="mini">赛季冲分型活动</p><h3>冲段激励卡</h3><p class="desc">段位目标 / 里程碑奖励 / 赛季窗口 / 周末加速</p><ul><li>开服冲级活动</li><li>欢乐弈夏</li><li>公开赛全民赛道</li></ul></article>
-    <article class="pool-card pool-fun"><p class="mini">娱乐趣味型活动</p><h3>趣味挑战卡</h3><p class="desc">爽局体验 / 新鲜玩法 / 快节奏 / 联动氛围</p><ul><li>恭喜发财</li><li>冠军乱斗</li><li>小飞吉的试炼</li></ul></article>
-    <article class="pool-card pool-growth"><p class="mini">成长引导型活动</p><h3>成长引导卡</h3><p class="desc">成长路径 / 任务驱动 / 低理解成本 / 版本导览</p><ul><li>天选福星·宝典</li><li>弈士集结</li><li>新春要闻</li></ul></article>
-    <article class="pool-card pool-return"><p class="mini">回归激活型活动</p><h3>回归召回卡</h3><p class="desc">低门槛回归 / 追赶机制 / 社交召回 / 登录即得</p><ul><li>故友重逢</li><li>铲铲拜年礼</li><li>魔典补全计划</li></ul></article>
-  </div>
-</section>
-
-<!-- AI FLOW -->
-<section class="sec reveal" id="flow">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">04</span>
-    <p class="eyebrow">AI Recommendation Flow · Stage 3-2</p>
-    <h2>从玩家状态到活动卡片，AI 负责中间这条链路</h2>
-    <p>系统追求的不是最复杂的算法，而是最清楚的运营决策路径。</p>
-  </div>
-  <div class="panel pipeline">
-    <div class="pipe-node active" data-step="input"><div class="pipe-hex">01</div><div class="pipe-label">玩家画像<br>输入</div></div>
-    <div class="pipe-connector"></div>
-    <div class="pipe-node" data-step="decision"><div class="pipe-hex">02</div><div class="pipe-label">规则<br>筛选</div></div>
-    <div class="pipe-connector"></div>
-    <div class="pipe-node" data-step="ranking"><div class="pipe-hex">03</div><div class="pipe-label">模型<br>排序</div></div>
-    <div class="pipe-connector"></div>
-    <div class="pipe-node" data-step="generation"><div class="pipe-hex">04</div><div class="pipe-label">模板<br>生成</div></div>
-    <div class="pipe-connector"></div>
-    <div class="pipe-node" data-step="delivery"><div class="pipe-hex">05</div><div class="pipe-label">时机<br>触达</div></div>
-  </div>
-  <div class="panel flow-detail">
-    <div class="flow-pane active" data-fp="input"><h3>玩家画像输入</h3><p>系统先读取基础身份、活跃状态、玩法偏好和历史活动响应特征，判断玩家当前所处的生命周期阶段。</p><div class="detail-tags"><span>等级 / 注册时长</span><span>最近 7 日对局数</span><span>排位 / 娱乐偏好</span><span>历史点击率 / 参与率</span></div></div>
-    <div class="flow-pane" data-fp="decision"><h3>规则筛选</h3><p>先用可解释规则排除明显不相关的活动池。新手优先进入成长池，回流玩家优先进入回归池，高活跃排位玩家优先进入冲分池。</p><div class="detail-tags"><span>新手 → 成长池</span><span>回流 → 回归池</span><span>高排位活跃 → 冲分池</span></div></div>
-    <div class="flow-pane" data-fp="ranking"><h3>模型排序</h3><p>在候选活动中，系统综合玩家特征、活动特征与历史反馈，预测哪张卡最可能被点击并真正参与。</p><div class="detail-tags"><span>点击概率</span><span>参与概率</span><span>主目标：参与率最大化</span></div></div>
-    <div class="flow-pane" data-fp="generation"><h3>模板化生成 + 大模型润色</h3><p>确定活动方向后，系统先锁定卖点、语气、奖励强调点，再用生成模型完成标题和摘要改写，保证风格统一与信息准确。</p><div class="detail-tags"><span>标题生成</span><span>摘要生成</span><span>卖点强化</span></div></div>
-    <div class="flow-pane" data-fp="delivery"><h3>时机触达</h3><p>最终输出的不是一条静态消息，而是一张在合适时间出现的个性化活动卡片。</p><div class="detail-tags"><span>周末高活跃窗口</span><span>回流首登</span><span>好友在线时段</span></div></div>
-  </div>
-</section>
-
-<!-- MODELS -->
-<section class="sec reveal" id="models">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">05</span>
-    <p class="eyebrow">Model Selection · Stage 4-1</p>
-    <h2>算法模型选择</h2>
-    <p>这套方案不依赖单一"大模型"包打天下，而是按任务拆分：先识别玩家，再排序活动，最后生成表达。</p>
-  </div>
-  <div class="panel model-principles">
-    <p class="mini">选择原则</p>
-    <div class="principle-list">
-      <div class="principle-item"><strong>可解释</strong><span>运营需要知道为什么推这张卡，而不是接受黑盒结果。</span></div>
-      <div class="principle-item"><strong>可落地</strong><span>优先选择业务团队更容易上线、迭代和验证的轻量方案。</span></div>
-      <div class="principle-item"><strong>可控制</strong><span>涉及活动文案与奖励表达时，必须保证信息准确和风格稳定。</span></div>
+  <a class="card" href="didi-ba-interview.html" data-cat="project">
+    <div class="card-top">
+      <span class="card-tag">Project</span>
+      <span class="card-arrow">↗</span>
     </div>
-  </div>
-  <div class="model-grid">
-    <article class="panel model-card model-m1"><p class="model-n">模型 01</p><h3>分层模型</h3><p class="model-purpose">任务：识别玩家属于哪类核心人群</p><ul><li>目标：区分上分、娱乐、新手、回流四类玩家</li><li>输入：登录频次、段位、玩法偏好、历史活跃与沉默天数</li><li>建议：聚类 + 规则修正，或轻量分类模型</li></ul><p class="model-why">选择理由：这一步最重要的是可解释，要让运营知道玩家为什么被归到这类。</p><div class="model-note"><strong>为什么不用更复杂的深度模型：</strong><span>当前场景下，玩家分层首先服务运营策略制定，解释性优先于极限精度。</span></div></article>
-    <article class="panel model-card model-m2"><p class="model-n">模型 02</p><h3>推荐 / 排序模型</h3><p class="model-purpose">任务：从候选活动中选出最值得推的一张卡</p><ul><li>目标：预测点击率与参与概率</li><li>输入：玩家特征、活动特征、历史活动反馈、版本热点</li><li>建议：轻量排序模型或多目标打分模型</li></ul><p class="model-why">选择理由：题目核心是"个性化活动推送"，真正决定推什么的是排序能力，而不是单纯分群。</p><div class="model-note"><strong>为什么不用纯规则系统：</strong><span>纯规则能筛掉明显不相关活动，但很难在多个候选活动中持续学到"谁更可能真正参与"。</span></div></article>
-    <article class="panel model-card model-m3"><p class="model-n">模型 03</p><h3>内容生成模型</h3><p class="model-purpose">任务：把同一活动翻译成不同玩家更愿意点开的表达</p><ul><li>目标：生成标题、摘要、奖励强调点</li><li>输入：玩家标签、活动类型、触达时机、奖励重点</li><li>建议：模板化生成 + 大模型润色 / 改写</li></ul><p class="model-why">选择理由：完全自由生成风险太高，模板约束下生成更符合真实运营场景。</p><div class="model-note"><strong>为什么不是端到端大模型：</strong><span>活动推送涉及规则、奖励、时效和品牌语气，模板约束下生成更安全，也更容易复盘优化。</span></div></article>
-  </div>
-  <div class="panel model-summary"><p class="mini" style="color:var(--muted);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;">整体选择逻辑</p><h3>为什么不是只用一个模型？</h3><p>因为这个问题同时包含"识别谁""决定推什么""决定怎么说"三类任务。把三件事拆开，更贴近真实业务落地。</p><div class="summary-track"><span>分层模型解决"玩家是谁"</span><span>排序模型解决"活动推什么"</span><span>生成模型解决"活动怎么说"</span></div></div>
-</section>
+    <div class="card-title">滴滴 BA 国际化 · 面试准备</div>
+    <div class="card-desc">针对滴滴 Business Analyst 国际化方向岗位的结构化面试备考，涵盖业务背景、数据分析与案例拆解。</div>
+    <div class="card-meta">
+      <span class="card-filename">didi-ba-interview.html</span>
+    </div>
+  </a>
 
-<!-- AUGMENT SELECTION UI -->
-<section class="sec reveal" id="cards">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">06</span>
-    <p class="eyebrow">Personalized Activity Cards · Stage 4-2</p>
-    <h2>同一个系统，不同玩家，看到完全不同的活动卡</h2>
-    <p>切换玩家类型，查看 AI 为该玩家推荐的强化符文活动组合。</p>
-  </div>
+  <a class="card" href="claude-code-guide.html" data-cat="guide">
+    <div class="card-top">
+      <span class="card-tag">Guide</span>
+      <span class="card-arrow">↗</span>
+    </div>
+    <div class="card-title">Claude Code 命令行新手教程</div>
+    <div class="card-desc">从零上手 Claude Code CLI 的完整指引，涵盖安装、常用命令、工作流与实用技巧。</div>
+    <div class="card-meta">
+      <span class="card-filename">claude-code-guide.html</span>
+    </div>
+  </a>
 
-  <div class="panel augment-arena">
-    <div class="aug-header">
-      <p class="aug-phase">AI 推荐系统 · 活动匹配阶段</p>
-      <h3>SELECT YOUR ACTIVITY AUGMENT</h3>
+  <a class="card" href="ghostty-tutorial.html" data-cat="guide">
+    <div class="card-top">
+      <span class="card-tag">Guide</span>
+      <span class="card-arrow">↗</span>
     </div>
+    <div class="card-title">Ghostty 新手指南</div>
+    <div class="card-desc">现代终端模拟器 Ghostty 的入门教程，包含安装配置、主题定制与快捷键速查。</div>
+    <div class="card-meta">
+      <span class="card-filename">ghostty-tutorial.html</span>
+    </div>
+  </a>
 
-    <!-- player selector -->
-    <div class="player-selector">
-      <button class="pselector active" data-ps="rank">
-        <div class="gem-row"><span class="gem gem-4"></span><span class="gem gem-4"></span><span class="gem gem-4"></span><span class="gem gem-4"></span></div>
-        上分冲段
-      </button>
-      <button class="pselector" data-ps="fun">
-        <div class="gem-row"><span class="gem gem-2"></span><span class="gem gem-2"></span></div>
-        休闲娱乐
-      </button>
-      <button class="pselector" data-ps="growth">
-        <div class="gem-row"><span class="gem gem-1"></span></div>
-        新手入坑
-      </button>
-      <button class="pselector" data-ps="return">
-        <div class="gem-row"><span class="gem gem-5"></span><span class="gem gem-5"></span><span class="gem gem-5"></span><span class="gem gem-5"></span><span class="gem gem-5"></span></div>
-        回流玩家
-      </button>
+  <a class="card" href="oh-my-zsh-guide.html" data-cat="guide">
+    <div class="card-top">
+      <span class="card-tag">Guide</span>
+      <span class="card-arrow">↗</span>
     </div>
+    <div class="card-title">Oh My Zsh 新手指引</div>
+    <div class="card-desc">Oh My Zsh 安装与配置完整教程，插件推荐、主题选择与 shell 效率提升实践。</div>
+    <div class="card-meta">
+      <span class="card-filename">oh-my-zsh-guide.html</span>
+    </div>
+  </a>
 
-    <!-- rank augments -->
-    <div class="aug-display active" id="aug-rank">
-      <div class="aug-card aug-prismatic">
-        <div class="aug-tier-badge">✦ AI 首推 · Prismatic</div>
-        <div class="aug-icon">⚔️</div>
-        <h4>冲段激励卡</h4>
-        <p>距离下一档奖励只差一步，今天这局值得认真打。你已进入目标段位边缘，周末符石精粹 1.5 倍开启中。</p>
-        <div class="aug-footer"><span>奖励：段位奖励 / 符石精粹加速</span><span>时机：周五 20:30</span></div>
-        <p class="aug-label-ai">▸ AI 系统第一推荐</p>
-      </div>
-      <div class="aug-card aug-gold">
-        <div class="aug-tier-badge">★ Gold</div>
-        <div class="aug-icon">🏆</div>
-        <h4>赛季限时冲分</h4>
-        <p>开服冲级活动正在进行中，赛季窗口期参与可获得额外里程碑奖励，适合本周密集排位。</p>
-        <div class="aug-footer"><span>奖励：赛季专属皮肤碎片</span><span>时机：赛季开服 72h 内</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
-      <div class="aug-card aug-silver">
-        <div class="aug-tier-badge">◈ Silver</div>
-        <div class="aug-icon">🎯</div>
-        <h4>公开赛全民赛道</h4>
-        <p>低门槛晋级体验，欢乐弈夏同期活动，完成赛道任务可额外获得公开赛观赛积分。</p>
-        <div class="aug-footer"><span>奖励：公开赛观赛积分</span><span>时机：周末赛事期间</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
+  <a class="card" href="tech-stack.html" data-cat="tool">
+    <div class="card-top">
+      <span class="card-tag">Tool</span>
+      <span class="card-arrow">↗</span>
     </div>
+    <div class="card-title">我的工具栈</div>
+    <div class="card-desc">个人开发与效率工具全景图，涵盖终端、编辑器、AI 工具与日常工作流使用的软件清单。</div>
+    <div class="card-meta">
+      <span class="card-filename">tech-stack.html</span>
+    </div>
+  </a>
 
-    <!-- fun augments -->
-    <div class="aug-display" id="aug-fun">
-      <div class="aug-card aug-prismatic">
-        <div class="aug-tier-badge">✦ AI 首推 · Prismatic</div>
-        <div class="aug-icon">🎉</div>
-        <h4>趣味挑战卡</h4>
-        <p>今天不卷标准排位，来一局高费爽局。「恭喜发财」模式已开启，更容易成型高星阵容，适合今晚和好友开黑。</p>
-        <div class="aug-footer"><span>奖励：高福利玩法 / 好友同玩</span><span>时机：周六 21:00</span></div>
-        <p class="aug-label-ai">▸ AI 系统第一推荐</p>
-      </div>
-      <div class="aug-card aug-gold">
-        <div class="aug-tier-badge">★ Gold</div>
-        <div class="aug-icon">🎊</div>
-        <h4>恭喜发财 · 新春限定</h4>
-        <p>开局高费弈子 + 专属神器，金币收益和高星获取概率大幅提升，爽感十足的限时玩法。</p>
-        <div class="aug-footer"><span>奖励：限定头像框 / 铭牌</span><span>时机：节日活动期间</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
-      <div class="aug-card aug-silver">
-        <div class="aug-tier-badge">◈ Silver</div>
-        <div class="aug-icon">👥</div>
-        <h4>冠军乱斗 · 组队版</h4>
-        <p>娱乐组队活动，好友同队享受额外加成，轻松氛围下完成趣味挑战，适合想放松的夜晚。</p>
-        <div class="aug-footer"><span>奖励：组队专属称号</span><span>时机：好友在线时段</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
+  <a class="card" href="react-card-demo-v3.html" data-cat="demo">
+    <div class="card-top">
+      <span class="card-tag">Demo</span>
+      <span class="card-arrow">↗</span>
     </div>
+    <div class="card-title">React 组件 · 杂志版</div>
+    <div class="card-desc">React 卡片组件的杂志风格演示，探索排版与视觉层次的不同表达方式。</div>
+    <div class="card-meta">
+      <span class="card-filename">react-card-demo-v3.html</span>
+    </div>
+  </a>
 
-    <!-- growth augments -->
-    <div class="aug-display" id="aug-growth">
-      <div class="aug-card aug-prismatic">
-        <div class="aug-tier-badge">✦ AI 首推 · Prismatic</div>
-        <div class="aug-icon">🌱</div>
-        <h4>成长引导卡</h4>
-        <p>先别急着研究全部系统，这几个任务最适合你现在完成。从宝典任务开始，用最少成本拿到第一批赛季收益。</p>
-        <div class="aug-footer"><span>奖励：免费成长奖励 / 入坑礼包</span><span>时机：首次活跃 24 小时内</span></div>
-        <p class="aug-label-ai">▸ AI 系统第一推荐</p>
-      </div>
-      <div class="aug-card aug-gold">
-        <div class="aug-tier-badge">★ Gold</div>
-        <div class="aug-icon">📖</div>
-        <h4>天选福星 · 宝典</h4>
-        <p>宝典签到任务，每日完成简单目标逐步解锁奖励，低理解成本，适合新手建立每日习惯。</p>
-        <div class="aug-footer"><span>奖励：金铲铲 / 小小英雄碎片</span><span>时机：每日首次登录</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
-      <div class="aug-card aug-silver">
-        <div class="aug-tier-badge">◈ Silver</div>
-        <div class="aug-icon">🎖️</div>
-        <h4>弈士集结 · 新手友好</h4>
-        <p>新手友好型活动，完成基础目标即可参与，帮助快速理解当前赛季核心玩法和活动体系。</p>
-        <div class="aug-footer"><span>奖励：弈士称号 / 入坑大礼包</span><span>时机：注册后 3 日内</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
+  <a class="card" href="react-card-demo-v2.html" data-cat="demo">
+    <div class="card-top">
+      <span class="card-tag">Demo</span>
+      <span class="card-arrow">↗</span>
     </div>
+    <div class="card-title">React 组件 · 演示 v2</div>
+    <div class="card-desc">React 卡片组件第二版迭代，改进交互细节与响应式布局。</div>
+    <div class="card-meta">
+      <span class="card-filename">react-card-demo-v2.html</span>
+    </div>
+  </a>
 
-    <!-- return augments -->
-    <div class="aug-display" id="aug-return">
-      <div class="aug-card aug-prismatic">
-        <div class="aug-tier-badge">✦ AI 首推 · Prismatic</div>
-        <div class="aug-icon">🔮</div>
-        <h4>回归召回卡</h4>
-        <p>这次回来不用从头补课，系统已经替你追了一大截。先领取登录福利，再通过轻量任务快速找回节奏。</p>
-        <div class="aug-footer"><span>奖励：登录即领 / 追赶机制 / 社交召回</span><span>时机：回流首登后 15 分钟内</span></div>
-        <p class="aug-label-ai">▸ AI 系统第一推荐</p>
-      </div>
-      <div class="aug-card aug-gold">
-        <div class="aug-tier-badge">★ Gold</div>
-        <div class="aug-icon">🤝</div>
-        <h4>故友重逢 · 好友召回</h4>
-        <p>好友召回专属奖励，回归后与好友同玩额外获得纪念道具，社交驱动的低压力回归路径。</p>
-        <div class="aug-footer"><span>奖励：回归专属皮肤碎片</span><span>时机：好友邀请触发</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
-      <div class="aug-card aug-silver">
-        <div class="aug-tier-badge">◈ Silver</div>
-        <div class="aug-icon">🎁</div>
-        <h4>铲铲拜年礼 · 登录即得</h4>
-        <p>回归礼包，登录即可领取，无需完成复杂任务，适合刚回归、还在找感觉的老玩家。</p>
-        <div class="aug-footer"><span>奖励：回归礼包 / 版本导览</span><span>时机：沉默 14 天后首登</span></div>
-        <p class="aug-label-alt">▸ 备选推荐</p>
-      </div>
+  <a class="card" href="react-card-demo.html" data-cat="demo">
+    <div class="card-top">
+      <span class="card-tag">Demo</span>
+      <span class="card-arrow">↗</span>
     </div>
-
-    <!-- reason rows -->
-    <div class="aug-reason-row active" id="reason-rank">
-      <div class="reason-icon">⚡</div>
-      <div class="reason-text">
-        <p class="mini">系统为什么这样推荐</p>
-        <p>近 7 日排位活跃高，当前段位接近下一档领奖门槛，冲分动机强烈。Prismatic 首推命中率最高。</p>
-        <div class="rbadges"><span>段位边缘</span><span>周末高活跃</span><span>冲分动机强</span></div>
-      </div>
+    <div class="card-title">React 组件演示</div>
+    <div class="card-desc">React 卡片组件初版，探索组件化设计与状态管理的基础实现。</div>
+    <div class="card-meta">
+      <span class="card-filename">react-card-demo.html</span>
     </div>
-    <div class="aug-reason-row" id="reason-fun">
-      <div class="reason-icon">🎮</div>
-      <div class="reason-text">
-        <p class="mini">系统为什么这样推荐</p>
-        <p>最近更偏娱乐玩法，且周末组队活跃明显，趣味活动对该玩家的点击率预测高于排位活动。</p>
-        <div class="rbadges"><span>娱乐偏好</span><span>好友联动</span><span>新鲜感驱动</span></div>
-      </div>
-    </div>
-    <div class="aug-reason-row" id="reason-growth">
-      <div class="reason-icon">📈</div>
-      <div class="reason-text">
-        <p class="mini">系统为什么这样推荐</p>
-        <p>注册时间短，对局深度低，当前更需要明确成长路径和快速成就感，以降低流失风险。</p>
-        <div class="rbadges"><span>新注册</span><span>低理解成本</span><span>任务驱动</span></div>
-      </div>
-    </div>
-    <div class="aug-reason-row" id="reason-return">
-      <div class="reason-icon">🔄</div>
-      <div class="reason-text">
-        <p class="mini">系统为什么这样推荐</p>
-        <p>历史活跃高但近期沉默，存在较高回流价值，Prismatic 级别的回归承接最能降低再次流失风险。</p>
-        <div class="rbadges"><span>回流价值高</span><span>进度断层</span><span>适合召回</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- GENERATION -->
-<section class="sec reveal">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">07</span>
-    <p class="eyebrow">Content Generation · Stage 5-1</p>
-    <h2>AI 不只决定推什么，也决定怎么说</h2>
-  </div>
-  <div class="gen-grid">
-    <div class="gen-card gen-source"><p class="mini">母活动</p><h3>2026 天选福星「恭喜发财」</h3><p>高福利、快节奏、易成型的新春限时玩法；开局高费弈子与专属神器，金币收益和高星获取概率提升。</p></div>
-    <div class="gen-card"><p class="mini" style="color:var(--gold)">上分冲段 · Gold 版本</p><h3>先用一局爽局热手感，再回标准排位冲分</h3><p>更强调版本适应与阵容试错价值。</p></div>
-    <div class="gen-card"><p class="mini" style="color:var(--teal)">休闲娱乐 · Silver 版本</p><h3>今天不卷排名，轻松追梦三星五费</h3><p>更强调爽感、轻松和好友同玩。</p></div>
-    <div class="gen-card"><p class="mini" style="color:var(--prismatic-1)">回流玩家 · Prismatic 版本</p><h3>回来先别补课，先打一局找回熟悉感</h3><p>更强调低门槛回归与重新建立节奏。</p></div>
-  </div>
-</section>
-
-<!-- METRICS -->
-<section class="sec reveal" id="metrics">
-  <div class="sec-head" style="position:relative">
-    <span class="sec-num">08</span>
-    <p class="eyebrow">Evaluation & Experiment · Stage 5-2</p>
-    <h2>不是做出一张更好看的卡，<br>而是验证它是否真的更有效</h2>
-  </div>
-  <div class="metrics-top">
-    <div class="panel metrics-main">
-      <p class="mini">核心指标</p>
-      <h3>活动参与率</h3>
-      <p>如果个性化推送只能提升点击，却不能提升真正的活动参与，那它就不算一套成功的运营系统。</p>
-      <div class="metric-bars">
-        <div class="mbar-row"><div class="mbar-label"><span>活动点击率</span><span>↑ 前置指标</span></div><div class="mbar-track"><div class="mbar-fill" data-w="72"></div></div></div>
-        <div class="mbar-row"><div class="mbar-label"><span>活动到达率</span><span>↑ 前置指标</span></div><div class="mbar-track"><div class="mbar-fill" data-w="58"></div></div></div>
-        <div class="mbar-row"><div class="mbar-label"><span>活动参与率</span><span>↑ 核心指标</span></div><div class="mbar-track"><div class="mbar-fill" data-w="85"></div></div></div>
-        <div class="mbar-row"><div class="mbar-label"><span>7 日留存</span><span>↑ 后置指标</span></div><div class="mbar-track"><div class="mbar-fill" data-w="46"></div></div></div>
-      </div>
-    </div>
-    <div class="metric-stack">
-      <div class="metric-mini"><span>前置指标</span><strong>点击率 / 到达率 / 浏览完成率</strong></div>
-      <div class="metric-mini"><span>后置指标</span><strong>任务完成率 / 回流激活率 / 7日留存</strong></div>
-      <div class="metric-mini"><span>实验方式</span><strong>A 组统一推送 vs B 组 AI 个性化推送</strong></div>
-    </div>
-  </div>
-  <div class="ab-grid">
-    <article class="panel ab-card ab-a"><p class="mini">A 组</p><h3>传统统一推送</h3><ul><li>固定活动逻辑</li><li>文案表达基本一致</li><li>不根据玩家状态显著变化</li></ul></article>
-    <article class="ab-card ab-b"><p class="mini">B 组</p><h3>AI 个性化推送</h3><ul><li>基于玩家画像进行分层</li><li>候选活动按相关性排序</li><li>推送文案与触达时机动态变化</li></ul></article>
-  </div>
-</section>
-
-<!-- CONCLUSION -->
-<section class="sec reveal">
-  <div class="panel conclusion">
-    <p class="eyebrow">Conclusion · Final Stage</p>
-    <h2>活动不该是统一广播，<br>而该是动态分发</h2>
-    <p>对《金铲铲之战》这样一个活动类型丰富、玩家动机差异显著的产品来说，AI 的价值不在于替代运营，而在于让活动更精准地找到对的人。</p>
-    <div class="closing-lines">
-      <span>不是每个玩家，都该看到同一张活动卡。</span>
-      <span>不是每个活动，都该用同一种方式被表达。</span>
-      <span>不是每次推送，都该在同一个时机发生。</span>
-    </div>
-    <div class="footer-meta">
-      <div class="footer-block">
-        <p class="mini">在线版演示链接</p>
-        <a href="https://teemoweng.github.io/netease_ai_game/" target="_blank" rel="noreferrer" style="color:var(--teal);font-size:13px;text-decoration:none;">https://teemoweng.github.io/netease_ai_game/</a>
-      </div>
-      <div class="footer-block" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-        <p class="mini">扫码直达网页</p>
-        <a href="https://teemoweng.github.io/netease_ai_game/" target="_blank" rel="noreferrer" aria-label="扫码或点击打开在线版演示网页">
-          <img src="./assets/ui/demo-link-qr.svg" alt="在线版演示链接二维码" style="width:96px;height:96px;border-radius:8px;display:block;">
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
+  </a>
 
 </div>
 
-<script src="./script.js?v=2"></script>
+<footer>
+  <span>html-lab</span> · teemoweng · <span>2026</span>
+</footer>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = isDark ? '☾' : '☀';
+}
+
+function filter(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.removeAttribute('data-hidden');
+    } else {
+      card.setAttribute('data-hidden', 'true');
+    }
+  });
+}
+
+const saved = localStorage.getItem('hl-theme') || 'dark';
+document.documentElement.setAttribute('data-theme', saved);
+document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀' : '☾';
+document.getElementById('theme-btn').addEventListener('click', () => {
+  localStorage.setItem('hl-theme', document.documentElement.getAttribute('data-theme'));
+});
+</script>
 </body>
 </html>

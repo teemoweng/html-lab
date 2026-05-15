@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code 命令行新手教程</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222536;
+      --border: #2e3246;
+      --accent: #7c6af7;
+      --accent2: #56cfb2;
+      --text: #e2e4f0;
+      --text-muted: #8b8fa8;
+      --code-bg: #141720;
+      --tag-purple: #3d2d6e;
+      --tag-teal: #1d4a42;
+      --tag-orange: #4a3020;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 40px 20px 80px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .hero {
+      text-align: center;
+      padding: 60px 0 50px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #2d1f6e, #1d3a5e);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c4bcff 0%, #7c6af7 50%, #56cfb2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.3;
+      margin-bottom: 14px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 32px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #5a4fd6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+
+    /* Code blocks */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 14px 0;
+    }
+    code {
+      font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+      font-size: 12.5px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #a8d8b0;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    .comment { color: var(--text-muted); }
+    .cmd { color: #7c6af7; }
+    .flag { color: #56cfb2; }
+    .str { color: #f5c87a; }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 14px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead tr {
+      background: var(--surface2);
+    }
+    th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(124, 106, 247, 0.05); }
+    td:first-child code { white-space: nowrap; }
+
+    /* Tags */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .tag-mode { background: var(--tag-purple); color: #b8a8ff; border: 1px solid #4d3d8e; }
+    .tag-safe { background: var(--tag-teal); color: #72e8cc; border: 1px solid #2d6a5c; }
+    .tag-tip { background: var(--tag-orange); color: #f5a868; border: 1px solid #6a4030; }
+
+    /* Tips */
+    .tip-box {
+      background: linear-gradient(135deg, rgba(124,106,247,0.08), rgba(86,207,178,0.05));
+      border: 1px solid rgba(124,106,247,0.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .tip-text { font-size: 13.5px; color: var(--text); }
+    .tip-text strong { color: #c4bcff; }
+
+    /* Quick ref */
+    .quickref {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .quickref-title {
+      background: var(--surface2);
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border);
+    }
+    .quickref pre {
+      border: none;
+      border-radius: 0;
+      margin: 0;
+      background: transparent;
+    }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      padding: 18px 0 6px;
+    }
+    .flow-step {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+    .flow-step .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .flow-arrow {
+      color: var(--accent);
+      font-size: 18px;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    /* Permission mode cards */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .mode-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .mode-card.highlight {
+      border-color: rgba(124, 106, 247, 0.5);
+      background: rgba(124, 106, 247, 0.08);
+    }
+    .mode-name { font-weight: 600; font-size: 13.5px; margin-bottom: 4px; }
+    .mode-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+
+    /* Workflow steps */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-content { flex: 1; }
+    .step-label { font-weight: 600; margin-bottom: 4px; color: #c4bcff; }
+    .step-body { font-size: 13.5px; color: var(--text-muted); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    p { margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 26px; }
+      .mode-grid { grid-template-columns: 1fr; }
+      .flow-step { min-width: 90px; font-size: 12px; padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">Beginner Guide · 命令行新手教程</div>
+    <h1>Claude Code<br>命令行使用指南</h1>
+    <p>从 macOS 应用迁移到命令行，掌握更强大的操作方式</p>
+  </div>
+
+  <!-- 1. 工作原理 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">它是怎么工作的</div>
+    </div>
+    <div class="card">
+      <p>Claude Code 命令行和 macOS 应用本质上是同一个东西，但命令行更灵活、功能更完整。</p>
+      <div class="flow">
+        <div class="flow-step"><span class="icon">💬</span>你发任务</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="icon">📂</span>Claude 读文件</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="icon">✏️</span>Claude 操作</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="icon">✅</span>验证结果</div>
+      </div>
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">你随时可以打断它、纠正它、换方向——你始终是主导者。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 怎么启动 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">怎么打开它</div>
+    </div>
+    <div class="card">
+      <p>打开终端（<code>Cmd + Space</code> 搜索 "Terminal"），然后进入你的项目文件夹，运行：</p>
+      <pre><code><span class="comment"># cd 到你的项目目录（示例）</span>
+cd ~/Desktop/我的项目
+
+<span class="comment"># 启动 Claude Code</span>
+<span class="cmd">claude</span></code></pre>
+      <p>进入后就可以直接打字对话了，就像 macOS 应用一样。</p>
+      <p style="margin-top: 14px; font-weight: 600; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;">常用启动方式</p>
+      <pre><code><span class="cmd">claude</span>                         <span class="comment"># 新建会话</span>
+<span class="cmd">claude</span> <span class="str">"帮我解释这个项目结构"</span>       <span class="comment"># 带初始任务启动</span>
+<span class="cmd">claude</span> <span class="flag">-c</span>                        <span class="comment"># 继续上次的会话（你平时在 App 里的体验）</span>
+<span class="cmd">claude</span> <span class="flag">--resume</span>                  <span class="comment"># 弹出选择器，选一个旧会话继续</span>
+<span class="cmd">claude</span> <span class="flag">--name</span> <span class="str">"auth重构"</span>           <span class="comment"># 给这次会话起个名字</span></code></pre>
+      <div class="tip-box">
+        <div class="tip-icon">📱</div>
+        <div class="tip-text"><strong>你平时在 macOS 应用里用的</strong>，对应的就是 <code>claude -c</code>——每次打开都自动续上次会话。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 会话 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">会话是什么</div>
+    </div>
+    <div class="card">
+      <p>Claude Code 的"会话"类似聊天软件的对话记录，<strong>本地保存</strong>在 <code>~/.claude/projects/</code> 里。</p>
+      <div class="table-wrap" style="margin: 14px 0;">
+        <table>
+          <thead>
+            <tr><th>命令</th><th>效果</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>claude</code></td><td>新对话，空白开始</td></tr>
+            <tr><td><code>claude -c</code></td><td>接着上次说</td></tr>
+            <tr><td><code>claude --resume</code></td><td>打开历史列表，选一个继续</td></tr>
+            <tr><td><code>claude --resume auth重构</code></td><td>直接续指定名称的会话</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip-box">
+        <div class="tip-icon">🏷️</div>
+        <div class="tip-text">建议给重要会话起名：<code>claude --name "功能名称"</code>，以后可以随时精准续上。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 斜杠命令 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">对话里能用的斜杠命令</div>
+    </div>
+    <div class="card">
+      <p>在 Claude Code 对话框里，输入 <code>/命令</code> 可以控制行为：</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>命令</th><th>作用</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/help</code></td><td>显示所有可用命令</td></tr>
+            <tr><td><code>/clear</code></td><td>清空对话（不影响项目记忆和 CLAUDE.md）</td></tr>
+            <tr><td><code>/compact</code></td><td>把对话压缩摘要，腾出 context 空间</td></tr>
+            <tr><td><code>/context</code></td><td>可视化显示当前 context 窗口占用情况</td></tr>
+            <tr><td><code>/model</code></td><td>切换模型（Sonnet / Opus 等）</td></tr>
+            <tr><td><code>/diff</code></td><td>查看本次会话中 Claude 所做的所有文件改动</td></tr>
+            <tr><td><code>/permissions</code></td><td>查看和编辑 Claude 的操作权限</td></tr>
+            <tr><td><code>/init</code></td><td>在当前项目创建 CLAUDE.md 配置文件</td></tr>
+            <tr><td><code>/exit</code></td><td>退出（或按 Ctrl+D）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 权限模式 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">权限模式（重要）</div>
+    </div>
+    <div class="card">
+      <p>Claude 在修改文件或执行命令前会征求你的同意。按 <strong>Shift + Tab</strong> 循环切换模式：</p>
+      <div class="mode-grid">
+        <div class="mode-card highlight">
+          <div class="mode-name">默认模式 <span class="tag tag-safe">推荐新手</span></div>
+          <div class="mode-desc">每次修改都问你，最安全，适合刚上手时使用。</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-name">自动接受编辑</div>
+          <div class="mode-desc">文件改动自动通过，其他 Shell 命令还是会问。</div>
+        </div>
+        <div class="mode-card highlight">
+          <div class="mode-name">计划模式 <span class="tag tag-mode">大改动必用</span></div>
+          <div class="mode-desc">Claude 只分析、列计划，等你批准后才执行。大重构首选。</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-name">自动模式</div>
+          <div class="mode-desc">大部分操作不问，有后台安全检查，适合有经验的用户。</div>
+        </div>
+      </div>
+      <div class="tip-box">
+        <div class="tip-icon">⌨️</div>
+        <div class="tip-text"><strong>新手建议：</strong> 默认用默认模式。遇到要大改的时候，按两下 Shift+Tab 切到<strong>计划模式</strong>，让 Claude 先把计划列出来，你确认没问题再放行。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Context 管理 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Context 窗口管理</div>
+    </div>
+    <div class="card">
+      <p>Claude 有个"记忆上限"（约 20 万 token）。当对话太长、读的文件太多，它就会开始遗忘早期内容。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>症状</th><th>原因</th><th>解决方法</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>回答越来越模糊</td><td>Context 快满了</td><td><code>/context</code> 查看，<code>/compact</code> 压缩</td></tr>
+            <tr><td>忘了之前交代的规则</td><td>对话历史被挤出</td><td>把规则写入 CLAUDE.md（持久加载）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip-box">
+        <div class="tip-icon">🧠</div>
+        <div class="tip-text">把不想丢的规则写进 <strong>CLAUDE.md</strong>——每次会话自动加载，不会因为 context 满而消失。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. CLAUDE.md -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">CLAUDE.md — 持久化规则文件</div>
+    </div>
+    <div class="card">
+      <p>在项目里运行 <code>/init</code>，Claude 会帮你创建 <code>CLAUDE.md</code>。这个文件存放<strong>永久性规则</strong>，每次会话都会自动加载。</p>
+      <p>适合写进去的内容：</p>
+      <pre><code><span class="comment"># 例子：CLAUDE.md 里可以写什么</span>
+- 项目用 TypeScript，不要用 JavaScript
+- 测试用 Vitest，运行命令是 npm test
+- 不要修改 src/legacy/ 下的任何文件
+- 提交信息格式：feat: / fix: / refactor:</code></pre>
+      <div class="tip-box">
+        <div class="tip-icon">📌</div>
+        <div class="tip-text">有了 CLAUDE.md，你就不用每次新开会话都重新交代一遍规则了。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. 操作范式 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div class="section-title">实用操作范式</div>
+    </div>
+    <div class="card">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-label">先读后做</div>
+            <div class="step-body">让 Claude 先读懂再动手。比如"读一下 src/auth/ 目录，解释登录流程"，确认它理解对了，再说"好，现在帮我加 OAuth 支持"。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-label">大改动用计划模式</div>
+            <div class="step-body">按 Shift+Tab 切到计划模式，让 Claude 列出操作计划，你确认无误后再放行执行。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-label">分步推进</div>
+            <div class="step-body">不要一次说"帮我做完整个功能"。先"做第一步：数据库表结构"，确认后再"做第二步：API 接口"。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-label">用 /diff 检查</div>
+            <div class="step-body">每隔一段就输入 <code>/diff</code>，看 Claude 到底改了哪些文件，避免意外修改。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-label">Esc Esc 撤销</div>
+            <div class="step-body">如果不满意 Claude 的改动，连按两下 <code>Esc</code> 可以回到操作前的检查点（类似 Ctrl+Z）。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. 常见问题 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div class="section-title">常见问题速查</div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>问题</th><th>原因</th><th>解决</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Claude 回答越来越模糊</td><td>Context 快满了</td><td><code>/context</code> 查看，<code>/compact</code> 压缩</td></tr>
+            <tr><td>关掉终端，找不到旧会话</td><td>没有续会话</td><td><code>claude --resume</code> 选历史</td></tr>
+            <tr><td>每次都要重新交代规则</td><td>没有 CLAUDE.md</td><td><code>/init</code> 创建，把规则写进去</td></tr>
+            <tr><td>想撤销 Claude 的改动</td><td>—</td><td>连按两下 <code>Esc</code></td></tr>
+            <tr><td>Claude 卡住不动了</td><td>进程挂起</td><td><code>Ctrl+C</code> 中断当前响应</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. 快速备忘 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div class="section-title">快速备忘卡</div>
+    </div>
+    <div class="quickref">
+      <div class="quickref-title">Quick Reference</div>
+      <pre><code><span class="comment"># ── 启动 ──────────────────────────────────────</span>
+<span class="cmd">claude</span>                    <span class="comment"># 新会话</span>
+<span class="cmd">claude</span> <span class="flag">-c</span>               <span class="comment"># 续上次（同 macOS App 默认行为）</span>
+<span class="cmd">claude</span> <span class="flag">--resume</span>          <span class="comment"># 选历史会话</span>
+<span class="cmd">claude</span> <span class="flag">--name</span> <span class="str">"名称"</span>      <span class="comment"># 给会话起名</span>
+
+<span class="comment"># ── 对话内斜杠命令 ─────────────────────────────</span>
+/help                     <span class="comment"># 显示所有命令</span>
+/clear                    <span class="comment"># 清空对话</span>
+/compact                  <span class="comment"># 压缩对话，腾出 context</span>
+/context                  <span class="comment"># 查看 context 占用</span>
+/diff                     <span class="comment"># 查看文件改动</span>
+/model                    <span class="comment"># 切换模型</span>
+/init                     <span class="comment"># 创建 CLAUDE.md</span>
+
+<span class="comment"># ── 快捷键 ────────────────────────────────────</span>
+Shift+Tab                 <span class="comment"># 循环切换权限模式</span>
+Esc Esc                   <span class="comment"># 撤销到上一个检查点</span>
+Ctrl+C                    <span class="comment"># 中断当前响应</span>
+Ctrl+D                    <span class="comment"># 退出</span></code></pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    Claude Code 命令行新手教程 · 由 Claude 生成于 2026-05-14
+  </div>
+
+</div>
+</body>
+</html>

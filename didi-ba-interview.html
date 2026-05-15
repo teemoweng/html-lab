@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>滴滴 BA 国际化 · 面试准备</title>
+<style>
+  :root {
+    --orange: #FF5722;
+    --orange-light: #FF8A65;
+    --orange-pale: #FFF3E0;
+    --bg: #F7F8FA;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --sub: #666680;
+    --border: #EAEAF0;
+    --tag-bg: #F0F0FF;
+    --tag-text: #5050C8;
+    --answer-bg: #F8FFF8;
+    --answer-border: #4CAF50;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 60%, #0F3460 100%);
+    color: white;
+    padding: 48px 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,87,34,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-tag {
+    display: inline-block;
+    background: var(--orange);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: var(--orange-light); }
+  .header .subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 32px;
+  }
+  .stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat .num {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--orange-light);
+  }
+  .stat .label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ── Nav Tabs ── */
+  .nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    padding: 8px 18px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sub);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .nav-btn.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: white;
+  }
+
+  /* ── Section ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── Section Header ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--orange-pale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .section-title h2 {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .section-title p {
+    font-size: 13px;
+    color: var(--sub);
+    margin-top: 2px;
+  }
+
+  /* ── Info Cards (Business Overview) ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .info-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .info-card .ic-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--sub);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .info-card .ic-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--orange);
+    line-height: 1.2;
+  }
+  .info-card .ic-desc {
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 4px;
+  }
+
+  .market-list {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .market-list h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--sub);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .market-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .market-row:last-child { border-bottom: none; }
+  .market-flag { font-size: 22px; }
+  .market-name { font-weight: 700; font-size: 14px; }
+  .market-brand {
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 1px;
+  }
+  .market-note {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--orange);
+    font-weight: 600;
+    text-align: right;
+    max-width: 180px;
+  }
+
+  .strategy-card {
+    background: linear-gradient(135deg, var(--orange-pale), #fff);
+    border: 1.5px solid #FFCCBC;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .strategy-card h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--orange);
+    margin-bottom: 8px;
+  }
+  .strategy-card p {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  /* ── QA Cards ── */
+  .qa-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .qa-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+
+  .qa-question {
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    user-select: none;
+  }
+  .qa-num {
+    min-width: 28px; height: 28px;
+    background: var(--orange-pale);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--orange);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .qa-q-text {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .qa-toggle {
+    color: var(--sub);
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .qa-card.open .qa-toggle { transform: rotate(45deg); }
+
+  .qa-answer {
+    display: none;
+    padding: 0 24px 24px 66px;
+  }
+  .qa-card.open .qa-answer { display: block; }
+
+  .qa-answer-inner {
+    background: var(--answer-bg);
+    border-left: 3px solid var(--answer-border);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 18px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .qa-answer-inner strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .qa-answer-inner .tip {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(255,87,34,0.06);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--orange);
+  }
+  .qa-answer-inner .tip::before { content: "💡 "; }
+
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .tag.orange { background: var(--orange-pale); color: var(--orange); }
+  .tag.green { background: #E8F5E9; color: #388E3C; }
+
+  /* ── Metrics Section ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .metric-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .metric-en {
+    font-size: 11px;
+    color: var(--sub);
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+  }
+  .metric-def {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── Framework Diagram ── */
+  .framework {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .framework h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  .fw-steps {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .fw-step {
+    flex: 1;
+    min-width: 130px;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    text-align: center;
+  }
+  .fw-step .step-num {
+    width: 28px; height: 28px;
+    background: var(--orange);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    margin: 0 auto 10px;
+  }
+  .fw-step .step-title {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .fw-step .step-desc {
+    font-size: 12px;
+    color: var(--sub);
+    line-height: 1.5;
+  }
+  .fw-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    color: var(--orange);
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  /* ── English Section ── */
+  .en-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .en-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--sub);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .en-question {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+    font-style: italic;
+  }
+  .en-answer {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.9;
+    border-left: 3px solid var(--orange);
+    padding-left: 16px;
+  }
+  .en-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--sub);
+    font-style: italic;
+  }
+
+  /* ── Checklist ── */
+  .checklist {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .checklist h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 18px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 12px;
+  }
+  .check-item.checked .check-box {
+    background: var(--answer-border);
+    border-color: var(--answer-border);
+    color: white;
+  }
+  .check-text { font-size: 14px; }
+  .check-text .check-sub {
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 2px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 40px 24px 24px;
+    font-size: 12px;
+    color: var(--sub);
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 32px 20px 28px; }
+    .header h1 { font-size: 24px; }
+    .stats { gap: 20px; }
+    .fw-arrow { display: none; }
+    .fw-step { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-tag">26届春招</div>
+  <h1>滴滴 · <span>Business Analyst</span><br>国际化方向</h1>
+  <p class="subtitle">面试准备手册 · 2026春招</p>
+  <div class="stats">
+    <div class="stat"><span class="num">14</span><span class="label">覆盖国家</span></div>
+    <div class="stat"><span class="num">1200万+</span><span class="label">日订单</span></div>
+    <div class="stat"><span class="num">+28%</span><span class="label">国际GTV同比增长</span></div>
+    <div class="stat"><span class="num">5</span><span class="label">面试模块</span></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchTab('business')">🌍 业务认知</button>
+    <button class="nav-btn" onclick="switchTab('metrics')">📊 核心指标</button>
+    <button class="nav-btn" onclick="switchTab('interview')">💬 面试问答</button>
+    <button class="nav-btn" onclick="switchTab('english')">🇬🇧 英文表达</button>
+    <button class="nav-btn" onclick="switchTab('checklist')">✅ 面前检查</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 1: 业务认知 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-business" class="section active">
+
+    <div class="section-header">
+      <div class="section-icon">🌍</div>
+      <div class="section-title">
+        <h2>滴滴国际化业务</h2>
+        <p>你需要在面试前掌握的业务背景</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="ic-label">覆盖国家</div>
+        <div class="ic-value">14个</div>
+        <div class="ic-desc">拉美 8国 + 亚太 12国</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label">日订单量</div>
+        <div class="ic-value">1,200万+</div>
+        <div class="ic-desc">服务全球 8000万+ 用户</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label">2025年国际GTV</div>
+        <div class="ic-value">1,170亿</div>
+        <div class="ic-desc">同比增长 28.2%</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label">盈利状态</div>
+        <div class="ic-value">已盈利</div>
+        <div class="ic-desc">连续两年调整后EBITDA正向</div>
+      </div>
+    </div>
+
+    <div class="strategy-card">
+      <h3>核心战略：出行 + 外卖 + 金融 三位一体</h3>
+      <p>复制国内「美团模式」——先用出行获取用户，再延伸至外卖（DiDi Food / 99Food）和金融服务，构建 Super App 生态，提升用户粘性和单用户价值（LTV）。</p>
+    </div>
+
+    <div class="market-list">
+      <h3>核心市场一览</h3>
+      <div class="market-row">
+        <div class="market-flag">🇧🇷</div>
+        <div>
+          <div class="market-name">巴西</div>
+          <div class="market-brand">品牌：99（本地化品牌）</div>
+        </div>
+        <div class="market-note">出行市占率 40%，5500万用户，150万司机</div>
+      </div>
+      <div class="market-row">
+        <div class="market-flag">🇲🇽</div>
+        <div>
+          <div class="market-name">墨西哥</div>
+          <div class="market-brand">品牌：DiDi</div>
+        </div>
+        <div class="market-note">出行 + 外卖双第一，70+ 城市，3000万用户</div>
+      </div>
+      <div class="market-row">
+        <div class="market-flag">🇨🇴</div>
+        <div>
+          <div class="market-name">哥伦比亚</div>
+          <div class="market-brand">品牌：DiDi</div>
+        </div>
+        <div class="market-note">波哥大、麦德林等主要城市</div>
+      </div>
+      <div class="market-row">
+        <div class="market-flag">🇸🇬</div>
+        <div>
+          <div class="market-name">新加坡</div>
+          <div class="market-brand">品牌：DiDi</div>
+        </div>
+        <div class="market-note">亚太战略据点</div>
+      </div>
+      <div class="market-row">
+        <div class="market-flag">🇦🇺</div>
+        <div>
+          <div class="market-name">澳大利亚 / 新西兰</div>
+          <div class="market-brand">品牌：DiDi</div>
+        </div>
+        <div class="market-note">2025年新进入</div>
+      </div>
+      <div class="market-row">
+        <div class="market-flag">🇪🇬</div>
+        <div>
+          <div class="market-name">埃及</div>
+          <div class="market-brand">品牌：DiDi</div>
+        </div>
+        <div class="market-note">2025年新进入，非洲首个市场</div>
+      </div>
+    </div>
+
+    <div class="strategy-card">
+      <h3>为什么国际业务是滴滴的未来？</h3>
+      <p>国内出行市场趋于饱和，增长空间有限；而国际业务2025年Q4同比增长高达 47%，三年复合增长率 32%，是公司增长最快的板块。BA 团队在其中扮演「数据驱动决策」的核心角色。</p>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 2: 核心指标 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-metrics" class="section">
+
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div class="section-title">
+        <h2>核心业务指标</h2>
+        <p>面试中必须能脱口而出的指标，以及它们的含义</p>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-name">完单率</div>
+        <div class="metric-en">Completion Rate</div>
+        <div class="metric-def">成功完成的订单数 ÷ 发起的订单请求数。衡量平台「撮合能力」的核心指标，下降意味着供需失衡。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">应答率</div>
+        <div class="metric-en">Acceptance Rate</div>
+        <div class="metric-def">司机接单数 ÷ 系统派单数。司机侧的关键健康度指标，低应答率通常与激励不足或供给不足有关。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">GTV / GMV</div>
+        <div class="metric-en">Gross Transaction Value</div>
+        <div class="metric-def">平台上所有订单的总交易金额（含司机收入）。衡量业务体量的北极星指标之一。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">Take Rate</div>
+        <div class="metric-en">抽佣率</div>
+        <div class="metric-def">平台从每笔订单中抽取的佣金比例 = 平台净收入 ÷ GTV。不同市场差异很大，反映定价策略和竞争格局。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">DAU / MAU</div>
+        <div class="metric-en">日/月活跃用户</div>
+        <div class="metric-def">衡量用户活跃程度。DAU/MAU 的比值（粘性系数）越高，说明用户越依赖该平台。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">CAC</div>
+        <div class="metric-en">用户获取成本</div>
+        <div class="metric-def">获取一个新用户（乘客或司机）平均花费的营销成本。国际化扩张中，降低 CAC 是关键课题。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">LTV</div>
+        <div class="metric-en">用户终身价值</div>
+        <div class="metric-def">一个用户在整个生命周期内为平台贡献的总收入。LTV > CAC 是业务健康的基础。</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-name">ETA</div>
+        <div class="metric-en">预计到达时间</div>
+        <div class="metric-def">从乘客下单到司机到达的预计时间。ETA 越短，用户体验越好，流失率越低。</div>
+      </div>
+    </div>
+
+    <div class="framework">
+      <h3>指标异动分析框架（面试必考）</h3>
+      <div class="fw-steps">
+        <div class="fw-step">
+          <div class="step-num">1</div>
+          <div class="step-title">确认异动</div>
+          <div class="step-desc">数据是否真实？时区/口径/数据管道有没有问题？</div>
+        </div>
+        <div class="fw-arrow">→</div>
+        <div class="fw-step">
+          <div class="step-num">2</div>
+          <div class="step-title">拆解维度</div>
+          <div class="step-desc">按地区、城市、时段、用户类型、订单类型分层</div>
+        </div>
+        <div class="fw-arrow">→</div>
+        <div class="fw-step">
+          <div class="step-num">3</div>
+          <div class="step-title">排查原因</div>
+          <div class="step-desc">内因（产品改动、营销活动）vs 外因（天气、节假日、竞对）</div>
+        </div>
+        <div class="fw-arrow">→</div>
+        <div class="fw-step">
+          <div class="step-num">4</div>
+          <div class="step-title">验证假设</div>
+          <div class="step-desc">用数据验证每个假设，缩小范围，找到根因</div>
+        </div>
+        <div class="fw-arrow">→</div>
+        <div class="fw-step">
+          <div class="step-num">5</div>
+          <div class="step-title">给出结论</div>
+          <div class="step-desc">清晰表述根因，提出可执行的改进建议</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 3: 面试问答 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-interview" class="section">
+
+    <div class="section-header">
+      <div class="section-icon">💬</div>
+      <div class="section-title">
+        <h2>面试问答</h2>
+        <p>点击展开参考答案，根据自身经历调整</p>
+      </div>
+    </div>
+
+    <!-- 模块1: 开场 -->
+    <p style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-bottom:12px;">模块一 · 开场破冰</p>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">01</div>
+        <div class="qa-q-text">请做一个简短的自我介绍。</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>回答框架：学校 + 专业 → 核心经历（1-2个）→ 技能标签 → 为什么滴滴国际化</strong>
+          <br><br>
+          参考话术：「您好，我是来自 [学校] [专业] 的应届毕业生。在校期间，我在 [公司] 实习，主要负责 [具体工作，如：用 SQL 搭建司机供给监控体系，发现高峰时段应答率异常并推动产品调整]。技术上我熟练掌握 SQL 和数据可视化工具，具备 A/B 测试分析经验。我申请这个岗位，是因为我对出行行业的全球化扩张很感兴趣——滴滴在拉美的增长速度非常惊人，我希望能在这个阶段参与进来，用数据驱动国际化决策。」
+          <div class="tip">把时间控制在 90 秒内，结尾主动把话题引向岗位，不要只介绍自己。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">02</div>
+        <div class="qa-q-text">为什么选择滴滴，而不是其他互联网公司？为什么是国际化方向？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>三层逻辑：行业 → 公司 → 方向</strong>
+          <br><br>
+          「首先，出行是高频、刚需的场景，数据密度极高，BA 能产生真实业务影响，而不是做报表。其次，滴滴在拉美的商业模式很有意思——它不只是 Uber 的翻版，而是在做出行 + 外卖 + 金融的 Super App，复杂度和挑战更大。最后，国际化方向对我有额外吸引力：不同市场的用户行为、司机结构、监管环境差异很大，需要用数据来做本地化决策，这比在一个单一市场工作学到的东西多得多。」
+          <div class="tip">提前了解滴滴在 1-2 个具体国家（如墨西哥、巴西）的市场情况，面试时能举出具体例子，会加分很多。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模块2: 业务理解 -->
+    <p style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-bottom:12px;margin-top:24px;">模块二 · 业务理解</p>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">03</div>
+        <div class="qa-q-text">你觉得一个出行平台最核心的北极星指标是什么？为什么？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>答案没有唯一对错，重要的是逻辑自洽。</strong>
+          <br><br>
+          参考角度：「我认为核心指标是<strong>完单量（Completed Trips）</strong>，因为它同时反映了乘客侧（有需求、能打到车）和司机侧（愿意接单、能完成行程）的健康状况，两端任何一端出问题都会体现在完单量上。」
+          <br><br>
+          「但北极星指标要结合阶段——在早期扩张阶段，更重视 MAU 增长；在盈利阶段，会转向 GTV 和 Take Rate；国际化初期，我会关注<strong>完单率</strong>和 <strong>CAC</strong>，因为新市场最重要的是验证供需撮合能不能跑通、拉新成本是否可控。」
+          <div class="tip">面试官问这类问题是考察你的业务判断力。先给一个答案，再说「但是」，展示你知道不同阶段有不同侧重，这样更成熟。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">04</div>
+        <div class="qa-q-text">如果滴滴要进入一个新的国家市场，你会从哪些维度来评估可行性？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>用结构化框架回答，展示 BA 思维</strong>
+          <br><br>
+          我会从五个维度评估：<br><br>
+          <strong>① 市场规模</strong>：人口规模、城镇化率、中产阶级比例、现有出行支出，估算 TAM（总可寻址市场）。<br><br>
+          <strong>② 竞争格局</strong>：现有玩家是谁？市占率怎么分布？有没有本地强势品牌（如墨西哥的 Cabify）？<br><br>
+          <strong>③ 监管环境</strong>：网约车是否合法？许可证获取难度？对外资的限制？数据本地化要求？<br><br>
+          <strong>④ 用户行为与支付基础设施</strong>：智能手机渗透率？现金 vs 数字支付的比例？（拉美现金使用率很高，需要特殊处理）<br><br>
+          <strong>⑤ 单位经济模型</strong>：预估 CAC、LTV、以及多久能实现单个城市盈亏平衡。
+          <div class="tip">结合滴滴进入巴西（用本地品牌 99 收购）和墨西哥（自建）的不同策略来举例，体现你真的研究过。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模块3: 数据分析 -->
+    <p style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-bottom:12px;margin-top:24px;">模块三 · 数据分析能力</p>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">05</div>
+        <div class="qa-q-text">上周完单率下降了 5%，作为 BA，你会怎么排查原因？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>这是最经典的「指标异动分析」题，一定要有框架，不能乱答。</strong>
+          <br><br>
+          <strong>第一步：确认数据真实性</strong><br>
+          先检查数据管道有没有问题：时区设置对吗？数据表有没有延迟或缺失？口径是否和上周一致？排除数据质量问题。<br><br>
+          <strong>第二步：拆解维度</strong><br>
+          按城市、时段（早晚高峰 vs 平峰）、订单类型（快车/专车/顺风车）、用户类型（新用户 vs 老用户）分层，定位下降集中在哪里。<br><br>
+          <strong>第三步：区分供给侧 vs 需求侧</strong><br>
+          完单率 = 应答率 × 到达率 × 行程完成率。看每个环节分别下降了多少，缩小问题范围。<br><br>
+          <strong>第四步：排查内外部原因</strong><br>
+          内部：上周有没有产品改动、激励政策变化、算法调整？外部：有没有节假日、极端天气、新闻事件影响用户或司机行为？竞对有没有做大促？<br><br>
+          <strong>第五步：形成结论并建议行动</strong><br>
+          比如：「发现是墨西哥城周四晚高峰应答率下降了 12%，原因是当地节假日司机数量减少 20%，建议下次节假日前提前调整激励补贴策略。」
+          <div class="tip">这类题考的是「你有没有方法论」，不是考你能猜到正确答案。按框架走完，哪怕最后没找到根因，面试官也会认可你的思维方式。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">06</div>
+        <div class="qa-q-text">你了解 A/B 测试吗？如果我们想测试一个新的定价策略，怎么设计实验？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>A/B 测试五步法</strong>
+          <br><br>
+          <strong>① 明确目标指标</strong>：主指标是什么？（如完单量、GTV）辅助指标是什么？（如完单率、司机收入）护栏指标是什么？（防止伤害其他指标，如用户投诉率）<br><br>
+          <strong>② 分组设计</strong>：随机将用户（或司机、或城市）分成对照组（A）和实验组（B）。出行类平台注意：用「城市」而非「用户」分组，避免同一市场内两种价格策略互相干扰（Spillover Effect）。<br><br>
+          <strong>③ 样本量计算</strong>：根据期望效应大小（Effect Size）、显著性水平（α=0.05）、统计功效（Power=80%）计算最少需要的样本量，确定实验周期。<br><br>
+          <strong>④ 运行实验</strong>：监控实验过程中是否有异常，避免过早停止（Peeking Problem）。<br><br>
+          <strong>⑤ 分析结果</strong>：实验结束后用双样本 t 检验或 z 检验判断差异是否统计显著；同时做分层分析，看不同城市/用户群效果是否一致。
+          <div class="tip">如果面试官追问「辛普森悖论」——告诉他：分层分析时整体趋势和子群趋势可能相反，所以一定要同时看整体和细分结论，避免被汇总数据误导。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">07</div>
+        <div class="qa-q-text">司机数量增加了 20%，但完单量没有增加，可能是什么原因？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>这题考供需逻辑 + 数据拆解能力</strong>
+          <br><br>
+          <strong>需求侧问题（乘客少了）：</strong><br>
+          · 是否有节假日、恶劣天气导致出行需求下降？<br>
+          · 竞对平台大促，乘客流失到竞对？<br>
+          · 新增司机集中在非热门区域，而需求集中在特定区域？<br><br>
+          <strong>供给质量问题（司机虽多但质量差）：</strong><br>
+          · 新增司机的应答率是否显著低于老司机？（新司机不熟悉平台）<br>
+          · 新增司机的在线时长是否很短？（挂机不接单）<br>
+          · 新增司机是否集中在低需求时段？<br><br>
+          <strong>平台撮合问题：</strong><br>
+          · 算法派单逻辑有没有变化？<br>
+          · 是否因为司机增加导致平均接单距离变长，乘客等待时间反而变长，取消率上升？<br><br>
+          <strong>结论话术：</strong>「司机数量是供给的「数量」指标，完单量反映的是有效供给，两者之间还隔着应答率、在线时长、区域分布、时段匹配等质量维度，需要逐一排查。」
+        </div>
+      </div>
+    </div>
+
+    <!-- 模块4: 职业规划 -->
+    <p style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-bottom:12px;margin-top:24px;">模块四 · 职业规划 & 软技能</p>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">08</div>
+        <div class="qa-q-text">你的职业规划是什么？3-5年后你希望做什么？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>不要说「成为管理者」或者太具体的职位名称。聚焦能力成长。</strong>
+          <br><br>
+          参考话术：「短期（1-2年），我希望在真实的国际化业务场景中快速提升数据分析的深度，从能'看懂数据'到能'用数据推动决策'。中期（3-5年），我希望积累足够的业务 sense，可以独立负责一个市场或产品线的数分工作，不只是响应需求，而是主动发现机会。我对出行行业的全球化有长期的兴趣，滴滴国际化方向正好给了我这样一个少见的机会。」
+          <div class="tip">结尾说「这个方向给了我一个少见的机会」，把问题绕回岗位本身，显示你是真的想做这件事，而不只是在找工作。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">09</div>
+        <div class="qa-q-text">你有没有遇到过和业务方（产品/运营/销售）意见不一致的情况？你是怎么处理的？</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>考察跨部门协作能力，STAR 法则回答（情境-任务-行动-结果）</strong>
+          <br><br>
+          参考话术结构：「在 [实习/项目] 中，我负责分析 [某功能] 的效果，但业务方希望我调整口径来让数据看起来更好看。我的做法是：先认可他的出发点（确实希望项目显示正向结果），然后用数据解释如果调整口径的后果——会影响后续决策的准确性。最后我们达成共识：在汇报中同时呈现两种口径，并标注各自适用场景。结果是业务方后来更信任我的数据，因为知道我不会为了'好看'而妥协准确性。」
+          <div class="tip">核心要展示：你不是对立者，而是用数据帮双方找到更好的共同点。BA 的价值在于独立性，不是配合业务方讲故事。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模块5: 反问环节 -->
+    <p style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-bottom:12px;margin-top:24px;">模块五 · 反问面试官</p>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-question">
+        <div class="qa-num">10</div>
+        <div class="qa-q-text">你有什么想问我的吗？（反问环节）</div>
+        <div class="qa-toggle">+</div>
+      </div>
+      <div class="qa-answer">
+        <div class="qa-answer-inner">
+          <strong>这是加分项，一定要准备 2-3 个有质量的问题。</strong>
+          <br><br>
+          <strong>推荐问题：</strong><br><br>
+          「国际化 BA 团队和具体市场的运营团队是怎么配合的？BA 的输出更多是支持型的，还是会主动 own 某些分析方向？」<br><br>
+          「新人入职后，通常多久能独立负责一个完整的分析项目？团队有没有一些 onboarding 帮助新人快速理解国际化业务？」<br><br>
+          「目前国际化业务增长这么快，BA 团队在数据体系建设上有什么优先级高的事情在做？」
+          <div class="tip">不要问薪资（HR 面才问）、不要问「有没有晋升机会」（太直白）、不要说「我没有问题」（会显得你不够主动）。</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 4: 英文表达 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-english" class="section">
+
+    <div class="section-header">
+      <div class="section-icon">🇬🇧</div>
+      <div class="section-title">
+        <h2>英文表达准备</h2>
+        <p>国际化岗必考，准备 2-3 个可以流畅说出来的版本</p>
+      </div>
+    </div>
+
+    <div class="en-card">
+      <div class="en-label">自我介绍 · Self Introduction</div>
+      <div class="en-question">"Tell me about yourself."</div>
+      <div class="en-answer">
+        "Hi, I'm [Name], a recent graduate from [University] with a background in [Major]. During my internship at [Company], I worked on building data pipelines and dashboards to track key supply-side metrics for a ride-hailing platform — specifically, I identified a drop in driver acceptance rates during peak hours and helped the operations team adjust incentive structures to fix it.<br><br>
+        I'm skilled in SQL, data visualization, and A/B testing. I'm excited about this role at DiDi's international business because I'm genuinely interested in how data can drive decisions across different markets — each country has a different competitive landscape, regulatory environment, and user behavior, which makes the analytical work much more complex and interesting."
+      </div>
+      <div class="en-note">约 45 秒，控制在 90 秒内。数字和具体事例会让你的介绍更有说服力。</div>
+    </div>
+
+    <div class="en-card">
+      <div class="en-label">业务理解 · Business Understanding</div>
+      <div class="en-question">"What do you know about DiDi's international business?"</div>
+      <div class="en-answer">
+        "DiDi's international business currently operates in 14 countries, with Latin America as its core market — particularly Brazil under the '99' brand and Mexico under DiDi, where they hold strong market leadership positions. The international segment has been growing at over 28% year-over-year in GTV, and recently turned profitable on an adjusted EBITDA basis.<br><br>
+        What I find strategically interesting is DiDi's approach of building a 'super app' ecosystem in these markets — combining ride-hailing, food delivery, and financial services — which mirrors the playbook of Meituan in China. This creates multiple touchpoints to improve user LTV and reduce churn."
+      </div>
+      <div class="en-note">这段话展示了你真的做了功课，面试官会印象深刻。</div>
+    </div>
+
+    <div class="en-card">
+      <div class="en-label">数据分析 · Data Analysis</div>
+      <div class="en-question">"Walk me through how you'd analyze a metric drop."</div>
+      <div class="en-answer">
+        "My approach follows a structured framework. First, I'd verify the data itself — check for pipeline issues, timezone mismatches, or definition changes. Then I'd decompose the metric across dimensions: by city, time of day, user segment, and trip type to isolate where the drop is concentrated.<br><br>
+        Next, I'd separate supply-side from demand-side factors. For a completion rate drop, for example, I'd look at whether acceptance rate or trip cancellation rate changed. Then I'd investigate internal causes — any product changes or policy updates — versus external causes like weather, holidays, or competitor promotions. Finally, I'd form a hypothesis, validate it with data, and recommend a concrete action."
+      </div>
+      <div class="en-note">说完这段，面试官通常会追问「那如果是某个具体指标下降呢」，你按框架继续拆就行。</div>
+    </div>
+
+    <div class="en-card">
+      <div class="en-label">常用表达 · Useful Phrases</div>
+      <div class="en-question">面试中随时可以用的表达</div>
+      <div class="en-answer">
+        "Let me structure my answer..." （我来梳理一下我的回答）<br>
+        "That's a great question. My first instinct would be to..." （先表示思考，再给答案）<br>
+        "Before jumping to conclusions, I'd want to validate whether..." （不急于下结论）<br>
+        "The key tradeoff here is between X and Y..." （体现你看到了取舍）<br>
+        "To summarize my analysis..." （总结陈词，让思路更清晰）<br>
+        "Could you clarify what you mean by...?" （有不确定的地方，主动澄清而不是猜测）
+      </div>
+      <div class="en-note">英文面试不需要完美，需要清晰。停顿说「Let me think for a second」完全没问题。</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 5: 面前检查 -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-checklist" class="section">
+
+    <div class="section-header">
+      <div class="section-icon">✅</div>
+      <div class="section-title">
+        <h2>面前检查清单</h2>
+        <p>面试前 24 小时逐一过一遍</p>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <h3>知识准备</h3>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          能用中文流畅讲完「完单率下降 5% 怎么分析」
+          <div class="check-sub">用五步框架，不用背稿子，用自己的话说出来就行</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          能解释 GTV、完单率、应答率、CAC、LTV 各是什么意思
+          <div class="check-sub">翻到「核心指标」那一页，逐个过一遍</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          能说出滴滴在哪 3 个国家做得最好，各自的品牌和特色
+          <div class="check-sub">巴西（99）、墨西哥（DiDi，出行+外卖双第一）、新加坡（亚太据点）</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          能用 2-3 句话解释 A/B 测试是什么，什么时候用它
+          <div class="check-sub">「对照实验，随机分组，验证某个改动是否真的有效，而不是靠感觉」</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          复习一道 SQL 窗口函数题（ROW_NUMBER / LAG / RANK）
+          <div class="check-sub">面试可能会让你手写或口述 SQL 逻辑</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist" style="margin-top:16px;">
+      <h3>英文准备</h3>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          大声朗读英文自我介绍至少 2 遍
+          <div class="check-sub">读出来和在脑子里想完全不一样，嘴巴需要练习</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          能用英文说出 DiDi 的 3 个关键数据（14 countries / 28% YoY growth / profitable）
+          <div class="check-sub">数字让英文表达立刻有分量</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          记住 3 个「买时间」的英文过渡语
+          <div class="check-sub">"Let me structure my answer..." / "That's an interesting question..." / "Could you clarify..."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist" style="margin-top:16px;">
+      <h3>实战准备</h3>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          准备 2 个来自实习 / 项目经历的具体故事（STAR 格式）
+          <div class="check-sub">面试官最喜欢追问「能举个例子吗？」</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          准备 2-3 个反问面试官的问题
+          <div class="check-sub">翻到「面试问答 - 反问环节」那一页</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          在手机上搜索「滴滴国际 最新新闻」，了解最近 2 周有没有什么大事件
+          <div class="check-sub">面试时能提到最新动态，显示你在真正关注这家公司</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">
+          确认面试时间、地点（线上/线下）、着装
+          <div class="check-sub">基础中的基础，但最容易被忘</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer">
+  滴滴 BA 国际化 · 26届春招面试准备 · 祝旗开得胜 🎯
+</div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function toggleQA(card) {
+    card.classList.toggle('open');
+  }
+
+  function toggleCheck(item) {
+    item.classList.toggle('checked');
+    const box = item.querySelector('.check-box');
+    box.textContent = item.classList.contains('checked') ? '✓' : '';
+  }
+</script>
+
+</body>
+</html>

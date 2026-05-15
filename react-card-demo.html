@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React 组件演示</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+      gap: 48px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      color: #aaa;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      align-self: flex-start;
+      padding-left: 4px;
+    }
+
+    .cards-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* 卡片样式 */
+    .card {
+      background: white;
+      border-radius: 16px;
+      width: 260px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .card-cover {
+      width: 100%;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .card-body {
+      padding: 16px 18px 20px;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .card-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .card-btn:hover { opacity: 0.85; }
+
+    /* 代码展示区域 */
+    .code-panel {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .code-panel pre {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #cdd6f4;
+      overflow-x: auto;
+    }
+
+    .kw  { color: #cba6f7; }   /* 关键词 */
+    .fn  { color: #89b4fa; }   /* 函数名 */
+    .str { color: #a6e3a1; }   /* 字符串 */
+    .tag { color: #f38ba8; }   /* JSX 标签 */
+    .attr{ color: #fab387; }   /* 属性名 */
+    .cmt { color: #6c7086; font-style: italic; } /* 注释 */
+    .num { color: #fab387; }
+
+    .annotation {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: rgba(137,180,250,0.08);
+      border-left: 3px solid #89b4fa;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      margin-top: 16px;
+    }
+
+    .annotation-icon { font-size: 16px; flex-shrink: 0; }
+
+    .annotation-text {
+      font-size: 13px;
+      color: #89b4fa;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<h1>React 组件演示</h1>
+
+<!-- React 渲染的卡片区域 -->
+<div id="root"></div>
+
+<!-- 代码展示 -->
+<div class="section">
+  <div class="section-label">↑ 上面三张卡片，就是同一个组件用不同数据渲染出来的</div>
+
+  <div class="code-panel">
+    <pre><span class="cmt">// 这就是一个 React 组件 —— 本质上是一个 JavaScript 函数</span>
+<span class="kw">function</span> <span class="fn">Card</span>({ emoji, color, tag, title, desc, btnText }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> <span class="attr">className</span>=<span class="str">"card"</span><span class="tag">&gt;</span>
+
+      <span class="cmt">{/* 封面区域 */}</span>
+      <span class="tag">&lt;div</span> <span class="attr">className</span>=<span class="str">"card-cover"</span> <span class="attr">style</span>={{ background: color }}<span class="tag">&gt;</span>
+        { emoji }
+      <span class="tag">&lt;/div&gt;</span>
+
+      <span class="cmt">{/* 内容区域 */}</span>
+      <span class="tag">&lt;div</span> <span class="attr">className</span>=<span class="str">"card-body"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">className</span>=<span class="str">"card-tag"</span><span class="tag">&gt;</span>{ tag }<span class="tag">&lt;/span&gt;</span>
+        <span class="tag">&lt;h2</span> <span class="attr">className</span>=<span class="str">"card-title"</span><span class="tag">&gt;</span>{ title }<span class="tag">&lt;/h2&gt;</span>
+        <span class="tag">&lt;p</span> <span class="attr">className</span>=<span class="str">"card-desc"</span><span class="tag">&gt;</span>{ desc }<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;button</span> <span class="attr">className</span>=<span class="str">"card-btn"</span><span class="tag">&gt;</span>{ btnText }<span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}
+
+<span class="cmt">// 使用这个组件三次，传入不同的数据（props）</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> <span class="attr">className</span>=<span class="str">"cards-row"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">emoji</span>=<span class="str">"⚛️"</span>
+        <span class="attr">title</span>=<span class="str">"什么是组件"</span>
+        <span class="attr">desc</span>=<span class="str">"组件就是一个函数，接收数据，返回界面。"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">emoji</span>=<span class="str">"🔁"</span>
+        <span class="attr">title</span>=<span class="str">"可以复用"</span>
+        <span class="attr">desc</span>=<span class="str">"同一个组件用不同的数据，就能渲染不同的内容。"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Card</span>
+        <span class="attr">emoji</span>=<span class="str">"🧩"</span>
+        <span class="attr">title</span>=<span class="str">"可以组合"</span>
+        <span class="attr">desc</span>=<span class="str">"多个小组件拼在一起，就组成了完整的页面。"</span>
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}</pre>
+    <div class="annotation">
+      <span class="annotation-icon">💡</span>
+      <span class="annotation-text">
+        注意看：<code>Card</code> 组件只写了一次，但用了三次。每次传不同的 emoji、title、desc，就出现三张不同的卡片。
+        这就是"组件"的意义——<strong>写一次，到处复用</strong>。
+      </span>
+    </div>
+  </div>
+</div>
+
+<script type="text/babel">
+  const cards = [
+    {
+      emoji: "⚛️",
+      color: "linear-gradient(135deg, #e0e7ff, #c7d2fe)",
+      tag: "概念",
+      title: "什么是组件",
+      desc: "组件就是一个函数，接收数据作为输入，返回界面作为输出。React 整个体系都建立在这个简单的想法上。",
+      btnText: "了解更多",
+      btnColor: "#6366f1",
+    },
+    {
+      emoji: "🔁",
+      color: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
+      tag: "可复用",
+      title: "同一个组件，不同数据",
+      desc: "写一个 Card 组件，传入不同的标题和描述，就能生成很多不同的卡片，不用重复写代码。",
+      btnText: "看代码",
+      btnColor: "#059669",
+    },
+    {
+      emoji: "🧩",
+      color: "linear-gradient(135deg, #fef3c7, #fde68a)",
+      tag: "可组合",
+      title: "小组件拼成大页面",
+      desc: "页面 = 导航组件 + 卡片组件 + 按钮组件 + …。每个组件各司其职，拼在一起就是完整的应用。",
+      btnText: "试一试",
+      btnColor: "#d97706",
+    },
+  ]
+
+  function Card({ emoji, color, tag, title, desc, btnText, btnColor }) {
+    return (
+      <div className="card">
+        <div className="card-cover" style={{ background: color }}>
+          {emoji}
+        </div>
+        <div className="card-body">
+          <span className="card-tag" style={{ background: btnColor + "22", color: btnColor }}>
+            {tag}
+          </span>
+          <h2 className="card-title">{title}</h2>
+          <p className="card-desc">{desc}</p>
+          <button className="card-btn" style={{ background: btnColor, color: "white" }}>
+            {btnText}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  function App() {
+    return (
+      <div className="section">
+        <div className="section-label">React 组件 · 同一个 Card 组件渲染了三次</div>
+        <div className="cards-row">
+          {cards.map((card, i) => (
+            <Card key={i} {...card} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"))
+  root.render(<App />)
+</script>
+</body>
+</html>
