@@ -823,6 +823,268 @@ const CONCEPTS = {
   pmTip: '"后台管理系统的详情页需要面包屑，格式：模块名 › 列表页名称 › 当前记录名，最后一级不可点击。"',
   scenarios: ['电商商品详情页', 'B端管理后台', '文档/知识库网站', '多级分类浏览', '设置页面深层路径'],
 },
+
+'pull-to-refresh': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Pull to Refresh',
+  nameCN: '下拉刷新',
+  tagline: '在移动端，用户向下拉动列表超过一定距离后，触发内容刷新。',
+  demo: `<div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;max-width:300px">
+    <div style="background:#f8fafc;padding:10px 16px;text-align:center;font-size:12px;color:#94a3b8;border-bottom:1px solid #e2e8f0">
+      ↓ 在手机上：向下拉动此区域
+    </div>
+    <div style="max-height:180px;overflow-y:auto" id="ptr-list">
+      <div style="text-align:center;padding:12px;font-size:12px;color:#6366f1">↑ 下拉刷新</div>
+      <div class="demo-infinite-item">📨 新消息来自 Alice</div>
+      <div class="demo-infinite-item">📨 新消息来自 Bob</div>
+      <div class="demo-infinite-item">📨 历史消息 1</div>
+      <div class="demo-infinite-item">📨 历史消息 2</div>
+    </div>
+    <div style="padding:12px;text-align:center">
+      <button class="demo-btn demo-btn-secondary" style="font-size:12px" onclick="showToast('刷新成功，获取到 2 条新消息','✅')">
+        模拟刷新
+      </button>
+    </div>
+  </div>`,
+  explanation: '下拉刷新是移动端特有的交互模式，由 Twitter 在 2008 年首创。它利用了手机屏幕可以向下滚动的物理直觉——当用户"拉过头"时，触发刷新。这个模式现在已经成为移动用户的肌肉记忆。桌面端不用下拉刷新，而是用刷新按钮或自动轮询。',
+  pmTip: '"消息列表和 Feed 流需要支持下拉刷新，拉到顶部下拉 60px 触发，触发时显示 loading 动画，完成后提示"获取到 N 条新消息"。"',
+  scenarios: ['消息列表', '朋友圈/Feed流', '新闻列表', '订单列表', '通知中心'],
+},
+
+'infinite-scroll': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Infinite Scroll',
+  nameCN: '无限滚动',
+  tagline: '用户向下滚动接近列表底部时，自动加载更多内容，无需点击"下一页"。',
+  demo: `<div style="max-width:300px">
+    <div class="demo-infinite-list" id="infinite-list" onscroll="checkInfiniteScroll()">
+      <div class="demo-infinite-item">📄 文章 1：产品经理如何做需求分析</div>
+      <div class="demo-infinite-item">📄 文章 2：用户研究方法汇总</div>
+      <div class="demo-infinite-item">📄 文章 3：数据驱动的产品决策</div>
+      <div class="demo-infinite-item">📄 文章 4：如何写好 PRD</div>
+      <div class="demo-infinite-item">📄 文章 5：竞品分析框架</div>
+      <div id="load-more-trigger" class="demo-load-more">↓ 继续向下滚动加载更多</div>
+    </div>
+  </div>`,
+  onMount: function() {
+    let count = 5;
+    window.checkInfiniteScroll = function() {
+      const list = document.getElementById('infinite-list');
+      const trigger = document.getElementById('load-more-trigger');
+      if (!list || !trigger) return;
+      if (list.scrollTop + list.clientHeight >= list.scrollHeight - 20) {
+        trigger.textContent = '加载中...';
+        setTimeout(() => {
+          count++;
+          const item = document.createElement('div');
+          item.className = 'demo-infinite-item';
+          item.textContent = `📄 文章 ${count}：动态加载的新内容`;
+          list.insertBefore(item, trigger);
+          trigger.textContent = count < 8 ? '↓ 继续向下滚动加载更多' : '已加载全部内容';
+        }, 600);
+      }
+    };
+  },
+  explanation: '无限滚动让用户沉浸在内容中（社交媒体深知这一点）。适合内容消费型场景（Feed、图片流）；不适合需要记住位置的场景（搜索结果——用户找到后想返回，分页更好）。主要缺点：用户无法到达页脚，也无法分享"第 N 页"的链接。',
+  pmTip: '"内容 Feed 用无限滚动；搜索结果列表用分页，因为用户需要能定位到具体页数。"',
+  scenarios: ['社交媒体 Feed', '图片/视频流', '商品列表（浏览型）', '评论列表', '消息历史'],
+},
+
+'drag-drop': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Drag & Drop',
+  nameCN: '拖拽排序',
+  tagline: '用户通过拖动元素来改变其位置或顺序，完成排列或移动操作。',
+  demo: `<div>
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">拖动下面的卡片来重新排序：</p>
+    <div class="demo-draggable-list" id="drag-list">
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> 需求评审
+      </div>
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> UI 设计
+      </div>
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> 开发实现
+      </div>
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> 测试验收
+      </div>
+    </div>
+  </div>`,
+  onMount: function() {
+    const list = document.getElementById('drag-list');
+    if (!list) return;
+    let dragged = null;
+    list.addEventListener('dragstart', e => {
+      dragged = e.target.closest('.demo-draggable-item');
+      setTimeout(() => dragged && dragged.classList.add('dragging'), 0);
+    });
+    list.addEventListener('dragend', () => {
+      dragged && dragged.classList.remove('dragging');
+      list.querySelectorAll('.demo-draggable-item').forEach(i => i.classList.remove('drag-over'));
+    });
+    list.addEventListener('dragover', e => {
+      e.preventDefault();
+      const over = e.target.closest('.demo-draggable-item');
+      if (over && over !== dragged) {
+        list.querySelectorAll('.demo-draggable-item').forEach(i => i.classList.remove('drag-over'));
+        over.classList.add('drag-over');
+      }
+    });
+    list.addEventListener('drop', e => {
+      e.preventDefault();
+      const over = e.target.closest('.demo-draggable-item');
+      if (over && over !== dragged) {
+        const items = [...list.querySelectorAll('.demo-draggable-item')];
+        const fromIdx = items.indexOf(dragged);
+        const toIdx = items.indexOf(over);
+        if (fromIdx < toIdx) over.after(dragged);
+        else over.before(dragged);
+        list.querySelectorAll('.demo-draggable-item').forEach(i => i.classList.remove('drag-over'));
+      }
+    });
+  },
+  explanation: '拖拽排序让用户用最直观的方式调整顺序，符合"所见即所得"的交互哲学。适合用户需要主动排列优先级的场景。注意：移动端的拖拽实现比桌面端复杂（需要长按触发），要在 PRD 里明确说明是否需要支持移动端拖拽，以及触发方式。',
+  pmTip: '"任务列表支持拖拽排序，桌面端鼠标拖拽，移动端长按 500ms 后进入排序模式再拖动。排序完成后自动保存，不需要点保存按钮。"',
+  scenarios: ['任务/看板排序', '图片顺序调整', '菜单项排序', '收藏夹整理', '仪表盘组件布局'],
+},
+
+'accordion': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Accordion',
+  nameCN: '折叠展开',
+  tagline: '内容默认折叠隐藏，点击标题后展开显示详情，再次点击收起。',
+  demo: `<div style="max-width:400px" id="accordion-demo">
+    <div class="demo-accordion-item open">
+      <div class="demo-accordion-header" onclick="toggleAccordion(this.parentElement)">
+        <span>Q：PM 需要学会写代码吗？</span>
+        <span class="demo-accordion-arrow">▼</span>
+      </div>
+      <div class="demo-accordion-body">
+        <div class="demo-accordion-body-inner">不需要，但理解基本的技术概念很重要。能读懂接口文档、理解前后端分工、知道什么操作"技术上很难"，这些就够了。</div>
+      </div>
+    </div>
+    <div class="demo-accordion-item">
+      <div class="demo-accordion-header" onclick="toggleAccordion(this.parentElement)">
+        <span>Q：产品经理最重要的技能是什么？</span>
+        <span class="demo-accordion-arrow">▼</span>
+      </div>
+      <div class="demo-accordion-body">
+        <div class="demo-accordion-body-inner">沟通与同理心。产品经理本质是协调者——需要理解用户、开发、商业三方的语言并在中间翻译。</div>
+      </div>
+    </div>
+    <div class="demo-accordion-item">
+      <div class="demo-accordion-header" onclick="toggleAccordion(this.parentElement)">
+        <span>Q：如何学习竞品分析？</span>
+        <span class="demo-accordion-arrow">▼</span>
+      </div>
+      <div class="demo-accordion-body">
+        <div class="demo-accordion-body-inner">从用户视角真实使用竞品，记录每个关键流程的体验。然后问：他们为什么这样设计？有什么取舍？</div>
+      </div>
+    </div>
+  </div>`,
+  onMount: function() {
+    window.toggleAccordion = function(item) {
+      item.classList.toggle('open');
+    };
+  },
+  explanation: 'Accordion 通过"默认折叠"让页面保持简洁，用户按需展开感兴趣的内容。适合 FAQ、设置项、内容大纲等场景。常见设计决策：① 允许多个同时展开（独立式）vs. 只允许一个展开（手风琴式）；② 展开/折叠的动画时长通常 200-250ms。',
+  pmTip: '"FAQ 页面用 Accordion，默认全部折叠，允许多个同时展开。点击标题区域展开，箭头图标旋转 180° 表示当前状态。"',
+  scenarios: ['FAQ 页面', '设置项分组', '目录/大纲', '筛选条件分组', '移动端内容折叠'],
+},
+
+'tooltip': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Tooltip',
+  nameCN: '文字提示',
+  tagline: '鼠标悬停在元素上时出现的小型浮层，提供补充说明或操作提示。',
+  demo: `<div class="demo-col" style="gap:20px">
+    <div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">把鼠标移到下面的元素上：</p>
+      <div class="demo-row" style="padding:20px 0">
+        <div class="demo-tooltip-wrap">
+          <button class="demo-btn demo-btn-secondary">复制链接</button>
+          <div class="demo-tooltip">将链接复制到剪贴板</div>
+        </div>
+        <div class="demo-tooltip-wrap">
+          <button class="demo-btn demo-btn-secondary" disabled>导出数据</button>
+          <div class="demo-tooltip">需要管理员权限才能导出</div>
+        </div>
+        <div class="demo-tooltip-wrap">
+          <span style="font-size:16px;cursor:help;color:#94a3b8">ⓘ</span>
+          <div class="demo-tooltip">此指标为过去 30 天的平均值</div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+  explanation: 'Tooltip 提供"按需显示"的辅助信息，不占用页面空间。三种典型用途：① 解释图标按钮的功能（图标单独出现时用户可能不认识）；② 解释 Disabled 按钮为什么不可用；③ 解释数据指标的计算方式。注意：Tooltip 在移动端无效（没有鼠标悬停），移动端需要换成点击展开的 Popover。',
+  pmTip: '"所有 icon-only 的按钮都需要 Tooltip，说明该按钮的功能；Disabled 按钮的 Tooltip 说明"为什么不可用"。"',
+  scenarios: ['图标按钮说明', 'Disabled 原因解释', '数据指标注释', '表单字段补充说明', '截断文本的完整内容'],
+},
+
+'glossary': {
+  isGlossary: true,
+  demo: `<div style="max-width:700px">
+    <div class="concept-breadcrumb">附录</div>
+    <h1 class="concept-title">组件词汇表</h1>
+    <p class="concept-tagline" style="margin-bottom:24px">PM 日常会遇到的 UI 组件名词，快速查阅用。</p>
+    <div class="glossary-grid">
+      <div class="glossary-card">
+        <h3>Button</h3>
+        <div class="g-cn">按钮</div>
+        <p>触发操作的可点击元素。分类：Primary（主要）、Secondary（次要）、Ghost（幽灵）、Danger（危险）、Icon Button（图标按钮）。</p>
+        <div class="g-example">💬 话术：主操作用 Primary Button，次要操作用 Secondary Button。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Chip / Tag</h3>
+        <div class="g-cn">标签 / 芯片</div>
+        <p>小型圆角标签，用于分类、筛选或多选。<strong>Chip</strong>：可交互（可选中/删除）；<strong>Tag</strong>：纯展示，标注属性。</p>
+        <div class="g-example">💬 话术：筛选条件用 Chip，文章分类标签用 Tag。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Badge</h3>
+        <div class="g-cn">徽章 / 角标</div>
+        <p>附着在其他元素角落的小型标记，常见为红点或数字，表示未读消息数或状态提醒。</p>
+        <div class="g-example">💬 话术：消息图标右上角需要 Badge 显示未读数，超过 99 显示 "99+"。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Input / Text Field</h3>
+        <div class="g-cn">输入框</div>
+        <p>用户输入文字的表单元素。变体：Single-line（单行）、Textarea（多行）、Search（搜索框）、Password（密码框）。</p>
+        <div class="g-example">💬 话术：备注字段用 Textarea，支持最多 200 字，超出提示字数限制。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Toggle / Switch</h3>
+        <div class="g-cn">开关</div>
+        <p>布尔值开/关切换控件，视觉上是滑动的椭圆开关。与 Checkbox 的区别：Toggle 立即生效，Checkbox 需要提交表单。</p>
+        <div class="g-example">💬 话术：通知设置用 Toggle，切换后立即生效，不需要保存按钮。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Dropdown / Select</h3>
+        <div class="g-cn">下拉菜单</div>
+        <p>点击后展开选项列表，用户选择一项后收起。适合选项较多（>5 个）且空间有限的场景。</p>
+        <div class="g-example">💬 话术：城市选择用 Dropdown，选项超过 20 个时加搜索过滤。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Checkbox / Radio</h3>
+        <div class="g-cn">复选框 / 单选框</div>
+        <p><strong>Checkbox</strong>：多选，每项独立；<strong>Radio</strong>：单选，选一个其他自动取消。两者都需要提交才生效。</p>
+        <div class="g-example">💬 话术：兴趣偏好（可多选）用 Checkbox；性别（单选）用 Radio。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Avatar</h3>
+        <div class="g-cn">头像</div>
+        <p>用户或实体的图片标识符，通常为圆形。无图片时回退为名字缩写或默认图标。</p>
+        <div class="g-example">💬 话术：头像展示优先用上传图片，无图片时显示名字首字母，背景色随机。</div>
+      </div>
+    </div>
+    <div class="concept-nav" style="margin-top:32px">
+      <button class="nav-btn nav-btn-prev" onclick="navigate('tooltip')">← 上一个</button>
+      <span style="font-size:12px;color:#94a3b8">全部内容已加载完毕 🎉</span>
+    </div>
+  </div>`
+},
 };
 
 // ── Navigation state ──
