@@ -94,7 +94,7 @@ nav {
   border-radius: var(--radius); padding: 24px;
   display: flex; flex-direction: column; gap: 12px;
   transition: all 0.25s; text-decoration: none; color: inherit;
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; cursor: pointer;
 }
 .card::before {
   content: ''; position: absolute; inset: 0;
@@ -188,7 +188,7 @@ footer span { color: var(--accent); }
 
 <div class="grid">
 
-  <a class="card" href="netease-ai-game/" data-cat="project">
+  <div class="card" data-href="netease-ai-game/" data-cat="project" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Project</span>
       <span class="card-arrow">↗</span>
@@ -198,9 +198,9 @@ footer span { color: var(--accent); }
     <div class="card-meta">
       <span class="card-filename">netease-ai-game/</span>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="didi-ba-interview/didi-ba-interview.html" data-cat="project">
+  <div class="card" data-href="didi-ba-interview/didi-ba-interview.html" data-cat="project" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Project</span>
       <span class="card-arrow">↗</span>
@@ -210,9 +210,9 @@ footer span { color: var(--accent); }
     <div class="versions">
       <a class="v-chip latest" href="didi-ba-interview/didi-ba-interview.html">v1</a>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="claude-code-guide/claude-code-guide.html" data-cat="guide">
+  <div class="card" data-href="claude-code-guide/claude-code-guide.html" data-cat="guide" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Guide</span>
       <span class="card-arrow">↗</span>
@@ -222,9 +222,9 @@ footer span { color: var(--accent); }
     <div class="versions">
       <a class="v-chip latest" href="claude-code-guide/claude-code-guide.html">v1</a>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="ghostty-tutorial/ghostty-tutorial.html" data-cat="guide">
+  <div class="card" data-href="ghostty-tutorial/ghostty-tutorial.html" data-cat="guide" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Guide</span>
       <span class="card-arrow">↗</span>
@@ -234,9 +234,9 @@ footer span { color: var(--accent); }
     <div class="versions">
       <a class="v-chip latest" href="ghostty-tutorial/ghostty-tutorial.html">v1</a>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="oh-my-zsh-guide/oh-my-zsh-guide.html" data-cat="guide">
+  <div class="card" data-href="oh-my-zsh-guide/oh-my-zsh-guide.html" data-cat="guide" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Guide</span>
       <span class="card-arrow">↗</span>
@@ -246,9 +246,9 @@ footer span { color: var(--accent); }
     <div class="versions">
       <a class="v-chip latest" href="oh-my-zsh-guide/oh-my-zsh-guide.html">v1</a>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="tech-stack/tech-stack.html" data-cat="tool">
+  <div class="card" data-href="tech-stack/tech-stack.html" data-cat="tool" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Tool</span>
       <span class="card-arrow">↗</span>
@@ -258,9 +258,9 @@ footer span { color: var(--accent); }
     <div class="versions">
       <a class="v-chip latest" href="tech-stack/tech-stack.html">v1</a>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="react-card-demo/react-card-demo-v3.html" data-cat="demo">
+  <div class="card" data-href="react-card-demo/react-card-demo-v3.html" data-cat="demo" onclick="cardNav(event,this)">
     <div class="card-top">
       <span class="card-tag">Demo</span>
       <span class="card-arrow">↗</span>
@@ -272,7 +272,7 @@ footer span { color: var(--accent); }
       <a class="v-chip" href="react-card-demo/react-card-demo-v2.html">v2</a>
       <a class="v-chip" href="react-card-demo/react-card-demo.html">v1</a>
     </div>
-  </a>
+  </div>
 
 </div>
 
@@ -281,6 +281,11 @@ footer span { color: var(--accent); }
 </footer>
 
 <script>
+function cardNav(e, el) {
+  if (e.target.closest('a')) return; // let version chip links handle themselves
+  window.location.href = el.dataset.href;
+}
+
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
