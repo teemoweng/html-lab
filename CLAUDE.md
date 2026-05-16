@@ -44,7 +44,7 @@ html-lab/
 | 文件夹 | 活文档 | HTML 版本 | 说明 |
 |--------|--------|-----------|------|
 | `claude-code-guide/` | `claude-code-guide.md` ✅ | v1 ✅ | Claude Code 使用指南 |
-| `tech-stack/` | `tech-stack.md` ✅ | v1 ✅ | Teemo 的技术栈介绍 |
+| `tech-stack/` | `tech-stack.md` ✅ | v1 ✅ / v2 ✅ | Teemo 的技术栈介绍 |
 | `vibe-coding/` | `vibe-coding.md` ✅ | *(待生成)* | Vibe Coding 操作指南 |
 | `react-card-demo/` | *(待建)* | v1 / v2 / v3 ✅ | React 卡片组件演示 |
 | `ghostty-tutorial/` | *(待建)* | v1 ✅ | Ghostty 终端教程 |

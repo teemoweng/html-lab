@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的工具栈 · v2</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0f;
+      color: #e8e8ec;
+      font-family: -apple-system, "SF Pro Text", "PingFang SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+    .v-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: #0e1830;
+      color: #5b8dee;
+      border: 1px solid #1a2a50;
+      margin-left: 10px;
+      vertical-align: middle;
+      letter-spacing: 0.5px;
+    }
+    header p {
+      margin-top: 8px;
+      color: #555;
+      font-size: 13px;
+    }
+
+    /* ── AI Native banner ── */
+    .ai-banner {
+      max-width: 820px;
+      margin: 0 auto 52px;
+      background: #16161e;
+      border: 1px solid #28283c;
+      border-radius: 16px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .ai-banner-icon { font-size: 26px; flex-shrink: 0; }
+    .ai-banner-body { flex: 1; min-width: 180px; }
+    .ai-banner-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #6a9af0;
+      margin-bottom: 4px;
+    }
+    .ai-banner-body p { font-size: 12px; color: #888; line-height: 1.5; }
+    .ai-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e1e30;
+      border: 1px solid #30304a;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    /* ── Section heading ── */
+    .section-heading {
+      max-width: 1100px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-heading h2 {
+      font-size: 11px;
+      font-weight: 700;
+      color: #555;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .section-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #26263a;
+    }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto 60px;
+    }
+    .card-wide { grid-column: 1 / -1; }
+
+    /* ── Card ── */
+    .card {
+      background: #16161a;
+      border: 1px solid #1e1e24;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #2a2a36; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #1e1e24;
+    }
+    .card-icon { font-size: 18px; flex-shrink: 0; }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .card-sub {
+      margin-left: auto;
+      font-size: 11px;
+      color: #333;
+      text-align: right;
+    }
+
+    /* ── Tool rows ── */
+    .tool-list { padding: 8px 0; }
+
+    .tool-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 20px;
+      border-bottom: 1px solid #1a1a20;
+    }
+    .tool-row:last-child { border-bottom: none; }
+
+    .tool-name {
+      font-weight: 600;
+      color: #d8d8e8;
+      font-size: 13px;
+      min-width: 130px;
+      flex-shrink: 0;
+    }
+    .tool-name .sub {
+      display: block;
+      font-weight: 400;
+      font-size: 11px;
+      color: #555;
+      margin-top: 1px;
+    }
+    .tool-desc {
+      color: #666;
+      font-size: 12px;
+      flex: 1;
+      line-height: 1.6;
+    }
+
+    /* Obsidian folder chips */
+    .folder-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 7px;
+    }
+    .fc {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #0e0e12;
+      border: 1px solid #222230;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 10px;
+      color: #444;
+      font-family: "SF Mono", "Fira Mono", monospace;
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+      white-space: nowrap;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+    .b-green    { background: #0e2010; color: #4caf6e; border: 1px solid #1a3820; }
+    .b-blue     { background: #0e1428; color: #5b8dee; border: 1px solid #1a2240; }
+    .b-gray     { background: #181818; color: #555;    border: 1px solid #252525; }
+    .b-amber    { background: #1e1508; color: #c8843a; border: 1px solid #2e2010; }
+    .b-purple   { background: #14102a; color: #9b7ae8; border: 1px solid #20184a; }
+
+    /* ── Section label inside card ── */
+    .slabel {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #2e2e3a;
+      padding: 10px 20px 4px;
+    }
+
+    /* ── Note ── */
+    .note {
+      margin: 0 20px 14px;
+      padding: 10px 14px;
+      background: #0e0e12;
+      border-left: 3px solid #1e2040;
+      border-radius: 0 8px 8px 0;
+      color: #444;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════
+       WORKFLOW SECTION
+    ═══════════════════════════ */
+
+    .wf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto 60px;
+    }
+    .wf-wide { grid-column: 1 / -1; }
+
+    .wf-card {
+      background: #111116;
+      border: 1px solid #1a1a22;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .wf-card:hover { border-color: #26263a; }
+
+    .wf-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 20px 13px;
+      border-bottom: 1px solid #1a1a22;
+    }
+    .wf-cat {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .cat-proj { background: #0e1830; color: #5b8dee; border: 1px solid #1a2a50; }
+    .cat-kb   { background: #0a1e10; color: #4caf6e; border: 1px solid #163020; }
+    .cat-lite { background: #1c1508; color: #c8843a; border: 1px solid #2c2010; }
+
+    .wf-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ddd;
+    }
+    .wf-tag {
+      margin-left: auto;
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 0.5px;
+    }
+
+    /* Steps */
+    .wf-steps { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .snum {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .snum-proj { background: #0e1830; color: #5b8dee; border: 1px solid #1a2a50; }
+    .snum-kb   { background: #0a1e10; color: #4caf6e; border: 1px solid #163020; }
+    .snum-lite { background: #1c1508; color: #c8843a; border: 1px solid #2c2010; }
+    .snum-sym  { font-size: 13px; background: none; border: none; color: #333; width: 22px; justify-content: center; }
+
+    .step-body {}
+    .step-t {
+      font-size: 12px;
+      font-weight: 600;
+      color: #bbb;
+      line-height: 1.4;
+    }
+    .step-d {
+      font-size: 11px;
+      color: #444;
+      line-height: 1.5;
+      margin-top: 2px;
+    }
+
+    /* Tech tags */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 20px 16px;
+    }
+    .tt {
+      background: #0e0e18;
+      border: 1px solid #1e1e30;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: #444;
+    }
+
+    /* B2 dual cols */
+    .wf-dual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 16px 20px;
+    }
+    .wf-col {
+      background: #0c0c12;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .col-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .col-label-kb   { color: #1e4a28; }
+    .col-label-lite { color: #3a2e10; }
+
+    .mini-step {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .mini-step:last-child { margin-bottom: 0; }
+    .msnum {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .msnum-kb { background: #0a1e10; color: #4caf6e; border: 1px solid #163020; }
+    .mini-t { font-size: 11px; color: #888; line-height: 1.4; margin-top: 1px; }
+    .mini-d { font-size: 10px; color: #383838; line-height: 1.4; }
+
+    .lite-note { font-size: 11px; color: #3a3a3a; line-height: 1.6; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      margin-top: 56px;
+      color: #2a2a2a;
+      font-size: 12px;
+    }
+
+    /* ══ WORKFLOW TIMELINE ══ */
+    .wf-rows {
+      max-width: 1100px;
+      margin: 0 auto 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .wf-row {
+      background: #18181f;
+      border: 1px solid #26263a;
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      transition: border-color 0.2s;
+    }
+    .wf-row:hover { border-color: #38384e; }
+
+    .wf-row-label {
+      flex-shrink: 0;
+      width: 156px;
+      padding-right: 20px;
+      border-right: 1px solid #26263a;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-top: 2px;
+    }
+    .wf-row-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      line-height: 1.3;
+    }
+    .wf-row-id { font-size: 10px; color: #44445a; letter-spacing: 0.3px; }
+
+    .wf-flow {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      padding-left: 20px;
+      min-width: 0;
+    }
+    .wf-flow-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+      padding-left: 20px;
+    }
+    .wf-subflow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .subflow-label {
+      flex-shrink: 0;
+      width: 116px;
+      padding-right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      justify-content: center;
+    }
+    .sl-id {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-family: "SF Mono", "Fira Mono", monospace;
+    }
+    .sl-name {
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .sl-proj .sl-id, .sl-proj .sl-name { color: #4a7ac8; }
+    .sl-kb   .sl-id, .sl-kb   .sl-name { color: #4caf6e; }
+    .sl-lite .sl-id, .sl-lite .sl-name { color: #c8843a; }
+
+    .subflow-divider {
+      width: 100%;
+      height: 1px;
+      background: #22222e;
+      margin: 2px 0;
+    }
+
+    .tl-node {
+      flex-shrink: 0;
+      width: 152px;
+      background: #1e1e2c;
+      border: 1px solid #30304a;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .tl-node-sm { width: 134px; padding: 10px 12px; }
+    .tl-node-dashed { border-style: dashed; border-color: #2a2a20; background: #1a1a16; }
+
+    .tl-num {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 5px;
+      font-family: "SF Mono", "Fira Mono", monospace;
+    }
+    .tn-proj { color: #5b8dee66; }
+    .tn-kb   { color: #4caf6e66; }
+    .tn-lite { color: #c8843a66; }
+
+    .tl-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #d0d0e8;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .tl-desc {
+      font-size: 11px;
+      color: #666680;
+      line-height: 1.5;
+    }
+
+    .tl-arrow {
+      flex-shrink: 0;
+      padding: 0 8px;
+      color: #38384e;
+      font-size: 14px;
+      align-self: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>我的工具栈 <span class="v-badge">v2</span></h1>
+  <p>AI 工具 · 效率工具 · 开发环境 · 工作流</p>
+</header>
+
+<!-- AI Native banner -->
+<div class="ai-banner">
+  <div class="ai-banner-icon">⚡</div>
+  <div class="ai-banner-body">
+    <div class="ai-banner-label">AI Native 工作体系</div>
+    <p>核心工具链均可由 Claude Code 从终端统一调度；Obsidian 是所有产出的规范化中转站</p>
+  </div>
+  <div class="ai-pills">
+    <div class="pill">🪨 Obsidian</div>
+    <div class="pill">🐦 飞书 CLI + MCP</div>
+    <div class="pill">🐙 GitHub CLI</div>
+  </div>
+</div>
+
+<!-- ══ 工具站 ══ -->
+<div class="section-heading"><h2>工具站</h2></div>
+<div class="grid">
+
+  <!-- Claude 系列 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🧠</span>
+      <span class="card-title">Claude 系列 · 主力 AI</span>
+    </div>
+    <div class="tool-list">
+      <div class="slabel">macOS 客户端</div>
+      <div class="tool-row">
+        <div class="tool-name">Chat<span class="sub">Claude 客户端</span></div>
+        <div class="tool-desc">日常轻量聊天、PDF / Word 简单编辑</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Co-work<span class="sub">Claude 客户端</span></div>
+        <div class="tool-desc">学校作业、调研整理类项目（非开发）</div>
+      </div>
+      <div class="slabel">命令行</div>
+      <div class="tool-row">
+        <div class="tool-name">Claude Code<span class="sub">CLI · Ghostty</span></div>
+        <div class="tool-desc">Vibe Coding、产品设计开发；Remote Control 支持手机无缝接入终端项目</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 其他大模型 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">💬</span>
+      <span class="card-title">其他大模型</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">ChatGPT<span class="sub">OpenAI</span></div>
+        <div class="tool-desc">日常备选；GPT Image 2 生图能力突出 <span class="badge b-blue">常用</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">DeepSeek</div>
+        <div class="tool-desc">API 接入个人项目，性价比极高 <span class="badge b-blue">常用</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Gemini<span class="sub">Google</span></div>
+        <div class="tool-desc">暂无明确使用场景 <span class="badge b-gray">基本不用</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 语音输入 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🎙️</span>
+      <span class="card-title">语音输入</span>
+    </div>
+    <div class="tool-list">
+      <div class="slabel">电脑端</div>
+      <div class="tool-row">
+        <div class="tool-name">Typeless <span class="badge b-green">主力</span></div>
+        <div class="tool-desc">支持个人词库，识别准确率高，大规模使用</div>
+      </div>
+      <div class="slabel">手机端</div>
+      <div class="tool-row">
+        <div class="tool-name">豆包输入法</div>
+        <div class="tool-desc">日常聊天</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Typeless</div>
+        <div class="tool-desc">与 AI 沟通；配合 Remote Control 在手机上操控终端项目</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 知识库（全宽，重构） -->
+  <div class="card card-wide">
+    <div class="card-header">
+      <span class="card-icon">🗂️</span>
+      <span class="card-title">知识库 · 文件管理</span>
+      <span class="card-sub">AI Native — Obsidian · 飞书 · GitHub 均可由 Claude Code 统一管理</span>
+    </div>
+    <div class="tool-list">
+
+      <div class="tool-row">
+        <div class="tool-name">
+          Obsidian
+          <span class="badge b-purple">AI 工作台</span>
+          <div class="folder-chips">
+            <span class="fc">📁 Projects/</span>
+            <span class="fc">🐦 飞书/</span>
+            <span class="fc">📎 Clippings/</span>
+            <span class="fc">📚 Wiki/</span>
+          </div>
+        </div>
+        <div class="tool-desc">
+          Claude Code 的核心工作台与中转枢纽。<code style="font-size:11px;background:#0c0c12;padding:1px 5px;border-radius:3px;color:#555;">.md</code> / HTML 天然可被 Claude Code 读写；<br/>
+          <code style="font-size:11px;background:#0c0c12;padding:1px 5px;border-radius:3px;color:#555;">Projects/</code> 与 GitHub 完全同步 &nbsp;·&nbsp;
+          <code style="font-size:11px;background:#0c0c12;padding:1px 5px;border-radius:3px;color:#555;">飞书/</code> 存放飞书产物的规范与中间 .md &nbsp;·&nbsp;
+          <code style="font-size:11px;background:#0c0c12;padding:1px 5px;border-radius:3px;color:#555;">Clippings/</code> 将网页转为 .md 的临时中转 &nbsp;·&nbsp;
+          <code style="font-size:11px;background:#0c0c12;padding:1px 5px;border-radius:3px;color:#555;">Wiki/</code> 由 Claude 自发维护的知识积累区。<br/>
+          所有对外平台的产出，均先在此规范化中转再交付，相当于一个大型文件管理系统。
+        </div>
+      </div>
+
+      <div class="tool-row">
+        <div class="tool-name">飞书 <span class="badge b-green">人类交付</span></div>
+        <div class="tool-desc">最终交付给人阅读的内容平台（文档、表格等）；通过飞书 CLI + MCP，Claude Code 可在终端直接管理</div>
+      </div>
+
+      <div class="tool-row">
+        <div class="tool-name">GitHub</div>
+        <div class="tool-desc">Obsidian <code style="font-size:11px;background:#0c0c12;padding:1px 5px;border-radius:3px;color:#555;">Projects/</code> 的同步存储；有 CLI，天然接入 Claude Code；.md 文件在线可读</div>
+      </div>
+
+      <div class="tool-row">
+        <div class="tool-name">Typora <span class="badge b-gray">纯人工</span></div>
+        <div class="tool-desc">本地 .md 阅读与编辑，界面简洁优雅；链路中唯一无 CLI / MCP 的工具</div>
+      </div>
+
+    </div>
+    <div class="note">Obsidian 是整套体系的规范化中转站：所有产出在此经过格式校验和上下文填充后，再由 Claude Code 分发至目标平台</div>
+  </div>
+
+  <!-- 终端 & 编程 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">💻</span>
+      <span class="card-title">终端 & 编程工具</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">Ghostty <span class="badge b-green">终端</span></div>
+        <div class="tool-desc">运行 Claude Code CLI，比 Terminal 更好看</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Claude Code <span class="badge b-green">主力</span></div>
+        <div class="tool-desc">AI 编程工具，CLI 模式，核心开发工具</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Codex<span class="sub">OpenAI CLI</span></div>
+        <div class="tool-desc">OpenAI 的 CLI 编程工具 <span class="badge b-blue">备选</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">VS Code</div>
+        <div class="tool-desc">已被 Ghostty + Claude Code 替代 <span class="badge b-gray">基本不用</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 创作与设计 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🎨</span>
+      <span class="card-title">创作与设计</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">GPT Image 2<span class="sub">ChatGPT</span></div>
+        <div class="tool-desc">主力生图工具，能力突出</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">即梦 AI</div>
+        <div class="tool-desc">文生视频，主力工具</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Excalidraw<span class="sub">+ Excalicord</span></div>
+        <div class="tool-desc">演示 / 白板，由张 Zara 部署建立</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Claude Design</div>
+        <div class="tool-desc">前端页面设计、PPT（探索中）；部分场景已被 Claude Code 替代 <span class="badge b-amber">探索中</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">CleanShot X</div>
+        <div class="tool-desc">截屏与录屏合一</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 邮件 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">📬</span>
+      <span class="card-title">邮件管理</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">网易邮箱大师 <span class="badge b-green">主力</span></div>
+        <div class="tool-desc">管理 163 + Gmail，体验最稳定</div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Outlook</div>
+        <div class="tool-desc">学校邮箱，毕业后账号回收 <span class="badge b-gray">临时</span></div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-name">Filo</div>
+        <div class="tool-desc">AI 邮件应用，在试用中 <span class="badge b-amber">试用</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 资讯 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">📡</span>
+      <span class="card-title">资讯</span>
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <div class="tool-name">AI Hot 导航站</div>
+        <div class="tool-desc">由"数字生命卡兹克"维护，获取 AI 行业每日资讯</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ 工作流 ══ -->
+<div class="section-heading"><h2>工作流</h2></div>
+<div class="wf-rows">
+
+  <!-- Project（A1 + A2 合并） -->
+  <div class="wf-row">
+    <div class="wf-row-label">
+      <span class="wf-cat cat-proj">Project</span>
+      <div class="wf-row-name">开发项目</div>
+    </div>
+    <div class="wf-flow-col">
+      <!-- A1 -->
+      <div class="wf-subflow">
+        <div class="subflow-label sl-proj"><span class="sl-id">A1</span><span class="sl-name">静态 HTML 项目</span></div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">01</div>
+          <div class="tl-title">启动</div>
+          <div class="tl-desc">Claude Code 链接 Project 文件夹</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">02</div>
+          <div class="tl-title">文档填充</div>
+          <div class="tl-desc">建立 CLAUDE.md，提供上下文</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">03</div>
+          <div class="tl-title">设计 & 执行</div>
+          <div class="tl-desc">skills 生成 spec，CC 执行</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">04</div>
+          <div class="tl-title">部署</div>
+          <div class="tl-desc">GitHub Pages 发布</div>
+        </div>
+      </div>
+      <div class="subflow-divider"></div>
+      <!-- A2 -->
+      <div class="wf-subflow">
+        <div class="subflow-label sl-proj"><span class="sl-id">A2 · 探索中</span><span class="sl-name">Web / App 项目</span></div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">↗ A1</div>
+          <div class="tl-title">复用 A1 流程</div>
+        </div>
+        <div class="tl-arrow">+</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">+</div>
+          <div class="tl-title">前端框架</div>
+          <div class="tl-desc">React 等</div>
+        </div>
+        <div class="tl-arrow">+</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">+</div>
+          <div class="tl-title">后端 / 数据库</div>
+          <div class="tl-desc">Supabase 等</div>
+        </div>
+        <div class="tl-arrow">+</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-proj">+</div>
+          <div class="tl-title">部署平台</div>
+          <div class="tl-desc">Railway / Vercel</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 知识库（B1 + B2 合并） -->
+  <div class="wf-row">
+    <div class="wf-row-label">
+      <span class="wf-cat cat-kb">知识库</span>
+      <div class="wf-row-name">知识沉淀</div>
+    </div>
+    <div class="wf-flow-col">
+      <!-- B1 -->
+      <div class="wf-subflow">
+        <div class="subflow-label sl-kb"><span class="sl-id">B1</span><span class="sl-name">富文本知识库 → HTML</span></div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-kb">触发</div>
+          <div class="tl-title">需要富文本 / 交互</div>
+          <div class="tl-desc">如交互设计参考库</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-kb">↗ A1</div>
+          <div class="tl-title">复用静态 HTML 流程</div>
+          <div class="tl-desc">无需后端</div>
+        </div>
+      </div>
+      <div class="subflow-divider"></div>
+      <!-- B2 核心 -->
+      <div class="wf-subflow">
+        <div class="subflow-label sl-kb"><span class="sl-id">B2</span><span class="sl-name">知识沉淀 → 飞书</span></div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-kb">01</div>
+          <div class="tl-title">启动 CC</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-kb">02</div>
+          <div class="tl-title">Obsidian/飞书/</div>
+          <div class="tl-desc">读规范与模板</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-kb">03</div>
+          <div class="tl-title">新建 Topic + .md</div>
+        </div>
+        <div class="tl-arrow">→</div>
+        <div class="tl-node tl-node-sm">
+          <div class="tl-num tn-kb">04</div>
+          <div class="tl-title">生成飞书产物</div>
+        </div>
+      </div>
+      <!-- B2 轻量 -->
+      <div class="wf-subflow">
+        <div class="subflow-label sl-lite"><span class="sl-id">轻量</span><span class="sl-name">直接操作</span></div>
+        <div class="tl-node tl-node-sm tl-node-dashed">
+          <div class="tl-num tn-lite">轻量</div>
+          <div class="tl-title">直接在飞书编辑</div>
+          <div class="tl-desc">无需 Claude Code</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 极简 -->
+  <div class="wf-row">
+    <div class="wf-row-label">
+      <span class="wf-cat cat-lite">极简</span>
+      <div class="wf-row-name">内容发布</div>
+    </div>
+    <div class="wf-flow">
+      <div class="tl-node tl-node-sm">
+        <div class="tl-num tn-lite">→</div>
+        <div class="tl-title">CleanShot X</div>
+        <div class="tl-desc">截屏 / 录屏</div>
+      </div>
+      <div class="tl-arrow">→</div>
+      <div class="tl-node tl-node-sm">
+        <div class="tl-num tn-lite">→</div>
+        <div class="tl-title">直接发布</div>
+        <div class="tl-desc">小红书 / 抖音</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>v2 · 2026-05-16 · 基于 tech-stack.md 生成</p>
+</footer>
+
+</body>
+</html>

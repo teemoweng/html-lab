@@ -34,17 +34,16 @@
 
 ## 三、知识库与文件管理
 
-**核心体系：`.md` 文件 + Obsidian + Typora + GitHub**
+**核心理念：AI Native 体系 — Obsidian、飞书、GitHub 均可由 Claude Code 从终端统一管理**
 
 | 工具 | 职责 |
 |------|------|
-| Typora | 阅读与编辑单个 `.md` 文件，界面简洁优雅 |
-| Obsidian | 组织管理，建有 "Capacity" 文件夹体系；iCloud 同步；接入 Claude 延伸内容 |
-| GitHub | 本地项目同步存储，`.md` 文件在线可读 |
-| 飞书 | 历史遗留文件，待迁移整理 |
+| Obsidian | AI 工作台与中转枢纽。`.md` / HTML 天然可被 Claude Code 读写；内含 `Projects/`（工程项目，与 GitHub 完全同步）、`飞书/`（生产飞书文档的规范与中间产物暂存）、`Clippings/`（将网页转为 `.md` 的临时中转区）、`Wiki/`（Claude 自发维护的知识积累区）。所有对外平台的产出均先在 Obsidian 中转与规范化，再交付 |
+| 飞书 | 交付给人阅读的内容平台；通过飞书 CLI + MCP，Claude Code 可在终端直接管理 |
+| GitHub | Obsidian `Projects/` 的同步存储；有 CLI，天然接入 Claude Code |
+| Typora | 本地 `.md` 阅读与编辑，界面简洁优雅；链路中唯一的纯人工工具，暂无 CLI / MCP |
 
-> Obsidian 也用于录音记录，后续计划调整。  
-> Claude 可直接读取 `.md`，整个链路无缝衔接：本地 → Obsidian → GitHub → AI。
+> Obsidian 相当于一个大型文件管理系统：既是 Claude 的核心工作台，也是所有产出流向外部平台前的规范化中转站。
 
 ---
 
@@ -93,3 +92,55 @@
 
 - DeepSeek 作为 API 接入个人项目，是目前性价比最高的模型选择。
 - `.md` 格式是整个工作流的核心载体，兼顾本地编辑、AI 处理、Git 存储、工具渲染四个维度。
+
+---
+
+## 八、工作流（Workflow）
+
+### A. Project 工作流
+
+适用于最终产物为可访问页面或应用的项目。
+
+#### A1. 静态 HTML 项目
+
+1. **启动**：在 Ghostty 终端运行 Claude Code，链接到 Obsidian 对应 Project 文件夹
+2. **文档填充**：建立 `CLAUDE.md` 及各类 `.md` 文件，为 AI 提供完整项目上下文
+3. **设计执行**：调用 skills 生成 spec 文档，明确需求后由 Claude Code 执行
+4. **部署**：发布到 GitHub Pages，生成可分享链接
+
+#### A2. Web / App 项目（探索阶段）
+
+在 A1 基础上，额外涉及前后端技术栈，如：
+- 前端框架（如 React）
+- 后端 / 数据库（如 Supabase）
+- 部署平台（如 Railway、Vercel）
+
+相关工具均有 CLI / MCP，可由 Claude Code 在终端统一调用。
+
+---
+
+### B. 知识库工作流
+
+适用于知识沉淀与内容交付场景。
+
+#### B1. 富文本知识库 → HTML
+
+当内容需要交互效果、复杂渲染或便捷分享时（如交互设计参考库），直接复用 **A1 工作流**，无需后端。
+
+#### B2. 日常知识沉淀 → 飞书
+
+**核心流程（Claude Code 介入）：**
+1. 启动 Claude Code，指向 Obsidian `飞书/` 文件夹（规范与模板在此）
+2. 新建 Topic 文件夹 + 对应 `.md` 文件
+3. Claude Code 依据 `.md` 生成飞书产物（文档、表格等）
+
+**轻量流程（手动）：**
+- 直接在飞书上编辑或修改现有文档，无需 Claude Code 介入
+
+涵盖范围：学习、工作、生活记录，以及所有非 Project 类内容。
+
+---
+
+### C. 极简工作流
+
+- **小红书 / 抖音内容**：CleanShot X 截屏 / 录屏，直接发布
