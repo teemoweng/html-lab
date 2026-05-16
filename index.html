@@ -143,10 +143,10 @@ nav {
 .v-chip.more {
   cursor: pointer; user-select: none;
 }
-.v-chip:hover, .v-chip.more:hover {
-  border-color: var(--accent); color: var(--accent);
-  background: rgba(180,120,60,0.22);
-  box-shadow: 0 0 10px rgba(180,120,60,0.35);
+.v-chip.lit {
+  border-color: var(--accent) !important; color: var(--accent) !important;
+  background: rgba(180,120,60,0.25) !important;
+  box-shadow: 0 0 10px rgba(180,120,60,0.4);
   transform: scale(1.1);
 }
 .v-hidden { display: none; }
@@ -329,6 +329,11 @@ a, button, .card, .v-chip { cursor: none; }
     el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
   });
 })();
+
+document.querySelectorAll('.v-chip').forEach(chip => {
+  chip.addEventListener('mouseenter', () => chip.classList.add('lit'));
+  chip.addEventListener('mouseleave', () => chip.classList.remove('lit'));
+});
 
 function cardNav(e, el) {
   if (e.target.closest('a')) return; // let version chip links handle themselves
