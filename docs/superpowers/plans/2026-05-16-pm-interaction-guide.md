@@ -1,0 +1,1542 @@
+# PM 交互设计参考库 Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build a single self-contained HTML file that lets a PM interactively explore UI/UX interaction design concepts with live demos, explanations, PM communication tips, and scenario examples.
+
+**Architecture:** Single `pm-interaction-guide.html` file with all CSS inline in `<style>`, all logic in `<script>`. Content is defined as JS data objects (`CHAPTERS` array + `CONCEPTS` map). A `navigate(id)` function renders the active concept into the content pane. No external dependencies.
+
+**Tech Stack:** Vanilla HTML/CSS/JS, no frameworks, no CDN, self-contained.
+
+---
+
+## File Structure
+
+- Create: `html-lab/pm-interaction-guide/pm-interaction-guide.md`
+- Create: `html-lab/pm-interaction-guide/pm-interaction-guide.html`
+- Modify: `html-lab/CLAUDE.md` (add row to topic table)
+- Modify: `html-lab/index.html` (add link to new page)
+
+---
+
+### Task 1: Project Setup
+
+**Files:**
+- Create: `html-lab/pm-interaction-guide/pm-interaction-guide.md`
+- Modify: `html-lab/CLAUDE.md`
+
+- [ ] **Step 1: Create topic folder and living doc**
+
+```bash
+mkdir -p "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab/pm-interaction-guide"
+```
+
+Create `html-lab/pm-interaction-guide/pm-interaction-guide.md`:
+
+```markdown
+# PM 交互设计参考库
+
+> 开始于 2026-05-16 | 最后更新 2026-05-16
+
+## 背景
+
+产品经理在工作中需要与 UI/UX 设计师沟通，但缺乏对交互设计概念的直观认知。本项目提供一个可交互的参考库，覆盖 PM 最常遇到的交互设计模式，附带沟通话术。
+
+## 内容范围
+
+- 导言：什么是交互设计
+- 第一章：状态 (State) — Default / Hover / Active / Selected / Disabled / Loading / Error / Empty
+- 第二章：反馈 (Feedback) — Toast / Loading indicator / 确认弹窗
+- 第三章：导航与布局 — Modal / Drawer / Bottom Sheet / Tab / Breadcrumb
+- 第四章：交互模式 — 下拉刷新 / 无限滚动 / 拖拽排序 / Accordion / Tooltip
+- 附录：组件词汇表 — Chip / Tag / Badge / Button / Input
+
+## 设计决策
+
+- 单 HTML 文件，JS 数据驱动渲染
+- 左侧固定导航栏（深色），右侧内容区（浅色）
+- 每个概念：可交互演示区 + 解释 + PM 话术 + 常见场景
+```
+
+- [ ] **Step 2: Update CLAUDE.md topic table**
+
+In `html-lab/CLAUDE.md`, add a row to the topic table:
+
+```markdown
+| `pm-interaction-guide/` | `pm-interaction-guide.md` ✅ | v1 ✅ | PM 交互设计参考库 |
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.md CLAUDE.md
+git commit -m "feat: scaffold pm-interaction-guide topic"
+```
+
+---
+
+### Task 2: HTML Shell + CSS
+
+**Files:**
+- Create: `html-lab/pm-interaction-guide/pm-interaction-guide.html`
+
+- [ ] **Step 1: Create HTML file with layout and all CSS**
+
+Create `html-lab/pm-interaction-guide/pm-interaction-guide.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM 交互设计参考库</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: #1e1e2e;
+    color: #cdd6f4;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #1e1e2e;
+    overflow-y: auto;
+    padding: 20px 0 40px;
+    border-right: 1px solid #313244;
+  }
+  .brand { padding: 0 16px 20px; border-bottom: 1px solid #313244; }
+  .brand-name { font-size: 13px; font-weight: 800; color: #cba6f7; }
+  .brand-sub { font-size: 10px; color: #6c7086; margin-top: 2px; }
+
+  .sidebar-section { padding: 16px 0 0; }
+  .section-label {
+    font-size: 10px; letter-spacing: 1px; color: #6c7086;
+    padding: 0 16px 6px; text-transform: uppercase;
+  }
+  .chapter-title {
+    font-size: 12px; font-weight: 700; color: #89b4fa;
+    padding: 4px 16px 6px;
+  }
+  .nav-item {
+    font-size: 12px; padding: 6px 16px 6px 28px;
+    color: #a6adc8; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { background: #292940; color: #cdd6f4; }
+  .nav-item.active {
+    background: #292940; color: #a6e3a1;
+    border-left-color: #a6e3a1;
+  }
+  .nav-item-solo {
+    font-size: 12px; padding: 6px 16px;
+    color: #a6adc8; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item-solo:hover { background: #292940; color: #cdd6f4; }
+  .nav-item-solo.active {
+    background: #292940; color: #a6e3a1;
+    border-left-color: #a6e3a1;
+  }
+
+  /* ── Content area ── */
+  #content {
+    flex: 1;
+    background: #ffffff;
+    overflow-y: auto;
+    padding: 40px 48px 80px;
+    color: #1e293b;
+  }
+
+  .concept-breadcrumb {
+    font-size: 11px; color: #6366f1; background: #ede9fe;
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-weight: 600; margin-bottom: 10px;
+  }
+  .concept-title {
+    font-size: 26px; font-weight: 800; margin-bottom: 6px; line-height: 1.2;
+  }
+  .concept-title-cn {
+    font-size: 16px; font-weight: 400; color: #94a3b8; margin-left: 8px;
+  }
+  .concept-tagline {
+    font-size: 14px; color: #64748b; margin-bottom: 24px; line-height: 1.6;
+  }
+
+  /* Demo area */
+  .demo-area {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 24px; margin-bottom: 24px;
+  }
+  .demo-label {
+    font-size: 11px; color: #94a3b8; font-weight: 600;
+    letter-spacing: 0.5px; margin-bottom: 16px;
+  }
+
+  /* Content cards */
+  .content-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card {
+    border-radius: 10px; padding: 16px;
+  }
+  .card-explanation { background: #f0fdf4; border-left: 3px solid #22c55e; }
+  .card-pm-tip { background: #eff6ff; border-left: 3px solid #3b82f6; }
+  .card-scenarios { background: #fefce8; border-left: 3px solid #eab308; margin-bottom: 24px; }
+  .card-label { font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+  .card-explanation .card-label { color: #16a34a; }
+  .card-pm-tip .card-label { color: #1d4ed8; }
+  .card-scenarios .card-label { color: #a16207; }
+  .card p { font-size: 13px; line-height: 1.7; color: #374151; }
+  .card em { font-style: italic; }
+
+  .scenario-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .scenario-tag {
+    background: #fef9c3; color: #854d0e;
+    font-size: 12px; padding: 3px 10px; border-radius: 6px;
+  }
+
+  /* Prev/Next nav */
+  .concept-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 24px; border-top: 1px solid #f1f5f9; margin-top: 8px;
+  }
+  .nav-btn {
+    padding: 8px 20px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; border: none; font-weight: 600;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .nav-btn:active { transform: scale(0.97); }
+  .nav-btn-prev { background: #f1f5f9; color: #475569; }
+  .nav-btn-prev:hover { background: #e2e8f0; }
+  .nav-btn-next { background: #6366f1; color: white; }
+  .nav-btn-next:hover { background: #4f46e5; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* Intro page */
+  .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .intro-card {
+    background: #f8fafc; border-radius: 12px; padding: 20px;
+    border: 1px solid #e2e8f0;
+  }
+  .intro-card-icon { font-size: 24px; margin-bottom: 8px; }
+  .intro-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #1e293b; }
+  .intro-card p { font-size: 12px; color: #64748b; line-height: 1.6; }
+  .intro-highlight {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white; border-radius: 12px; padding: 20px 24px; margin: 24px 0;
+  }
+  .intro-highlight p { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.9); }
+
+  /* Glossary */
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .glossary-card {
+    background: #f8fafc; border-radius: 12px; padding: 20px;
+    border: 1px solid #e2e8f0;
+  }
+  .glossary-card h3 { font-size: 15px; font-weight: 800; color: #6366f1; margin-bottom: 4px; }
+  .glossary-card .g-cn { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+  .glossary-card p { font-size: 12px; color: #374151; line-height: 1.6; }
+  .glossary-card .g-example {
+    margin-top: 10px; background: #ede9fe; border-radius: 8px;
+    padding: 8px 12px; font-size: 11px; color: #6366f1;
+  }
+
+  /* ── Demo component styles ── */
+  .demo-btn {
+    padding: 9px 20px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; border: none; font-weight: 600;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .demo-btn-primary { background: #6366f1; color: white; }
+  .demo-btn-primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+  .demo-btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+  .demo-btn-secondary:hover { background: #e2e8f0; transform: translateY(-1px); }
+  .demo-btn-danger { background: #fee2e2; color: #dc2626; }
+  .demo-btn-danger:hover { background: #fecaca; transform: translateY(-1px); }
+  .demo-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .demo-btn:active:not(:disabled) { transform: scale(0.97) !important; }
+
+  .demo-card-item {
+    padding: 12px 16px; background: white; border-radius: 10px;
+    border: 1px solid #e2e8f0; cursor: pointer; font-size: 13px;
+    transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .demo-card-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    border-color: #c7d2fe;
+  }
+
+  .demo-chip {
+    padding: 5px 14px; background: #ede9fe; color: #6366f1;
+    border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600;
+    transition: all 0.2s; display: inline-block;
+  }
+  .demo-chip:hover { background: #ddd6fe; transform: translateY(-1px); }
+  .demo-chip.selected { background: #6366f1; color: white; }
+
+  .demo-link { color: #6366f1; text-decoration: none; font-size: 13px; cursor: pointer; }
+  .demo-link:hover { text-decoration: underline; }
+
+  .demo-input {
+    padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    font-size: 13px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    width: 200px; background: white;
+  }
+  .demo-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .demo-input.error { border-color: #ef4444; }
+  .demo-input.error:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+  .demo-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+
+  .demo-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .demo-col { display: flex; flex-direction: column; gap: 12px; }
+
+  .demo-skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .demo-spinner {
+    width: 24px; height: 24px; border: 3px solid #e2e8f0;
+    border-top-color: #6366f1; border-radius: 50%;
+    animation: spin 0.8s linear infinite; display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .demo-toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #1e293b; color: white;
+    padding: 12px 20px; border-radius: 10px; font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9999; display: flex; align-items: center; gap: 10px;
+  }
+  .demo-toast.show { transform: translateY(0); opacity: 1; }
+
+  .demo-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9998; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .demo-modal-overlay.show { opacity: 1; pointer-events: all; }
+  .demo-modal {
+    background: white; border-radius: 16px; padding: 32px;
+    width: 400px; max-width: 90vw; color: #1e293b;
+    transform: scale(0.9); transition: transform 0.2s;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  }
+  .demo-modal-overlay.show .demo-modal { transform: scale(1); }
+  .demo-modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .demo-modal p { font-size: 14px; color: #64748b; margin-bottom: 24px; line-height: 1.6; }
+  .demo-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .demo-drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 9998; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .demo-drawer-overlay.show { opacity: 1; pointer-events: all; }
+  .demo-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 320px;
+    background: white; color: #1e293b; padding: 32px 24px;
+    transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 9999; box-shadow: -8px 0 32px rgba(0,0,0,0.15);
+  }
+  .demo-drawer.show { transform: translateX(0); }
+  .demo-drawer h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .demo-drawer-item {
+    padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #475569;
+    cursor: pointer; transition: color 0.15s;
+  }
+  .demo-drawer-item:hover { color: #6366f1; }
+
+  .demo-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 16px; }
+  .demo-tab {
+    padding: 8px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: #94a3b8; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .demo-tab:hover { color: #6366f1; }
+  .demo-tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+  .demo-tab-panel { font-size: 13px; color: #475569; line-height: 1.7; }
+
+  .demo-accordion-item {
+    border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+  }
+  .demo-accordion-header {
+    padding: 14px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f8fafc; transition: background 0.15s;
+  }
+  .demo-accordion-header:hover { background: #f1f5f9; }
+  .demo-accordion-arrow { transition: transform 0.2s; display: inline-block; }
+  .demo-accordion-item.open .demo-accordion-arrow { transform: rotate(180deg); }
+  .demo-accordion-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.25s ease;
+    font-size: 13px; color: #64748b; line-height: 1.7;
+  }
+  .demo-accordion-item.open .demo-accordion-body { max-height: 200px; }
+  .demo-accordion-body-inner { padding: 12px 16px; }
+
+  .demo-tooltip-wrap { position: relative; display: inline-block; }
+  .demo-tooltip {
+    position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%) scale(0.9); opacity: 0;
+    background: #1e293b; color: white; font-size: 12px;
+    padding: 6px 12px; border-radius: 6px; white-space: nowrap;
+    pointer-events: none; transition: opacity 0.15s, transform 0.15s;
+  }
+  .demo-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: #1e293b;
+  }
+  .demo-tooltip-wrap:hover .demo-tooltip { opacity: 1; transform: translateX(-50%) scale(1); }
+
+  .demo-progress-bar {
+    height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; width: 100%;
+  }
+  .demo-progress-fill {
+    height: 100%; background: #6366f1; border-radius: 3px;
+    animation: progress 2s ease-in-out infinite;
+  }
+  @keyframes progress {
+    0% { width: 0%; } 70% { width: 85%; } 100% { width: 100%; }
+  }
+
+  .demo-draggable-list { display: flex; flex-direction: column; gap: 8px; max-width: 300px; }
+  .demo-draggable-item {
+    background: white; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    padding: 12px 16px; font-size: 13px; cursor: grab; display: flex;
+    align-items: center; gap: 10px; transition: box-shadow 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .demo-draggable-item:hover { border-color: #c7d2fe; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .demo-draggable-item.dragging { opacity: 0.4; cursor: grabbing; }
+  .demo-draggable-item.drag-over { border-color: #6366f1; background: #f5f3ff; }
+  .demo-drag-handle { color: #94a3b8; font-size: 16px; }
+
+  .demo-infinite-list { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 10px; }
+  .demo-infinite-item { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #475569; }
+  .demo-infinite-item:last-child { border-bottom: none; }
+  .demo-load-more { padding: 12px; text-align: center; font-size: 12px; color: #94a3b8; }
+
+  .demo-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .demo-breadcrumb-item { color: #6366f1; cursor: pointer; }
+  .demo-breadcrumb-item:hover { text-decoration: underline; }
+  .demo-breadcrumb-sep { color: #94a3b8; }
+  .demo-breadcrumb-current { color: #1e293b; font-weight: 600; }
+
+  .error-msg { font-size: 11px; color: #ef4444; margin-top: 4px; }
+  .empty-state { text-align: center; padding: 32px 16px; color: #94a3b8; }
+  .empty-state-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-state-title { font-size: 15px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .empty-state-sub { font-size: 13px; }
+</style>
+</head>
+<body>
+<nav id="sidebar">
+  <div class="brand">
+    <div class="brand-name">🎨 交互设计参考库</div>
+    <div class="brand-sub">PM 向 · 可交互</div>
+  </div>
+  <div id="sidebar-nav"></div>
+</nav>
+<main id="content"></main>
+
+<div class="demo-toast" id="globalToast"></div>
+<div class="demo-modal-overlay" id="globalModalOverlay">
+  <div class="demo-modal" id="globalModal"></div>
+</div>
+<div class="demo-drawer-overlay" id="globalDrawerOverlay">
+  <div class="demo-drawer" id="globalDrawer"></div>
+</div>
+
+<script>
+// ── DATA and RENDER ENGINE will be added in Tasks 3–6 ──
+</script>
+</body>
+</html>
+```
+
+- [ ] **Step 2: Open in browser to verify layout renders**
+
+Open `html-lab/pm-interaction-guide/pm-interaction-guide.html` in a browser.
+Expected: Dark sidebar on left, white content area on right, no errors in console.
+
+- [ ] **Step 3: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.html
+git commit -m "feat: add HTML shell and all CSS for pm-interaction-guide"
+```
+
+---
+
+### Task 3: JS Rendering Engine
+
+**Files:**
+- Modify: `html-lab/pm-interaction-guide/pm-interaction-guide.html` (replace `<script>` content)
+
+Replace the `<script>` block with the full engine below. The data arrays (`CHAPTERS`, `CONCEPTS`) will be populated in Tasks 4–6 — add them as empty structures here so the engine can run.
+
+- [ ] **Step 1: Add data schema + rendering engine**
+
+Replace the `<script>` block in `pm-interaction-guide.html`:
+
+```html
+<script>
+// ── CHAPTERS defines sidebar order and grouping ──
+const CHAPTERS = [
+  { id: 'intro',       label: '导言',   title: null,              icon: null,  concepts: ['intro'] },
+  { id: 'state',       label: '第一章', title: '🖱 状态 (State)',  icon: '🖱',  concepts: ['default','hover','active','selected','disabled','loading-state','error-state','empty-state'] },
+  { id: 'feedback',    label: '第二章', title: '💬 反馈 (Feedback)',icon: '💬', concepts: ['toast','loading-indicator','confirm-dialog'] },
+  { id: 'navigation',  label: '第三章', title: '🗂 导航与布局',    icon: '🗂',  concepts: ['modal','drawer','bottom-sheet','tab','breadcrumb'] },
+  { id: 'interaction', label: '第四章', title: '🔄 交互模式',      icon: '🔄',  concepts: ['pull-to-refresh','infinite-scroll','drag-drop','accordion','tooltip'] },
+  { id: 'glossary',    label: '附录',   title: '🏷 组件词汇表',    icon: '🏷',  concepts: ['glossary'] },
+];
+
+// ── CONCEPTS map: id → concept data ──
+// Schema for each concept:
+// {
+//   chapterLabel: string,       // e.g. '第一章 · 状态'
+//   name: string,               // English name
+//   nameCN: string,             // Chinese name ('' for intro/glossary)
+//   tagline: string,            // one-line description
+//   demo: string,               // inner HTML for demo area
+//   explanation: string,        // HTML string for explanation card
+//   pmTip: string|null,         // PM communication tip (null for intro/glossary)
+//   scenarios: string[]|null,   // list of scenario tags (null for intro/glossary)
+//   isIntro: bool,              // true = render as intro page
+//   isGlossary: bool,           // true = render as glossary page
+// }
+const CONCEPTS = {
+  // populated in Tasks 4–6
+};
+
+// ── Navigation state ──
+let currentId = 'intro';
+const flatOrder = CHAPTERS.flatMap(ch => ch.concepts);
+
+// ── Sidebar renderer ──
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = CHAPTERS.map(ch => {
+    if (ch.id === 'intro') {
+      return `<div class="sidebar-section">
+        <div class="section-label">${ch.label}</div>
+        <div class="nav-item-solo" id="nav-intro" onclick="navigate('intro')">📍 什么是交互设计</div>
+      </div>`;
+    }
+    if (ch.id === 'glossary') {
+      return `<div class="sidebar-section">
+        <div class="section-label">${ch.label}</div>
+        <div class="nav-item-solo" id="nav-glossary" onclick="navigate('glossary')">🏷 组件词汇表</div>
+      </div>`;
+    }
+    const items = ch.concepts.map(id => {
+      const c = CONCEPTS[id];
+      const label = c ? c.name : id;
+      return `<div class="nav-item" id="nav-${id}" onclick="navigate('${id}')">· ${label}</div>`;
+    }).join('');
+    return `<div class="sidebar-section">
+      <div class="section-label">${ch.label}</div>
+      <div class="chapter-title">${ch.title}</div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+
+// ── Content renderer ──
+function renderConcept(id) {
+  const content = document.getElementById('content');
+  const c = CONCEPTS[id];
+  if (!c) {
+    content.innerHTML = `<p style="color:#94a3b8;padding:40px">概念 "${id}" 尚未录入</p>`;
+    return;
+  }
+  if (c.isIntro) { content.innerHTML = c.demo; return; }
+  if (c.isGlossary) { content.innerHTML = c.demo; return; }
+
+  const idx = flatOrder.indexOf(id);
+  const prevId = flatOrder[idx - 1] || null;
+  const nextId = flatOrder[idx + 1] || null;
+
+  const pmBlock = c.pmTip ? `
+    <div class="card card-pm-tip">
+      <div class="card-label">🗣 PM 沟通话术</div>
+      <p><em>${c.pmTip}</em></p>
+    </div>` : '';
+
+  const scenariosBlock = c.scenarios ? `
+    <div class="card card-scenarios">
+      <div class="card-label">📱 常见场景</div>
+      <div class="scenario-tags">
+        ${c.scenarios.map(s => `<span class="scenario-tag">${s}</span>`).join('')}
+      </div>
+    </div>` : '';
+
+  content.innerHTML = `
+    <div class="concept-breadcrumb">${c.chapterLabel}</div>
+    <h1 class="concept-title">${c.name}<span class="concept-title-cn">${c.nameCN}</span></h1>
+    <p class="concept-tagline">${c.tagline}</p>
+    <div class="demo-area">
+      <div class="demo-label">🎮 可交互演示区 — 直接操作下面的元素</div>
+      ${c.demo}
+    </div>
+    <div class="content-cards">
+      <div class="card card-explanation">
+        <div class="card-label">📖 是什么 / 为什么存在</div>
+        <p>${c.explanation}</p>
+      </div>
+      ${pmBlock}
+    </div>
+    ${scenariosBlock}
+    <div class="concept-nav">
+      <button class="nav-btn nav-btn-prev" onclick="navigate('${prevId}')" ${!prevId ? 'disabled' : ''}>← 上一个</button>
+      <button class="nav-btn nav-btn-next" onclick="navigate('${nextId}')" ${!nextId ? 'disabled' : ''}>下一个 →</button>
+    </div>
+  `;
+  if (c.onMount) c.onMount();
+}
+
+// ── Navigate ──
+function navigate(id) {
+  if (!id) return;
+  currentId = id;
+  document.querySelectorAll('.nav-item, .nav-item-solo').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + id);
+  if (navEl) navEl.classList.add('active');
+  renderConcept(id);
+  document.getElementById('content').scrollTop = 0;
+}
+
+// ── Toast helper ──
+function showToast(msg, icon = '✅') {
+  const t = document.getElementById('globalToast');
+  t.innerHTML = `<span>${icon}</span> ${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Modal helpers ──
+function showModal(title, body, actions) {
+  const m = document.getElementById('globalModal');
+  m.innerHTML = `<h3>${title}</h3><p>${body}</p><div class="demo-modal-actions">${actions}</div>`;
+  document.getElementById('globalModalOverlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('globalModalOverlay').classList.remove('show');
+}
+document.getElementById('globalModalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ── Drawer helpers ──
+function showDrawer(html) {
+  document.getElementById('globalDrawer').innerHTML = html;
+  document.getElementById('globalDrawerOverlay').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('globalDrawerOverlay').classList.remove('show');
+}
+document.getElementById('globalDrawerOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeDrawer();
+});
+
+// ── Init ──
+renderSidebar();
+navigate('intro');
+</script>
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Open the file. Expected: sidebar renders all chapters (concepts show "· id" placeholders), clicking them shows "概念 X 尚未录入". No console errors.
+
+- [ ] **Step 3: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.html
+git commit -m "feat: add JS rendering engine for pm-interaction-guide"
+```
+
+---
+
+### Task 4: Data — Intro + Chapter 1 (State)
+
+**Files:**
+- Modify: `html-lab/pm-interaction-guide/pm-interaction-guide.html`
+
+Add all entries to the `CONCEPTS` object. Replace `// populated in Tasks 4–6` with the data below.
+
+- [ ] **Step 1: Add intro concept**
+
+```js
+'intro': {
+  isIntro: true,
+  demo: `
+    <div style="max-width:700px">
+      <div class="concept-breadcrumb">导言</div>
+      <h1 class="concept-title">什么是交互设计</h1>
+      <p class="concept-tagline" style="margin-bottom:24px">交互设计研究的是：用户与产品之间的每一次"对话"应该怎么发生。</p>
+      <div class="intro-highlight">
+        <p>作为 PM，你不需要会写代码，但你需要能<strong>准确描述</strong>用户操作后界面应该如何响应。这个库帮你建立这套语言。</p>
+      </div>
+      <div class="intro-grid">
+        <div class="intro-card">
+          <div class="intro-card-icon">🖱</div>
+          <h3>第一章：状态 (State)</h3>
+          <p>每个 UI 元素在不同情况下"长什么样"——悬停、选中、禁用、出错……</p>
+        </div>
+        <div class="intro-card">
+          <div class="intro-card-icon">💬</div>
+          <h3>第二章：反馈 (Feedback)</h3>
+          <p>用户操作后，界面给出的响应——提示条、加载动画、确认弹窗……</p>
+        </div>
+        <div class="intro-card">
+          <div class="intro-card-icon">🗂</div>
+          <h3>第三章：导航与布局</h3>
+          <p>页面之间如何跳转、内容如何组织——弹窗、抽屉、标签页……</p>
+        </div>
+        <div class="intro-card">
+          <div class="intro-card-icon">🔄</div>
+          <h3>第四章：交互模式</h3>
+          <p>用户与内容之间的操作方式——拖拽、下拉刷新、折叠展开……</p>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#64748b;line-height:1.7;margin-top:8px">交互设计还包含手势操作、无障碍设计、动效原则等更多领域。本库聚焦 PM 日常沟通中 <strong>90% 的高频场景</strong>，其余内容等你有需要时再深入。</p>
+      <div class="concept-nav" style="margin-top:32px">
+        <span></span>
+        <button class="nav-btn nav-btn-next" onclick="navigate('default')">开始学习 →</button>
+      </div>
+    </div>
+  `
+},
+```
+
+- [ ] **Step 2: Add State chapter concepts**
+
+```js
+'default': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Default State',
+  nameCN: '默认状态',
+  tagline: '元素未被任何操作触及时的初始外观，是用户看到它的第一眼。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary">主按钮</button>
+    <button class="demo-btn demo-btn-secondary">次要按钮</button>
+    <input class="demo-input" placeholder="输入框默认状态" readonly>
+    <span class="demo-chip">标签</span>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 以上元素均处于默认状态，没有任何交互发生</p>`,
+  explanation: 'Default state 是设计的基准线。所有其他状态（hover、active、disabled）都是在这个基础上做变化。设计规范里的组件截图通常展示的就是 default state。',
+  pmTip: '"请给我这个按钮的 default state 设计稿，我需要确认颜色和圆角。"',
+  scenarios: ['设计规范文档', '组件库截图', '原型图初稿'],
+},
+
+'hover': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Hover State',
+  nameCN: '悬停状态',
+  tagline: '鼠标悬浮到元素上时触发的视觉变化，用于提示用户"这里可以交互"。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary">主按钮（试试悬停）</button>
+    <div class="demo-card-item">卡片元素（悬停看效果）</div>
+    <span class="demo-chip">Chip 标签</span>
+    <a class="demo-link" href="#">链接文字</a>
+  </div>`,
+  explanation: 'Hover state 让用户在点击前就能感知"这里可以操作"，减少误操作，提升操作信心。没有 hover 的界面会让用户不确定哪些元素可以点击，增加认知负担。注意：移动端没有鼠标，不存在 hover state。',
+  pmTip: '"这个卡片需要有 hover state，背景加深 + 轻微上移动效，让用户知道它是可点击的。"',
+  scenarios: ['所有可点击按钮', '导航菜单项', '列表卡片', '表格行', '下拉选项'],
+},
+
+'active': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Active State',
+  nameCN: '激活状态',
+  tagline: '用户正在按住鼠标（或手指按压）时，元素呈现的"被按下"感。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" style="transition:transform 0.1s" 
+      onmousedown="this.style.transform='scale(0.96)'" 
+      onmouseup="this.style.transform=''" 
+      onmouseleave="this.style.transform=''">按住这个按钮</button>
+    <button class="demo-btn demo-btn-secondary"
+      onmousedown="this.style.transform='scale(0.96)'"
+      onmouseup="this.style.transform=''"
+      onmouseleave="this.style.transform=''">次要按钮</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 按住鼠标不放，感受"按下"的物理感</p>`,
+  explanation: 'Active state 模拟物理按键的"被按下"感，给用户即时反馈：你的操作被接收了。通常通过轻微缩小（scale）或下移（translateY）+ 阴影减弱来实现。时间极短（100-150ms）。',
+  pmTip: '"按钮点击时需要有 active state，有一个轻微的按压感，不要只改颜色。"',
+  scenarios: ['所有可点击按钮', '图标按钮', '卡片点击', '移动端 tap 操作'],
+},
+
+'selected': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Selected State',
+  nameCN: '选中状态',
+  tagline: '用户选择了某个选项后，该元素持续显示"已被选中"的视觉标记。',
+  demo: `<div>
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">点击下面的标签选择感兴趣的方向（可多选）：</p>
+    <div class="demo-row" id="chip-group">
+      <span class="demo-chip" onclick="toggleChip(this)">产品设计</span>
+      <span class="demo-chip selected" onclick="toggleChip(this)">用户研究</span>
+      <span class="demo-chip" onclick="toggleChip(this)">数据分析</span>
+      <span class="demo-chip" onclick="toggleChip(this)">商业策略</span>
+    </div>
+  </div>`,
+  onMount: function() {},
+  explanation: 'Selected state 告诉用户"你已经选了这个"，与 active state 不同：selected 是持续的（用户不操作时也保持），active 是瞬时的（只在按压时存在）。常见于 tab 切换、筛选标签、单选/多选列表。',
+  pmTip: '"筛选标签被选中后需要保持 selected state（紫底白字），直到用户再次点击取消选择。"',
+  scenarios: ['筛选 Chip', '导航 Tab', '单选/多选列表', '侧边栏当前页高亮'],
+},
+
+'disabled': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Disabled State',
+  nameCN: '禁用状态',
+  tagline: '元素当前不可操作，视觉上变灰并失去交互响应，告诉用户"现在不行"。',
+  demo: `<div class="demo-col">
+    <div class="demo-row">
+      <button class="demo-btn demo-btn-primary" disabled>提交（表单未完整）</button>
+      <button class="demo-btn demo-btn-secondary" disabled>删除（无权限）</button>
+    </div>
+    <div class="demo-row">
+      <input class="demo-input" placeholder="只读输入框" disabled>
+      <span class="demo-chip" style="opacity:0.4;cursor:not-allowed">不可选标签</span>
+    </div>
+  </div>`,
+  explanation: 'Disabled state 防止用户在条件不满足时误操作。但要谨慎使用：被禁用的元素应该让用户理解"为什么不行"——最好配合 tooltip 解释原因。纯粹灰掉而不解释原因，会让用户困惑。',
+  pmTip: '"提交按钮在必填项未填完时为 disabled state；填完后恢复可点击，不需要 tooltip。"',
+  scenarios: ['表单未完整时的提交按钮', '无权限的操作按钮', '只读模式的输入框', '付费功能的免费版入口'],
+},
+
+'loading-state': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Loading State',
+  nameCN: '加载状态',
+  tagline: '操作已触发但结果还未返回时，界面告知用户"正在处理，请稍候"。',
+  demo: `<div class="demo-col">
+    <div class="demo-row" style="align-items:center">
+      <button class="demo-btn demo-btn-primary" id="loadBtn" onclick="demoLoading()">点击触发加载</button>
+      <span id="loadStatus" style="font-size:12px;color:#94a3b8"></span>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;max-width:300px">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+        <div class="demo-skeleton" style="width:40px;height:40px;border-radius:50%"></div>
+        <div style="flex:1">
+          <div class="demo-skeleton" style="height:12px;margin-bottom:6px"></div>
+          <div class="demo-skeleton" style="height:10px;width:60%"></div>
+        </div>
+      </div>
+      <div class="demo-skeleton" style="height:10px;margin-bottom:6px"></div>
+      <div class="demo-skeleton" style="height:10px;width:80%"></div>
+    </div>
+  </div>`,
+  onMount: function() {
+    window.demoLoading = function() {
+      const btn = document.getElementById('loadBtn');
+      const status = document.getElementById('loadStatus');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="demo-spinner" style="width:14px;height:14px;border-width:2px"></span> 加载中...';
+      status.textContent = '请求已发出，等待服务器响应...';
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = '点击触发加载';
+        status.textContent = '✅ 加载完成';
+        setTimeout(() => status.textContent = '', 2000);
+      }, 2000);
+    };
+  },
+  explanation: '加载状态防止用户以为"没反应"而重复点击。常见的三种形式：① 骨架屏（Skeleton）——页面结构先出来，内容后填充，体验最好；② 转圈（Spinner）——适合局部加载；③ 进度条——适合明确知道进度的场景（上传文件）。',
+  pmTip: '"列表页首次加载时用骨架屏，不要用空白页 + 转圈；按钮点击后的等待用按钮内转圈 + disabled。"',
+  scenarios: ['页面首次加载', '列表刷新', '表单提交等待', '图片上传', '搜索结果返回'],
+},
+
+'error-state': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Error State',
+  nameCN: '错误状态',
+  tagline: '操作失败或输入不合法时，界面明确告知用户"哪里出了问题"。',
+  demo: `<div class="demo-col">
+    <div>
+      <input class="demo-input error" value="invalid-email" style="width:240px">
+      <div class="error-msg">⚠️ 请输入有效的邮箱地址</div>
+    </div>
+    <div class="demo-row" style="align-items:flex-start">
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;max-width:280px">
+        <div style="font-size:13px;font-weight:600;color:#dc2626;margin-bottom:6px">❌ 提交失败</div>
+        <div style="font-size:12px;color:#7f1d1d;line-height:1.6">网络连接超时，请检查网络后重试。</div>
+        <button class="demo-btn demo-btn-danger" style="margin-top:12px;font-size:12px;padding:6px 14px">重试</button>
+      </div>
+    </div>
+  </div>`,
+  explanation: '好的错误状态必须回答三个问题：① 什么出错了（清楚）；② 为什么出错（有帮助）；③ 用户能做什么（可操作）。"出错了" 三个字没有任何意义。错误信息要放在出错的地方，不要只在顶部弹一个通用提示。',
+  pmTip: '"表单校验错误需要在对应字段下方显示红色文字说明原因，输入框边框变红。接口失败在表单底部显示错误卡片 + 重试按钮。"',
+  scenarios: ['表单校验失败', '接口请求失败', '文件格式错误', '权限不足', '搜索无结果（有时归为 Empty）'],
+},
+
+'empty-state': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Empty State',
+  nameCN: '空状态',
+  tagline: '当列表、页面或容器中没有任何内容时，展示给用户的界面。',
+  demo: `<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+    <div class="empty-state">
+      <div class="empty-state-icon">📭</div>
+      <div class="empty-state-title">暂无消息</div>
+      <div class="empty-state-sub">你的收件箱很干净，休息一下吧</div>
+      <button class="demo-btn demo-btn-primary" style="margin-top:16px;font-size:12px">去发现内容</button>
+    </div>
+  </div>`,
+  explanation: '空状态是容易被忽视但影响巨大的场景。一个好的空状态：① 解释为什么是空的；② 给用户一个下一步行动。"暂无数据" 是最差的空状态文案——它什么信息都没传达。首次使用的空状态（onboarding）尤其重要，是留住用户的关键时刻。',
+  pmTip: '"搜索无结果的空状态需要：插画/图标 + 说明文字 + 建议操作（清除筛选条件 or 换个关键词）。"',
+  scenarios: ['搜索无结果', '列表首次为空（新用户）', '筛选条件过严', '消息/通知全部已读', '购物车为空'],
+},
+```
+
+- [ ] **Step 3: Verify in browser**
+
+Open file, click through all State chapter items. Each should show its demo, explanation, PM tip, and scenario tags. `navigate('next')` button should work.
+
+- [ ] **Step 4: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.html
+git commit -m "feat: add intro and state chapter data"
+```
+
+---
+
+### Task 5: Data — Chapter 2 (Feedback) + Chapter 3 (Navigation)
+
+**Files:**
+- Modify: `html-lab/pm-interaction-guide/pm-interaction-guide.html`
+
+Add these entries to `CONCEPTS`:
+
+- [ ] **Step 1: Add Feedback chapter**
+
+```js
+'toast': {
+  chapterLabel: '第二章 · 反馈',
+  name: 'Toast / Snackbar',
+  nameCN: '轻提示',
+  tagline: '操作完成后从屏幕边缘短暂出现的小提示条，几秒后自动消失。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" onclick="showToast('文件已保存', '✅')">成功提示</button>
+    <button class="demo-btn demo-btn-secondary" onclick="showToast('操作失败，请重试', '❌')">失败提示</button>
+    <button class="demo-btn demo-btn-secondary" onclick="showToast('链接已复制到剪贴板', '📋')">信息提示</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，看右下角出现的 Toast</p>`,
+  explanation: 'Toast 适合"告知用户操作结果"但不需要用户确认的场景。关键规则：① 自动消失（2-4秒）；② 不打断用户当前操作；③ 只用于结果通知，不用于需要用户决策的场景（那种用 Dialog）。Toast 和 Snackbar 本质相同，Material Design 叫 Snackbar，iOS 叫 Toast。',
+  pmTip: '"删除成功后用 Toast 告知，位置在屏幕右下角，3秒后消失，不需要用户点确认。"',
+  scenarios: ['保存成功/失败', '复制链接', '发送消息', '添加到收藏', '撤销操作提示'],
+},
+
+'loading-indicator': {
+  chapterLabel: '第二章 · 反馈',
+  name: 'Loading Indicator',
+  nameCN: '加载指示器',
+  tagline: '等待数据时给用户的视觉反馈，让用户知道系统正在工作。',
+  demo: `<div class="demo-col" style="gap:20px">
+    <div>
+      <p style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px">① 骨架屏（Skeleton Screen）— 推荐用于页面/列表加载</p>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="demo-skeleton" style="width:48px;height:48px;border-radius:50%;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="demo-skeleton" style="height:13px;margin-bottom:8px;width:70%"></div>
+          <div class="demo-skeleton" style="height:11px;width:40%"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px">② Spinner（转圈）— 适合局部加载、按钮等待</p>
+      <div class="demo-row" style="align-items:center">
+        <div class="demo-spinner"></div>
+        <button class="demo-btn demo-btn-primary" disabled>
+          <span class="demo-spinner" style="width:14px;height:14px;border-width:2px"></span> 提交中...
+        </button>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px">③ 进度条（Progress Bar）— 适合上传/下载等有进度的场景</p>
+      <div class="demo-progress-bar"><div class="demo-progress-fill"></div></div>
+    </div>
+  </div>`,
+  explanation: '三种指示器适用场景不同：骨架屏最能减少用户的"感知等待时间"，因为页面结构已经在了；Spinner 最简单但也最无聊，不要在整页上用大转圈；进度条只适合能计算进度的操作，否则用伪进度条会更好（先快后慢）。',
+  pmTip: '"列表页首次加载用骨架屏，不要转圈；提交按钮等待时按钮变 disabled + 内嵌小转圈；文件上传用进度条。"',
+  scenarios: ['页面首次加载', '下拉刷新', '按钮点击等待', '文件上传下载', '搜索结果加载'],
+},
+
+'confirm-dialog': {
+  chapterLabel: '第二章 · 反馈',
+  name: 'Confirm Dialog',
+  nameCN: '确认弹窗',
+  tagline: '在执行不可逆操作前，要求用户明确确认意图的模态弹窗。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-danger" onclick="showModal(
+      '确认删除这条记录？',
+      '此操作不可撤销。删除后数据将永久丢失，无法恢复。',
+      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
+       <button class=\\"demo-btn demo-btn-danger\\" onclick=\\"closeModal();showToast('已删除','🗑️')\\">确认删除</button>\`
+    )">删除操作（点我）</button>
+    <button class="demo-btn demo-btn-secondary" onclick="showModal(
+      '确定要退出登录吗？',
+      '退出后需要重新输入账号密码登录。',
+      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
+       <button class=\\"demo-btn demo-btn-primary\\" onclick=\\"closeModal();showToast('已退出登录','👋')\\">退出登录</button>\`
+    )">退出登录（点我）</button>
+  </div>`,
+  explanation: 'Confirm Dialog（确认弹窗）强制用户暂停并做决策，适合不可逆的危险操作（删除、清空、注销）。关键原则：① 按钮文字要说明后果（"确认删除"而非"确定"）；② 危险按钮用红色；③ 取消按钮要放在左边、确认在右边。不要对每个操作都加确认弹窗，这会让用户麻木。',
+  pmTip: '"删除操作需要确认弹窗：标题说清楚要做什么，描述文字说明不可逆，确认按钮红色写"确认删除"，取消按钮置左。"',
+  scenarios: ['删除数据', '清空列表', '账号注销', '退出登录', '放弃未保存的编辑'],
+},
+```
+
+- [ ] **Step 2: Add Navigation chapter**
+
+```js
+'modal': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Modal',
+  nameCN: '模态弹窗',
+  tagline: '出现在当前页面上方的浮层，背景变暗，用户必须处理后才能继续。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" onclick="showModal(
+      '编辑个人信息',
+      '在下方修改你的姓名和邮箱，完成后点击保存。',
+      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
+       <button class=\\"demo-btn demo-btn-primary\\" onclick=\\"closeModal();showToast('保存成功','✅')\\">保存</button>\`
+    )">打开 Modal 弹窗</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，感受 Modal 的遮罩和弹出效果；点击背景或取消可关闭</p>`,
+  explanation: 'Modal 是"阻断式"的——用户必须处理它才能继续原来的操作。适合需要用户专注完成的任务（填写表单、确认操作）。过度使用 Modal 会打断用户流程，引发烦躁。原则：Modal 内的任务应该简短、明确，不要在 Modal 里放太多内容或打开另一个 Modal（"弹窗套弹窗"是反模式）。',
+  pmTip: '"新增记录的表单用 Modal 承载，字段不超过 5 个；字段太多的放独立页面，不要把整张表塞进 Modal。"',
+  scenarios: ['新增/编辑表单', '确认操作', '图片预览', '快捷设置', '引导提示'],
+},
+
+'drawer': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Drawer',
+  nameCN: '抽屉',
+  tagline: '从屏幕边缘（通常是右侧）滑入的面板，不完全遮挡原页面。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" onclick="showDrawer(\`
+      <h3>筛选条件</h3>
+      <div style='margin-top:16px'>
+        <div class='demo-drawer-item'>价格区间</div>
+        <div class='demo-drawer-item'>品牌</div>
+        <div class='demo-drawer-item'>评分</div>
+        <div class='demo-drawer-item'>发货地</div>
+        <div class='demo-drawer-item'>配送方式</div>
+      </div>
+      <div style='display:flex;gap:10px;margin-top:24px'>
+        <button class='demo-btn demo-btn-secondary' onclick='closeDrawer()' style='flex:1'>重置</button>
+        <button class='demo-btn demo-btn-primary' onclick='closeDrawer();showToast(\"已应用筛选\",\"✅\")' style='flex:1'>应用</button>
+      </div>
+    \`)">打开 Drawer 抽屉</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，感受从右侧滑入的 Drawer；点击背景可关闭</p>`,
+  explanation: 'Drawer 和 Modal 都是覆盖层，但 Drawer 不完全遮挡原页面，用户仍能感知到背后的内容。适合"不需要完全离开当前页面"的辅助任务，如筛选条件、设置面板、详情预览。移动端 Drawer 通常从底部滑入（称为 Bottom Sheet）。',
+  pmTip: '"筛选面板用右侧 Drawer，这样用户能同时看到列表在背后更新。不要用全屏 Modal 来做筛选。"',
+  scenarios: ['筛选面板', '设置选项', '详情预览', '移动端导航菜单', '购物车'],
+},
+
+'bottom-sheet': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Bottom Sheet',
+  nameCN: '底部弹出层',
+  tagline: '从屏幕底部向上滑出的面板，是移动端 Drawer 的变体，符合拇指操作习惯。',
+  demo: `<div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;max-width:320px;background:#f8fafc">
+    <div style="background:#e2e8f0;height:200px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px">
+      手机屏幕内容区
+    </div>
+    <div style="background:white;border-top:1px solid #e2e8f0;padding:16px">
+      <div style="width:32px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">分享至</div>
+      <div style="display:flex;gap:16px;justify-content:center">
+        <div style="text-align:center;cursor:pointer">
+          <div style="width:44px;height:44px;background:#ede9fe;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px">💬</div>
+          <div style="font-size:11px;color:#64748b">微信</div>
+        </div>
+        <div style="text-align:center;cursor:pointer">
+          <div style="width:44px;height:44px;background:#fef9c3;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px">🐦</div>
+          <div style="font-size:11px;color:#64748b">微博</div>
+        </div>
+        <div style="text-align:center;cursor:pointer">
+          <div style="width:44px;height:44px;background:#f0fdf4;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px">📋</div>
+          <div style="font-size:11px;color:#64748b">复制链接</div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+  explanation: 'Bottom Sheet 是移动端设计的核心模式。原因：手机屏幕上，大拇指自然弯曲能够到的区域在屏幕底部——从底部弹出的面板比从顶部弹出更易于操作。它可以是"半屏"（显示部分选项）或"全屏"（复杂表单），用户也可以上滑展开或下滑关闭。',
+  pmTip: '"移动端的操作菜单（更多操作）用 Bottom Sheet，不要用右键菜单或顶部弹窗。"',
+  scenarios: ['分享操作', '更多操作菜单', '移动端筛选', '评论输入框', '地图选点'],
+},
+
+'tab': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Tab',
+  nameCN: '标签页',
+  tagline: '将同一层级的多个内容区域并列放置，用户点击标签切换显示。',
+  demo: `<div id="tab-demo">
+    <div class="demo-tabs">
+      <div class="demo-tab active" onclick="switchTab(this,'tab-all')">全部</div>
+      <div class="demo-tab" onclick="switchTab(this,'tab-progress')">进行中</div>
+      <div class="demo-tab" onclick="switchTab(this,'tab-done')">已完成</div>
+    </div>
+    <div id="tab-all" class="demo-tab-panel">共 12 条任务，显示全部内容。点击其他标签查看筛选结果。</div>
+    <div id="tab-progress" class="demo-tab-panel" style="display:none">3 条进行中的任务：需求评审、UI 走查、数据分析报告...</div>
+    <div id="tab-done" class="demo-tab-panel" style="display:none">9 条已完成任务：用户调研、竞品分析、原型设计...</div>
+  </div>`,
+  onMount: function() {
+    window.switchTab = function(el, panelId) {
+      document.querySelectorAll('#tab-demo .demo-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#tab-demo .demo-tab-panel').forEach(p => p.style.display = 'none');
+      el.classList.add('active');
+      document.getElementById(panelId).style.display = 'block';
+    };
+  },
+  explanation: 'Tab 适合"同级内容的切换"，不适合有层级关系的内容（那用面包屑或侧边栏）。关键原则：Tab 数量不超过 5 个；Tab 标题要简洁（2-4字）；当前选中 Tab 要有明显的视觉区分。移动端 Tab 通常在底部（Bottom Navigation Bar）。',
+  pmTip: '"任务列表按状态分三个 Tab：全部 / 进行中 / 已完成，切换 Tab 时列表内容更新但不跳页。"',
+  scenarios: ['内容分类切换', '个人中心功能分区', '数据报表时间维度', '设置分类', '移动端底部导航'],
+},
+
+'breadcrumb': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Breadcrumb',
+  nameCN: '面包屑',
+  tagline: '显示用户当前在网站/App 层级结构中所在位置的导航路径，支持点击返回。',
+  demo: `<div class="demo-col" style="gap:16px">
+    <div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">电商场景</p>
+      <div class="demo-breadcrumb">
+        <span class="demo-breadcrumb-item">首页</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-item">手机数码</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-item">智能手机</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-current">iPhone 16 Pro</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">管理后台场景</p>
+      <div class="demo-breadcrumb">
+        <span class="demo-breadcrumb-item">控制台</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-item">用户管理</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-current">编辑用户 #2847</span>
+      </div>
+    </div>
+  </div>`,
+  explanation: '面包屑解决"用户迷路"问题——当网站层级超过 2 层时，用户需要知道"我在哪儿"以及"怎么回去"。命名来自童话《汉赛尔与格蕾特》里用面包屑标记路径的情节。注意：如果网站只有 1-2 层，面包屑是多余的；移动端空间有限，面包屑常被省略或简化。',
+  pmTip: '"后台管理系统的详情页需要面包屑，格式：模块名 › 列表页名称 › 当前记录名，最后一级不可点击。"',
+  scenarios: ['电商商品详情页', 'B端管理后台', '文档/知识库网站', '多级分类浏览', '设置页面深层路径'],
+},
+```
+
+- [ ] **Step 3: Verify chapters 2 and 3 in browser**
+
+Click all Feedback and Navigation items. Toast and Modal demos should be interactive. Tab switching should work.
+
+- [ ] **Step 4: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.html
+git commit -m "feat: add feedback and navigation chapter data"
+```
+
+---
+
+### Task 6: Data — Chapter 4 (Interaction Patterns) + Glossary
+
+**Files:**
+- Modify: `html-lab/pm-interaction-guide/pm-interaction-guide.html`
+
+- [ ] **Step 1: Add interaction patterns chapter**
+
+```js
+'pull-to-refresh': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Pull to Refresh',
+  nameCN: '下拉刷新',
+  tagline: '在移动端，用户向下拉动列表超过一定距离后，触发内容刷新。',
+  demo: `<div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;max-width:300px">
+    <div style="background:#f8fafc;padding:10px 16px;text-align:center;font-size:12px;color:#94a3b8;border-bottom:1px solid #e2e8f0">
+      ↓ 在手机上：向下拉动此区域
+    </div>
+    <div style="max-height:180px;overflow-y:auto" id="ptr-list">
+      <div style="text-align:center;padding:12px;font-size:12px;color:#6366f1">↑ 下拉刷新</div>
+      <div class="demo-infinite-item">📨 新消息来自 Alice</div>
+      <div class="demo-infinite-item">📨 新消息来自 Bob</div>
+      <div class="demo-infinite-item">📨 历史消息 1</div>
+      <div class="demo-infinite-item">📨 历史消息 2</div>
+    </div>
+    <div style="padding:12px;text-align:center">
+      <button class="demo-btn demo-btn-secondary" style="font-size:12px" onclick="showToast('刷新成功，获取到 2 条新消息','✅')">
+        模拟刷新
+      </button>
+    </div>
+  </div>`,
+  explanation: '下拉刷新是移动端特有的交互模式，由 Twitter 在 2008 年首创。它利用了手机屏幕可以向下滚动的物理直觉——当用户"拉过头"时，触发刷新。这个模式现在已经成为移动用户的肌肉记忆。桌面端不用下拉刷新，而是用刷新按钮或自动轮询。',
+  pmTip: '"消息列表和 Feed 流需要支持下拉刷新，拉到顶部下拉 60px 触发，触发时显示 loading 动画，完成后提示"获取到 N 条新消息"。"',
+  scenarios: ['消息列表', '朋友圈/Feed流', '新闻列表', '订单列表', '通知中心'],
+},
+
+'infinite-scroll': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Infinite Scroll',
+  nameCN: '无限滚动',
+  tagline: '用户向下滚动接近列表底部时，自动加载更多内容，无需点击"下一页"。',
+  demo: `<div style="max-width:300px">
+    <div class="demo-infinite-list" id="infinite-list" onscroll="checkInfiniteScroll()">
+      <div class="demo-infinite-item">📄 文章 1：产品经理如何做需求分析</div>
+      <div class="demo-infinite-item">📄 文章 2：用户研究方法汇总</div>
+      <div class="demo-infinite-item">📄 文章 3：数据驱动的产品决策</div>
+      <div class="demo-infinite-item">📄 文章 4：如何写好 PRD</div>
+      <div class="demo-infinite-item">📄 文章 5：竞品分析框架</div>
+      <div id="load-more-trigger" class="demo-load-more">↓ 继续向下滚动加载更多</div>
+    </div>
+  </div>`,
+  onMount: function() {
+    let count = 5;
+    window.checkInfiniteScroll = function() {
+      const list = document.getElementById('infinite-list');
+      const trigger = document.getElementById('load-more-trigger');
+      if (!list || !trigger) return;
+      if (list.scrollTop + list.clientHeight >= list.scrollHeight - 20) {
+        trigger.textContent = '加载中...';
+        setTimeout(() => {
+          count++;
+          const item = document.createElement('div');
+          item.className = 'demo-infinite-item';
+          item.textContent = `📄 文章 ${count}：动态加载的新内容`;
+          list.insertBefore(item, trigger);
+          trigger.textContent = count < 8 ? '↓ 继续向下滚动加载更多' : '已加载全部内容';
+        }, 600);
+      }
+    };
+  },
+  explanation: '无限滚动让用户沉浸在内容中（社交媒体深知这一点）。适合内容消费型场景（Feed、图片流）；不适合需要记住位置的场景（搜索结果——用户找到后想返回，分页更好）。主要缺点：用户无法到达页脚，也无法分享"第 N 页"的链接。',
+  pmTip: '"内容 Feed 用无限滚动；搜索结果列表用分页，因为用户需要能定位到具体页数。"',
+  scenarios: ['社交媒体 Feed', '图片/视频流', '商品列表（浏览型）', '评论列表', '消息历史'],
+},
+
+'drag-drop': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Drag & Drop',
+  nameCN: '拖拽排序',
+  tagline: '用户通过拖动元素来改变其位置或顺序，完成排列或移动操作。',
+  demo: `<div>
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">拖动下面的卡片来重新排序：</p>
+    <div class="demo-draggable-list" id="drag-list">
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> 需求评审
+      </div>
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> UI 设计
+      </div>
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> 开发实现
+      </div>
+      <div class="demo-draggable-item" draggable="true">
+        <span class="demo-drag-handle">⠿</span> 测试验收
+      </div>
+    </div>
+  </div>`,
+  onMount: function() {
+    const list = document.getElementById('drag-list');
+    if (!list) return;
+    let dragged = null;
+    list.addEventListener('dragstart', e => {
+      dragged = e.target.closest('.demo-draggable-item');
+      setTimeout(() => dragged && dragged.classList.add('dragging'), 0);
+    });
+    list.addEventListener('dragend', e => {
+      dragged && dragged.classList.remove('dragging');
+      list.querySelectorAll('.demo-draggable-item').forEach(i => i.classList.remove('drag-over'));
+    });
+    list.addEventListener('dragover', e => {
+      e.preventDefault();
+      const over = e.target.closest('.demo-draggable-item');
+      if (over && over !== dragged) {
+        list.querySelectorAll('.demo-draggable-item').forEach(i => i.classList.remove('drag-over'));
+        over.classList.add('drag-over');
+      }
+    });
+    list.addEventListener('drop', e => {
+      e.preventDefault();
+      const over = e.target.closest('.demo-draggable-item');
+      if (over && over !== dragged) {
+        const items = [...list.querySelectorAll('.demo-draggable-item')];
+        const fromIdx = items.indexOf(dragged);
+        const toIdx = items.indexOf(over);
+        if (fromIdx < toIdx) over.after(dragged);
+        else over.before(dragged);
+        list.querySelectorAll('.demo-draggable-item').forEach(i => i.classList.remove('drag-over'));
+      }
+    });
+  },
+  explanation: '拖拽排序让用户用最直观的方式调整顺序，符合"所见即所得"的交互哲学。适合用户需要主动排列优先级的场景。注意：移动端的拖拽实现比桌面端复杂（需要长按触发），要在 PRD 里明确说明是否需要支持移动端拖拽，以及触发方式。',
+  pmTip: '"任务列表支持拖拽排序，桌面端鼠标拖拽，移动端长按 500ms 后进入排序模式再拖动。排序完成后自动保存，不需要点保存按钮。"',
+  scenarios: ['任务/看板排序', '图片顺序调整', '菜单项排序', '收藏夹整理', '仪表盘组件布局'],
+},
+
+'accordion': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Accordion',
+  nameCN: '折叠展开',
+  tagline: '内容默认折叠隐藏，点击标题后展开显示详情，再次点击收起。',
+  demo: `<div style="max-width:400px" id="accordion-demo">
+    <div class="demo-accordion-item open">
+      <div class="demo-accordion-header" onclick="toggleAccordion(this.parentElement)">
+        <span>Q：PM 需要学会写代码吗？</span>
+        <span class="demo-accordion-arrow">▼</span>
+      </div>
+      <div class="demo-accordion-body">
+        <div class="demo-accordion-body-inner">不需要，但理解基本的技术概念很重要。能读懂接口文档、理解前后端分工、知道什么操作"技术上很难"，这些就够了。</div>
+      </div>
+    </div>
+    <div class="demo-accordion-item">
+      <div class="demo-accordion-header" onclick="toggleAccordion(this.parentElement)">
+        <span>Q：产品经理最重要的技能是什么？</span>
+        <span class="demo-accordion-arrow">▼</span>
+      </div>
+      <div class="demo-accordion-body">
+        <div class="demo-accordion-body-inner">沟通与同理心。产品经理本质是协调者——需要理解用户、开发、商业三方的语言并在中间翻译。</div>
+      </div>
+    </div>
+    <div class="demo-accordion-item">
+      <div class="demo-accordion-header" onclick="toggleAccordion(this.parentElement)">
+        <span>Q：如何学习竞品分析？</span>
+        <span class="demo-accordion-arrow">▼</span>
+      </div>
+      <div class="demo-accordion-body">
+        <div class="demo-accordion-body-inner">从用户视角真实使用竞品，记录每个关键流程的体验。然后问：他们为什么这样设计？有什么取舍？</div>
+      </div>
+    </div>
+  </div>`,
+  onMount: function() {
+    window.toggleAccordion = function(item) {
+      item.classList.toggle('open');
+    };
+  },
+  explanation: 'Accordion 通过"默认折叠"让页面保持简洁，用户按需展开感兴趣的内容。适合 FAQ、设置项、内容大纲等场景。常见设计决策：① 允许多个同时展开（独立式）vs. 只允许一个展开（手风琴式）；② 展开/折叠的动画时长通常 200-250ms。',
+  pmTip: '"FAQ 页面用 Accordion，默认全部折叠，允许多个同时展开。点击标题区域展开，箭头图标旋转 180° 表示当前状态。"',
+  scenarios: ['FAQ 页面', '设置项分组', '目录/大纲', '筛选条件分组', '移动端内容折叠'],
+},
+
+'tooltip': {
+  chapterLabel: '第四章 · 交互模式',
+  name: 'Tooltip',
+  nameCN: '文字提示',
+  tagline: '鼠标悬停在元素上时出现的小型浮层，提供补充说明或操作提示。',
+  demo: `<div class="demo-col" style="gap:20px">
+    <div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">把鼠标移到下面的元素上：</p>
+      <div class="demo-row" style="padding:20px 0">
+        <div class="demo-tooltip-wrap">
+          <button class="demo-btn demo-btn-secondary">复制链接</button>
+          <div class="demo-tooltip">将链接复制到剪贴板</div>
+        </div>
+        <div class="demo-tooltip-wrap">
+          <button class="demo-btn demo-btn-secondary" disabled>导出数据</button>
+          <div class="demo-tooltip">需要管理员权限才能导出</div>
+        </div>
+        <div class="demo-tooltip-wrap">
+          <span style="font-size:16px;cursor:help;color:#94a3b8">ⓘ</span>
+          <div class="demo-tooltip">此指标为过去 30 天的平均值</div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+  explanation: 'Tooltip 提供"按需显示"的辅助信息，不占用页面空间。三种典型用途：① 解释图标按钮的功能（图标单独出现时用户可能不认识）；② 解释 Disabled 按钮为什么不可用；③ 解释数据指标的计算方式。注意：Tooltip 在移动端无效（没有鼠标悬停），移动端需要换成点击展开的 Popover。',
+  pmTip: '"所有 icon-only 的按钮都需要 Tooltip，说明该按钮的功能；Disabled 按钮的 Tooltip 说明"为什么不可用"。"',
+  scenarios: ['图标按钮说明', 'Disabled 原因解释', '数据指标注释', '表单字段补充说明', '截断文本的完整内容'],
+},
+```
+
+- [ ] **Step 2: Add glossary**
+
+```js
+'glossary': {
+  isGlossary: true,
+  demo: `<div style="max-width:700px">
+    <div class="concept-breadcrumb">附录</div>
+    <h1 class="concept-title">组件词汇表</h1>
+    <p class="concept-tagline" style="margin-bottom:24px">PM 日常会遇到的 UI 组件名词，快速查阅用。</p>
+    <div class="glossary-grid">
+      <div class="glossary-card">
+        <h3>Button</h3>
+        <div class="g-cn">按钮</div>
+        <p>触发操作的可点击元素。分类：Primary（主要）、Secondary（次要）、Ghost（幽灵）、Danger（危险）、Icon Button（图标按钮）。</p>
+        <div class="g-example">💬 话术：主操作用 Primary Button，次要操作用 Secondary Button。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Chip / Tag</h3>
+        <div class="g-cn">标签 / 芯片</div>
+        <p>小型圆角标签，用于分类、筛选或多选。<strong>Chip</strong>：可交互（可选中/删除）；<strong>Tag</strong>：纯展示，标注属性。</p>
+        <div class="g-example">💬 话术：筛选条件用 Chip，文章分类标签用 Tag。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Badge</h3>
+        <div class="g-cn">徽章 / 角标</div>
+        <p>附着在其他元素角落的小型标记，常见为红点或数字，表示未读消息数或状态提醒。</p>
+        <div class="g-example">💬 话术：消息图标右上角需要 Badge 显示未读数，超过 99 显示 "99+"。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Input / Text Field</h3>
+        <div class="g-cn">输入框</div>
+        <p>用户输入文字的表单元素。变体：Single-line（单行）、Textarea（多行）、Search（搜索框）、Password（密码框）。</p>
+        <div class="g-example">💬 话术：备注字段用 Textarea，支持最多 200 字，超出提示字数限制。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Toggle / Switch</h3>
+        <div class="g-cn">开关</div>
+        <p>布尔值开/关切换控件，视觉上是滑动的椭圆开关。与 Checkbox 的区别：Toggle 立即生效，Checkbox 需要提交表单。</p>
+        <div class="g-example">💬 话术：通知设置用 Toggle，切换后立即生效，不需要保存按钮。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Dropdown / Select</h3>
+        <div class="g-cn">下拉菜单</div>
+        <p>点击后展开选项列表，用户选择一项后收起。适合选项较多（>5 个）且空间有限的场景。</p>
+        <div class="g-example">💬 话术：城市选择用 Dropdown，选项超过 20 个时加搜索过滤。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Checkbox / Radio</h3>
+        <div class="g-cn">复选框 / 单选框</div>
+        <p><strong>Checkbox</strong>：多选，每项独立；<strong>Radio</strong>：单选，选一个其他自动取消。两者都需要提交才生效。</p>
+        <div class="g-example">💬 话术：兴趣偏好（可多选）用 Checkbox；性别（单选）用 Radio。</div>
+      </div>
+      <div class="glossary-card">
+        <h3>Avatar</h3>
+        <div class="g-cn">头像</div>
+        <p>用户或实体的图片标识符，通常为圆形。无图片时回退为名字缩写或默认图标。</p>
+        <div class="g-example">💬 话术：头像展示优先用上传图片，无图片时显示名字首字母，背景色随机。</div>
+      </div>
+    </div>
+    <div class="concept-nav" style="margin-top:32px">
+      <button class="nav-btn nav-btn-prev" onclick="navigate('tooltip')">← 上一个</button>
+      <span style="font-size:12px;color:#94a3b8">全部内容已加载完毕 🎉</span>
+    </div>
+  </div>`
+},
+```
+
+- [ ] **Step 3: Verify all chapters in browser**
+
+Click through every item in the sidebar. All 22 items (1 intro + 8 state + 3 feedback + 5 nav + 5 interaction + 1 glossary) should render without errors. Interactive demos (drag, accordion, tab, infinite scroll) should all work.
+
+- [ ] **Step 4: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.html
+git commit -m "feat: add interaction patterns and glossary data"
+```
+
+---
+
+### Task 7: Polish — onMount Wiring + Active State on Load
+
+**Files:**
+- Modify: `html-lab/pm-interaction-guide/pm-interaction-guide.html`
+
+The `renderConcept` function already calls `c.onMount()` if defined. But concepts like `tab` and `accordion` define `window.*` functions in `onMount` — need to ensure these aren't overwritten when navigating away and back.
+
+- [ ] **Step 1: Update renderConcept to call onMount after setting innerHTML**
+
+Verify the existing `renderConcept` function already has:
+```js
+if (c.onMount) c.onMount();
+```
+at the end (after `content.innerHTML = ...`). If missing, add it.
+
+- [ ] **Step 2: Verify onMount demos work after re-navigating**
+
+1. Click "Tab" in sidebar — tab switching should work
+2. Click away to another concept
+3. Click "Tab" again — tab switching should still work (onMount re-registers the handler)
+
+Expected: Works correctly both times.
+
+- [ ] **Step 3: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add pm-interaction-guide/pm-interaction-guide.html
+git commit -m "fix: ensure onMount demos re-initialize on re-navigation"
+```
+
+---
+
+### Task 8: Finalization — index.html + CLAUDE.md
+
+**Files:**
+- Modify: `html-lab/index.html`
+- Modify: `html-lab/CLAUDE.md`
+
+- [ ] **Step 1: Read current index.html**
+
+Read `html-lab/index.html` to understand its current link format before editing.
+
+- [ ] **Step 2: Add link to pm-interaction-guide in index.html**
+
+Add a card/link entry following the existing pattern in the file, pointing to `pm-interaction-guide/pm-interaction-guide.html`.
+
+- [ ] **Step 3: Verify index.html links work**
+
+Open `html-lab/index.html` in browser. Click the new pm-interaction-guide link — should open the interactive library.
+
+- [ ] **Step 4: Commit**
+
+```bash
+cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+git add index.html CLAUDE.md
+git commit -m "feat: add pm-interaction-guide to index and CLAUDE.md"
+```
+
+---
+
+## Self-Review
+
+**Spec coverage check:**
+- ✅ Left sidebar navigation → Tasks 2 & 3
+- ✅ Intro/overview section → Task 4
+- ✅ State chapter (8 concepts) → Task 4
+- ✅ Feedback chapter (3 concepts) → Task 5
+- ✅ Navigation chapter (5 concepts) → Task 5
+- ✅ Interaction patterns (5 concepts) → Task 6
+- ✅ Glossary appendix → Task 6
+- ✅ Each concept: demo + explanation + PM tip + scenarios → Tasks 4–6
+- ✅ JS data-driven rendering → Task 3
+- ✅ Self-contained HTML (no external deps) → Task 2
+- ✅ index.html update → Task 8
+- ✅ CLAUDE.md update → Tasks 1 & 8
+
+**Placeholder scan:** No TBDs or TODOs in plan. All code is complete and specific.
+
+**Type consistency:** All concepts use the same schema fields (`chapterLabel`, `name`, `nameCN`, `tagline`, `demo`, `explanation`, `pmTip`, `scenarios`). `onMount` is optional. `isIntro`/`isGlossary` flags are used consistently in `renderConcept`.
