@@ -1218,9 +1218,11 @@ document.getElementById('globalModalOverlay').addEventListener('click', e => {
 function showDrawer(html) {
   document.getElementById('globalDrawer').innerHTML = html;
   document.getElementById('globalDrawerOverlay').classList.add('show');
+  document.getElementById('globalDrawer').classList.add('show');
 }
 function closeDrawer() {
   document.getElementById('globalDrawerOverlay').classList.remove('show');
+  document.getElementById('globalDrawer').classList.remove('show');
 }
 document.getElementById('globalDrawerOverlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeDrawer();
