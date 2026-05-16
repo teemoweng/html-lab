@@ -607,6 +607,222 @@ const CONCEPTS = {
   pmTip: '"搜索无结果的空状态需要：插画/图标 + 说明文字 + 建议操作（清除筛选条件 or 换个关键词）。"',
   scenarios: ['搜索无结果', '列表首次为空（新用户）', '筛选条件过严', '消息/通知全部已读', '购物车为空'],
 },
+
+'toast': {
+  chapterLabel: '第二章 · 反馈',
+  name: 'Toast / Snackbar',
+  nameCN: '轻提示',
+  tagline: '操作完成后从屏幕边缘短暂出现的小提示条，几秒后自动消失。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" onclick="showToast('文件已保存', '✅')">成功提示</button>
+    <button class="demo-btn demo-btn-secondary" onclick="showToast('操作失败，请重试', '❌')">失败提示</button>
+    <button class="demo-btn demo-btn-secondary" onclick="showToast('链接已复制到剪贴板', '📋')">信息提示</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，看右下角出现的 Toast</p>`,
+  explanation: 'Toast 适合"告知用户操作结果"但不需要用户确认的场景。关键规则：① 自动消失（2-4秒）；② 不打断用户当前操作；③ 只用于结果通知，不用于需要用户决策的场景（那种用 Dialog）。Toast 和 Snackbar 本质相同，Material Design 叫 Snackbar，iOS 叫 Toast。',
+  pmTip: '"删除成功后用 Toast 告知，位置在屏幕右下角，3秒后消失，不需要用户点确认。"',
+  scenarios: ['保存成功/失败', '复制链接', '发送消息', '添加到收藏', '撤销操作提示'],
+},
+
+'loading-indicator': {
+  chapterLabel: '第二章 · 反馈',
+  name: 'Loading Indicator',
+  nameCN: '加载指示器',
+  tagline: '等待数据时给用户的视觉反馈，让用户知道系统正在工作。',
+  demo: `<div class="demo-col" style="gap:20px">
+    <div>
+      <p style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px">① 骨架屏（Skeleton Screen）— 推荐用于页面/列表加载</p>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="demo-skeleton" style="width:48px;height:48px;border-radius:50%;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="demo-skeleton" style="height:13px;margin-bottom:8px;width:70%"></div>
+          <div class="demo-skeleton" style="height:11px;width:40%"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px">② Spinner（转圈）— 适合局部加载、按钮等待</p>
+      <div class="demo-row" style="align-items:center">
+        <div class="demo-spinner"></div>
+        <button class="demo-btn demo-btn-primary" disabled>
+          <span class="demo-spinner" style="width:14px;height:14px;border-width:2px"></span> 提交中...
+        </button>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px">③ 进度条（Progress Bar）— 适合上传/下载等有进度的场景</p>
+      <div class="demo-progress-bar"><div class="demo-progress-fill"></div></div>
+    </div>
+  </div>`,
+  explanation: '三种指示器适用场景不同：骨架屏最能减少用户的"感知等待时间"，因为页面结构已经在了；Spinner 最简单但也最无聊，不要在整页上用大转圈；进度条只适合能计算进度的操作，否则用伪进度条会更好（先快后慢）。',
+  pmTip: '"列表页首次加载用骨架屏，不要转圈；提交按钮等待时按钮变 disabled + 内嵌小转圈；文件上传用进度条。"',
+  scenarios: ['页面首次加载', '下拉刷新', '按钮点击等待', '文件上传下载', '搜索结果加载'],
+},
+
+'confirm-dialog': {
+  chapterLabel: '第二章 · 反馈',
+  name: 'Confirm Dialog',
+  nameCN: '确认弹窗',
+  tagline: '在执行不可逆操作前，要求用户明确确认意图的模态弹窗。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-danger" onclick="showModal(
+      '确认删除这条记录？',
+      '此操作不可撤销。删除后数据将永久丢失，无法恢复。',
+      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
+       <button class=\\"demo-btn demo-btn-danger\\" onclick=\\"closeModal();showToast('已删除','🗑️')\\">确认删除</button>\`
+    )">删除操作（点我）</button>
+    <button class="demo-btn demo-btn-secondary" onclick="showModal(
+      '确定要退出登录吗？',
+      '退出后需要重新输入账号密码登录。',
+      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
+       <button class=\\"demo-btn demo-btn-primary\\" onclick=\\"closeModal();showToast('已退出登录','👋')\\">退出登录</button>\`
+    )">退出登录（点我）</button>
+  </div>`,
+  explanation: 'Confirm Dialog（确认弹窗）强制用户暂停并做决策，适合不可逆的危险操作（删除、清空、注销）。关键原则：① 按钮文字要说明后果（"确认删除"而非"确定"）；② 危险按钮用红色；③ 取消按钮要放在左边、确认在右边。不要对每个操作都加确认弹窗，这会让用户麻木。',
+  pmTip: '"删除操作需要确认弹窗：标题说清楚要做什么，描述文字说明不可逆，确认按钮红色写"确认删除"，取消按钮置左。"',
+  scenarios: ['删除数据', '清空列表', '账号注销', '退出登录', '放弃未保存的编辑'],
+},
+
+'modal': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Modal',
+  nameCN: '模态弹窗',
+  tagline: '出现在当前页面上方的浮层，背景变暗，用户必须处理后才能继续。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" onclick="showModal(
+      '编辑个人信息',
+      '在下方修改你的姓名和邮箱，完成后点击保存。',
+      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
+       <button class=\\"demo-btn demo-btn-primary\\" onclick=\\"closeModal();showToast('保存成功','✅')\\">保存</button>\`
+    )">打开 Modal 弹窗</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，感受 Modal 的遮罩和弹出效果；点击背景或取消可关闭</p>`,
+  explanation: 'Modal 是"阻断式"的——用户必须处理它才能继续原来的操作。适合需要用户专注完成的任务（填写表单、确认操作）。过度使用 Modal 会打断用户流程，引发烦躁。原则：Modal 内的任务应该简短、明确，不要在 Modal 里放太多内容或打开另一个 Modal（"弹窗套弹窗"是反模式）。',
+  pmTip: '"新增记录的表单用 Modal 承载，字段不超过 5 个；字段太多的放独立页面，不要把整张表塞进 Modal。"',
+  scenarios: ['新增/编辑表单', '确认操作', '图片预览', '快捷设置', '引导提示'],
+},
+
+'drawer': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Drawer',
+  nameCN: '抽屉',
+  tagline: '从屏幕边缘（通常是右侧）滑入的面板，不完全遮挡原页面。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" onclick="showDrawer(\`
+      <h3>筛选条件</h3>
+      <div style='margin-top:16px'>
+        <div class='demo-drawer-item'>价格区间</div>
+        <div class='demo-drawer-item'>品牌</div>
+        <div class='demo-drawer-item'>评分</div>
+        <div class='demo-drawer-item'>发货地</div>
+        <div class='demo-drawer-item'>配送方式</div>
+      </div>
+      <div style='display:flex;gap:10px;margin-top:24px'>
+        <button class='demo-btn demo-btn-secondary' onclick='closeDrawer()' style='flex:1'>重置</button>
+        <button class='demo-btn demo-btn-primary' onclick='closeDrawer();showToast(\"已应用筛选\",\"✅\")' style='flex:1'>应用</button>
+      </div>
+    \`)">打开 Drawer 抽屉</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，感受从右侧滑入的 Drawer；点击背景可关闭</p>`,
+  explanation: 'Drawer 和 Modal 都是覆盖层，但 Drawer 不完全遮挡原页面，用户仍能感知到背后的内容。适合"不需要完全离开当前页面"的辅助任务，如筛选条件、设置面板、详情预览。移动端 Drawer 通常从底部滑入（称为 Bottom Sheet）。',
+  pmTip: '"筛选面板用右侧 Drawer，这样用户能同时看到列表在背后更新。不要用全屏 Modal 来做筛选。"',
+  scenarios: ['筛选面板', '设置选项', '详情预览', '移动端导航菜单', '购物车'],
+},
+
+'bottom-sheet': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Bottom Sheet',
+  nameCN: '底部弹出层',
+  tagline: '从屏幕底部向上滑出的面板，是移动端 Drawer 的变体，符合拇指操作习惯。',
+  demo: `<div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;max-width:320px;background:#f8fafc">
+    <div style="background:#e2e8f0;height:200px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px">
+      手机屏幕内容区
+    </div>
+    <div style="background:white;border-top:1px solid #e2e8f0;padding:16px">
+      <div style="width:32px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">分享至</div>
+      <div style="display:flex;gap:16px;justify-content:center">
+        <div style="text-align:center;cursor:pointer">
+          <div style="width:44px;height:44px;background:#ede9fe;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px">💬</div>
+          <div style="font-size:11px;color:#64748b">微信</div>
+        </div>
+        <div style="text-align:center;cursor:pointer">
+          <div style="width:44px;height:44px;background:#fef9c3;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px">🐦</div>
+          <div style="font-size:11px;color:#64748b">微博</div>
+        </div>
+        <div style="text-align:center;cursor:pointer">
+          <div style="width:44px;height:44px;background:#f0fdf4;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px">📋</div>
+          <div style="font-size:11px;color:#64748b">复制链接</div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+  explanation: 'Bottom Sheet 是移动端设计的核心模式。原因：手机屏幕上，大拇指自然弯曲能够到的区域在屏幕底部——从底部弹出的面板比从顶部弹出更易于操作。它可以是"半屏"（显示部分选项）或"全屏"（复杂表单），用户也可以上滑展开或下滑关闭。',
+  pmTip: '"移动端的操作菜单（更多操作）用 Bottom Sheet，不要用右键菜单或顶部弹窗。"',
+  scenarios: ['分享操作', '更多操作菜单', '移动端筛选', '评论输入框', '地图选点'],
+},
+
+'tab': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Tab',
+  nameCN: '标签页',
+  tagline: '将同一层级的多个内容区域并列放置，用户点击标签切换显示。',
+  demo: `<div id="tab-demo">
+    <div class="demo-tabs">
+      <div class="demo-tab active" onclick="switchTab(this,'tab-all')">全部</div>
+      <div class="demo-tab" onclick="switchTab(this,'tab-progress')">进行中</div>
+      <div class="demo-tab" onclick="switchTab(this,'tab-done')">已完成</div>
+    </div>
+    <div id="tab-all" class="demo-tab-panel">共 12 条任务，显示全部内容。点击其他标签查看筛选结果。</div>
+    <div id="tab-progress" class="demo-tab-panel" style="display:none">3 条进行中的任务：需求评审、UI 走查、数据分析报告...</div>
+    <div id="tab-done" class="demo-tab-panel" style="display:none">9 条已完成任务：用户调研、竞品分析、原型设计...</div>
+  </div>`,
+  onMount: function() {
+    window.switchTab = function(el, panelId) {
+      document.querySelectorAll('#tab-demo .demo-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#tab-demo .demo-tab-panel').forEach(p => p.style.display = 'none');
+      el.classList.add('active');
+      document.getElementById(panelId).style.display = 'block';
+    };
+  },
+  explanation: 'Tab 适合"同级内容的切换"，不适合有层级关系的内容（那用面包屑或侧边栏）。关键原则：Tab 数量不超过 5 个；Tab 标题要简洁（2-4字）；当前选中 Tab 要有明显的视觉区分。移动端 Tab 通常在底部（Bottom Navigation Bar）。',
+  pmTip: '"任务列表按状态分三个 Tab：全部 / 进行中 / 已完成，切换 Tab 时列表内容更新但不跳页。"',
+  scenarios: ['内容分类切换', '个人中心功能分区', '数据报表时间维度', '设置分类', '移动端底部导航'],
+},
+
+'breadcrumb': {
+  chapterLabel: '第三章 · 导航与布局',
+  name: 'Breadcrumb',
+  nameCN: '面包屑',
+  tagline: '显示用户当前在网站/App 层级结构中所在位置的导航路径，支持点击返回。',
+  demo: `<div class="demo-col" style="gap:16px">
+    <div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">电商场景</p>
+      <div class="demo-breadcrumb">
+        <span class="demo-breadcrumb-item">首页</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-item">手机数码</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-item">智能手机</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-current">iPhone 16 Pro</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">管理后台场景</p>
+      <div class="demo-breadcrumb">
+        <span class="demo-breadcrumb-item">控制台</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-item">用户管理</span>
+        <span class="demo-breadcrumb-sep">›</span>
+        <span class="demo-breadcrumb-current">编辑用户 #2847</span>
+      </div>
+    </div>
+  </div>`,
+  explanation: '面包屑解决"用户迷路"问题——当网站层级超过 2 层时，用户需要知道"我在哪儿"以及"怎么回去"。命名来自童话《汉赛尔与格蕾特》里用面包屑标记路径的情节。注意：如果网站只有 1-2 层，面包屑是多余的；移动端空间有限，面包屑常被省略或简化。',
+  pmTip: '"后台管理系统的详情页需要面包屑，格式：模块名 › 列表页名称 › 当前记录名，最后一级不可点击。"',
+  scenarios: ['电商商品详情页', 'B端管理后台', '文档/知识库网站', '多级分类浏览', '设置页面深层路径'],
+},
 };
 
 // ── Navigation state ──
