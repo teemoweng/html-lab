@@ -51,7 +51,7 @@ html-lab/
 | `oh-my-zsh-guide/` | *(待建)* | v1 ✅ | Oh My Zsh 配置指南 |
 | `didi-ba-interview/` | *(待建)* | v1 ✅ | 滴滴 BA 国际化面试准备 |
 | `netease-ai-game/` | 多个 .md ✅ | v1 ✅ | 网易互娱 AI 笔试 |
-| `pm-interaction-guide/` | `pm-interaction-guide.md` ✅ | *(待生成)* | PM 交互设计参考库 |
+| `pm-interaction-guide/` | `pm-interaction-guide.md` ✅ | v1 ✅ | PM 交互设计参考库 |
 
 ---
 
