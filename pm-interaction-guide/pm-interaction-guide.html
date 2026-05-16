@@ -391,7 +391,222 @@ const CHAPTERS = [
 
 // ── CONCEPTS map: id → concept data ──
 const CONCEPTS = {
-  // populated in Tasks 4–6
+  'intro': {
+  isIntro: true,
+  demo: `
+    <div style="max-width:700px">
+      <div class="concept-breadcrumb">导言</div>
+      <h1 class="concept-title">什么是交互设计</h1>
+      <p class="concept-tagline" style="margin-bottom:24px">交互设计研究的是：用户与产品之间的每一次"对话"应该怎么发生。</p>
+      <div class="intro-highlight">
+        <p>作为 PM，你不需要会写代码，但你需要能<strong>准确描述</strong>用户操作后界面应该如何响应。这个库帮你建立这套语言。</p>
+      </div>
+      <div class="intro-grid">
+        <div class="intro-card">
+          <div class="intro-card-icon">🖱</div>
+          <h3>第一章：状态 (State)</h3>
+          <p>每个 UI 元素在不同情况下"长什么样"——悬停、选中、禁用、出错……</p>
+        </div>
+        <div class="intro-card">
+          <div class="intro-card-icon">💬</div>
+          <h3>第二章：反馈 (Feedback)</h3>
+          <p>用户操作后，界面给出的响应——提示条、加载动画、确认弹窗……</p>
+        </div>
+        <div class="intro-card">
+          <div class="intro-card-icon">🗂</div>
+          <h3>第三章：导航与布局</h3>
+          <p>页面之间如何跳转、内容如何组织——弹窗、抽屉、标签页……</p>
+        </div>
+        <div class="intro-card">
+          <div class="intro-card-icon">🔄</div>
+          <h3>第四章：交互模式</h3>
+          <p>用户与内容之间的操作方式——拖拽、下拉刷新、折叠展开……</p>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#64748b;line-height:1.7;margin-top:8px">交互设计还包含手势操作、无障碍设计、动效原则等更多领域。本库聚焦 PM 日常沟通中 <strong>90% 的高频场景</strong>，其余内容等你有需要时再深入。</p>
+      <div class="concept-nav" style="margin-top:32px">
+        <span></span>
+        <button class="nav-btn nav-btn-next" onclick="navigate('default')">开始学习 →</button>
+      </div>
+    </div>
+  `
+},
+
+'default': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Default State',
+  nameCN: '默认状态',
+  tagline: '元素未被任何操作触及时的初始外观，是用户看到它的第一眼。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary">主按钮</button>
+    <button class="demo-btn demo-btn-secondary">次要按钮</button>
+    <input class="demo-input" placeholder="输入框默认状态" readonly>
+    <span class="demo-chip">标签</span>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 以上元素均处于默认状态，没有任何交互发生</p>`,
+  explanation: 'Default state 是设计的基准线。所有其他状态（hover、active、disabled）都是在这个基础上做变化。设计规范里的组件截图通常展示的就是 default state。',
+  pmTip: '"请给我这个按钮的 default state 设计稿，我需要确认颜色和圆角。"',
+  scenarios: ['设计规范文档', '组件库截图', '原型图初稿'],
+},
+
+'hover': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Hover State',
+  nameCN: '悬停状态',
+  tagline: '鼠标悬浮到元素上时触发的视觉变化，用于提示用户"这里可以交互"。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary">主按钮（试试悬停）</button>
+    <div class="demo-card-item">卡片元素（悬停看效果）</div>
+    <span class="demo-chip">Chip 标签</span>
+    <a class="demo-link" href="#">链接文字</a>
+  </div>`,
+  explanation: 'Hover state 让用户在点击前就能感知"这里可以操作"，减少误操作，提升操作信心。没有 hover 的界面会让用户不确定哪些元素可以点击，增加认知负担。注意：移动端没有鼠标，不存在 hover state。',
+  pmTip: '"这个卡片需要有 hover state，背景加深 + 轻微上移动效，让用户知道它是可点击的。"',
+  scenarios: ['所有可点击按钮', '导航菜单项', '列表卡片', '表格行', '下拉选项'],
+},
+
+'active': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Active State',
+  nameCN: '激活状态',
+  tagline: '用户正在按住鼠标（或手指按压）时，元素呈现的"被按下"感。',
+  demo: `<div class="demo-row">
+    <button class="demo-btn demo-btn-primary" style="transition:transform 0.1s"
+      onmousedown="this.style.transform='scale(0.96)'"
+      onmouseup="this.style.transform=''"
+      onmouseleave="this.style.transform=''">按住这个按钮</button>
+    <button class="demo-btn demo-btn-secondary"
+      onmousedown="this.style.transform='scale(0.96)'"
+      onmouseup="this.style.transform=''"
+      onmouseleave="this.style.transform=''">次要按钮</button>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 按住鼠标不放，感受"按下"的物理感</p>`,
+  explanation: 'Active state 模拟物理按键的"被按下"感，给用户即时反馈：你的操作被接收了。通常通过轻微缩小（scale）或下移（translateY）+ 阴影减弱来实现。时间极短（100-150ms）。',
+  pmTip: '"按钮点击时需要有 active state，有一个轻微的按压感，不要只改颜色。"',
+  scenarios: ['所有可点击按钮', '图标按钮', '卡片点击', '移动端 tap 操作'],
+},
+
+'selected': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Selected State',
+  nameCN: '选中状态',
+  tagline: '用户选择了某个选项后，该元素持续显示"已被选中"的视觉标记。',
+  demo: `<div>
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">点击下面的标签选择感兴趣的方向（可多选）：</p>
+    <div class="demo-row" id="chip-group">
+      <span class="demo-chip" onclick="this.classList.toggle('selected')">产品设计</span>
+      <span class="demo-chip selected" onclick="this.classList.toggle('selected')">用户研究</span>
+      <span class="demo-chip" onclick="this.classList.toggle('selected')">数据分析</span>
+      <span class="demo-chip" onclick="this.classList.toggle('selected')">商业策略</span>
+    </div>
+  </div>`,
+  explanation: 'Selected state 告诉用户"你已经选了这个"，与 active state 不同：selected 是持续的（用户不操作时也保持），active 是瞬时的（只在按压时存在）。常见于 tab 切换、筛选标签、单选/多选列表。',
+  pmTip: '"筛选标签被选中后需要保持 selected state（紫底白字），直到用户再次点击取消选择。"',
+  scenarios: ['筛选 Chip', '导航 Tab', '单选/多选列表', '侧边栏当前页高亮'],
+},
+
+'disabled': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Disabled State',
+  nameCN: '禁用状态',
+  tagline: '元素当前不可操作，视觉上变灰并失去交互响应，告诉用户"现在不行"。',
+  demo: `<div class="demo-col">
+    <div class="demo-row">
+      <button class="demo-btn demo-btn-primary" disabled>提交（表单未完整）</button>
+      <button class="demo-btn demo-btn-secondary" disabled>删除（无权限）</button>
+    </div>
+    <div class="demo-row">
+      <input class="demo-input" placeholder="只读输入框" disabled>
+      <span class="demo-chip" style="opacity:0.4;cursor:not-allowed">不可选标签</span>
+    </div>
+  </div>`,
+  explanation: 'Disabled state 防止用户在条件不满足时误操作。但要谨慎使用：被禁用的元素应该让用户理解"为什么不行"——最好配合 tooltip 解释原因。纯粹灰掉而不解释原因，会让用户困惑。',
+  pmTip: '"提交按钮在必填项未填完时为 disabled state；填完后恢复可点击，不需要 tooltip。"',
+  scenarios: ['表单未完整时的提交按钮', '无权限的操作按钮', '只读模式的输入框', '付费功能的免费版入口'],
+},
+
+'loading-state': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Loading State',
+  nameCN: '加载状态',
+  tagline: '操作已触发但结果还未返回时，界面告知用户"正在处理，请稍候"。',
+  demo: `<div class="demo-col">
+    <div class="demo-row" style="align-items:center">
+      <button class="demo-btn demo-btn-primary" id="loadBtn" onclick="demoLoading()">点击触发加载</button>
+      <span id="loadStatus" style="font-size:12px;color:#94a3b8"></span>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;max-width:300px">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+        <div class="demo-skeleton" style="width:40px;height:40px;border-radius:50%"></div>
+        <div style="flex:1">
+          <div class="demo-skeleton" style="height:12px;margin-bottom:6px"></div>
+          <div class="demo-skeleton" style="height:10px;width:60%"></div>
+        </div>
+      </div>
+      <div class="demo-skeleton" style="height:10px;margin-bottom:6px"></div>
+      <div class="demo-skeleton" style="height:10px;width:80%"></div>
+    </div>
+  </div>`,
+  onMount: function() {
+    window.demoLoading = function() {
+      const btn = document.getElementById('loadBtn');
+      const status = document.getElementById('loadStatus');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="demo-spinner" style="width:14px;height:14px;border-width:2px"></span> 加载中...';
+      status.textContent = '请求已发出，等待服务器响应...';
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = '点击触发加载';
+        status.textContent = '✅ 加载完成';
+        setTimeout(() => status.textContent = '', 2000);
+      }, 2000);
+    };
+  },
+  explanation: '加载状态防止用户以为"没反应"而重复点击。常见的三种形式：① 骨架屏（Skeleton）——页面结构先出来，内容后填充，体验最好；② 转圈（Spinner）——适合局部加载；③ 进度条——适合明确知道进度的场景（上传文件）。',
+  pmTip: '"列表页首次加载时用骨架屏，不要用空白页 + 转圈；按钮点击后的等待用按钮内转圈 + disabled。"',
+  scenarios: ['页面首次加载', '列表刷新', '表单提交等待', '图片上传', '搜索结果返回'],
+},
+
+'error-state': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Error State',
+  nameCN: '错误状态',
+  tagline: '操作失败或输入不合法时，界面明确告知用户"哪里出了问题"。',
+  demo: `<div class="demo-col">
+    <div>
+      <input class="demo-input error" value="invalid-email" style="width:240px">
+      <div class="error-msg">⚠️ 请输入有效的邮箱地址</div>
+    </div>
+    <div class="demo-row" style="align-items:flex-start">
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;max-width:280px">
+        <div style="font-size:13px;font-weight:600;color:#dc2626;margin-bottom:6px">❌ 提交失败</div>
+        <div style="font-size:12px;color:#7f1d1d;line-height:1.6">网络连接超时，请检查网络后重试。</div>
+        <button class="demo-btn demo-btn-danger" style="margin-top:12px;font-size:12px;padding:6px 14px">重试</button>
+      </div>
+    </div>
+  </div>`,
+  explanation: '好的错误状态必须回答三个问题：① 什么出错了（清楚）；② 为什么出错（有帮助）；③ 用户能做什么（可操作）。"出错了" 三个字没有任何意义。错误信息要放在出错的地方，不要只在顶部弹一个通用提示。',
+  pmTip: '"表单校验错误需要在对应字段下方显示红色文字说明原因，输入框边框变红。接口失败在表单底部显示错误卡片 + 重试按钮。"',
+  scenarios: ['表单校验失败', '接口请求失败', '文件格式错误', '权限不足', '搜索无结果（有时归为 Empty）'],
+},
+
+'empty-state': {
+  chapterLabel: '第一章 · 状态',
+  name: 'Empty State',
+  nameCN: '空状态',
+  tagline: '当列表、页面或容器中没有任何内容时，展示给用户的界面。',
+  demo: `<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+    <div class="empty-state">
+      <div class="empty-state-icon">📭</div>
+      <div class="empty-state-title">暂无消息</div>
+      <div class="empty-state-sub">你的收件箱很干净，休息一下吧</div>
+      <button class="demo-btn demo-btn-primary" style="margin-top:16px;font-size:12px">去发现内容</button>
+    </div>
+  </div>`,
+  explanation: '空状态是容易被忽视但影响巨大的场景。一个好的空状态：① 解释为什么是空的；② 给用户一个下一步行动。"暂无数据" 是最差的空状态文案——它什么信息都没传达。首次使用的空状态（onboarding）尤其重要，是留住用户的关键时刻。',
+  pmTip: '"搜索无结果的空状态需要：插画/图标 + 说明文字 + 建议操作（清除筛选条件 or 换个关键词）。"',
+  scenarios: ['搜索无结果', '列表首次为空（新用户）', '筛选条件过严', '消息/通知全部已读', '购物车为空'],
+},
 };
 
 // ── Navigation state ──
