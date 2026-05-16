@@ -99,7 +99,7 @@ nav {
 .card::before {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(180,120,60,0.04) 0%, transparent 60%);
-  opacity: 0; transition: opacity 0.25s;
+  opacity: 0; transition: opacity 0.25s; pointer-events: none;
 }
 .card:hover { border-color: var(--accent); background: var(--card-hover); transform: translateY(-3px); box-shadow: var(--shadow); }
 .card:hover::before { opacity: 1; }
@@ -140,15 +140,16 @@ nav {
   border-color: var(--accent); color: var(--accent);
   background: rgba(180,120,60,0.08);
 }
+.v-chip:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: rgba(180,120,60,0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(180,120,60,0.3);
+}
 .v-chip.more {
   cursor: pointer; user-select: none;
 }
-.v-chip.lit {
-  border-color: var(--accent) !important; color: var(--accent) !important;
-  background: rgba(180,120,60,0.25) !important;
-  box-shadow: 0 0 10px rgba(180,120,60,0.4);
-  transform: scale(1.1);
-}
+.v-chip.more:hover { border-color: var(--fg2); color: var(--fg2); }
 .v-hidden { display: none; }
 
 /* FOOTER */
@@ -159,26 +160,6 @@ footer {
 }
 footer span { color: var(--accent); }
 
-/* CUSTOM CURSOR */
-body { cursor: none; }
-a, button, .card, .v-chip { cursor: none; }
-#cur-dot {
-  position: fixed; top: 0; left: 0; z-index: 9999;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent);
-  transform: translate(-50%, -50%);
-  pointer-events: none !important; transition: transform 0.1s, opacity 0.2s;
-}
-#cur-ring {
-  position: fixed; top: 0; left: 0; z-index: 9998;
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 1.5px solid var(--accent);
-  transform: translate(-50%, -50%);
-  pointer-events: none !important; transition: transform 0.25s ease, width 0.2s, height 0.2s, opacity 0.2s;
-  opacity: 0.5;
-}
-#cur-ring.hover { width: 40px; height: 40px; opacity: 0.8; }
-
 @media (max-width: 640px) {
   nav, .hero, .filter-bar, .grid { padding-left: 20px; padding-right: 20px; }
   .hero { padding-top: 48px; }
@@ -187,9 +168,6 @@ a, button, .card, .v-chip { cursor: none; }
 </style>
 </head>
 <body>
-
-<div id="cur-dot"></div>
-<div id="cur-ring"></div>
 
 <nav>
   <a class="nav-logo" href="#">html<span style="color:var(--fg3)">-</span>lab</a>
@@ -235,7 +213,7 @@ a, button, .card, .v-chip { cursor: none; }
     <div class="card-title">滴滴 BA 国际化 · 面试准备</div>
     <div class="card-desc">针对滴滴 Business Analyst 国际化方向岗位的结构化面试备考，涵盖业务背景、数据分析与案例拆解。</div>
     <div class="versions">
-      <a class="v-chip latest" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="didi-ba-interview/didi-ba-interview.html">v1</a>
+      <a class="v-chip latest" href="didi-ba-interview/didi-ba-interview.html">v1</a>
     </div>
   </div>
 
@@ -247,7 +225,7 @@ a, button, .card, .v-chip { cursor: none; }
     <div class="card-title">Claude Code 命令行新手教程</div>
     <div class="card-desc">从零上手 Claude Code CLI 的完整指引，涵盖安装、常用命令、工作流与实用技巧。</div>
     <div class="versions">
-      <a class="v-chip latest" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="claude-code-guide/claude-code-guide.html">v1</a>
+      <a class="v-chip latest" href="claude-code-guide/claude-code-guide.html">v1</a>
     </div>
   </div>
 
@@ -259,7 +237,7 @@ a, button, .card, .v-chip { cursor: none; }
     <div class="card-title">Ghostty 新手指南</div>
     <div class="card-desc">现代终端模拟器 Ghostty 的入门教程，包含安装配置、主题定制与快捷键速查。</div>
     <div class="versions">
-      <a class="v-chip latest" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="ghostty-tutorial/ghostty-tutorial.html">v1</a>
+      <a class="v-chip latest" href="ghostty-tutorial/ghostty-tutorial.html">v1</a>
     </div>
   </div>
 
@@ -271,7 +249,7 @@ a, button, .card, .v-chip { cursor: none; }
     <div class="card-title">Oh My Zsh 新手指引</div>
     <div class="card-desc">Oh My Zsh 安装与配置完整教程，插件推荐、主题选择与 shell 效率提升实践。</div>
     <div class="versions">
-      <a class="v-chip latest" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="oh-my-zsh-guide/oh-my-zsh-guide.html">v1</a>
+      <a class="v-chip latest" href="oh-my-zsh-guide/oh-my-zsh-guide.html">v1</a>
     </div>
   </div>
 
@@ -283,7 +261,7 @@ a, button, .card, .v-chip { cursor: none; }
     <div class="card-title">我的工具栈</div>
     <div class="card-desc">个人开发与效率工具全景图，涵盖终端、编辑器、AI 工具与日常工作流使用的软件清单。</div>
     <div class="versions">
-      <a class="v-chip latest" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="tech-stack/tech-stack.html">v1</a>
+      <a class="v-chip latest" href="tech-stack/tech-stack.html">v1</a>
     </div>
   </div>
 
@@ -295,9 +273,9 @@ a, button, .card, .v-chip { cursor: none; }
     <div class="card-title">React 组件演示</div>
     <div class="card-desc">React 卡片组件系列，探索组件化设计、排版与交互的不同表达方式。</div>
     <div class="versions">
-      <a class="v-chip latest" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="react-card-demo/react-card-demo-v3.html">v3</a>
-      <a class="v-chip" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="react-card-demo/react-card-demo-v2.html">v2</a>
-      <a class="v-chip" onmouseenter="chipOn(this)" onmouseleave="chipOff(this)" href="react-card-demo/react-card-demo.html">v1</a>
+      <a class="v-chip latest" href="react-card-demo/react-card-demo-v3.html">v3</a>
+      <a class="v-chip" href="react-card-demo/react-card-demo-v2.html">v2</a>
+      <a class="v-chip" href="react-card-demo/react-card-demo.html">v1</a>
     </div>
   </div>
 
@@ -308,31 +286,6 @@ a, button, .card, .v-chip { cursor: none; }
 </footer>
 
 <script>
-// Custom cursor
-(function() {
-  const dot = document.getElementById('cur-dot');
-  const ring = document.getElementById('cur-ring');
-  let rx = 0, ry = 0, mx = 0, my = 0;
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-  });
-  function animateRing() {
-    rx += (mx - rx) * 0.18;
-    ry += (my - ry) * 0.18;
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(animateRing);
-  }
-  animateRing();
-  document.querySelectorAll('a, button, .card, .v-chip').forEach(el => {
-    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
-    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
-  });
-})();
-
-function chipOn(el) { el.classList.add('lit'); }
-function chipOff(el) { el.classList.remove('lit'); }
-
 function cardNav(e, el) {
   if (e.target.closest('a')) return; // let version chip links handle themselves
   window.location.href = el.dataset.href;
