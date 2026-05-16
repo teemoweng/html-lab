@@ -665,19 +665,21 @@ const CONCEPTS = {
   nameCN: '确认弹窗',
   tagline: '在执行不可逆操作前，要求用户明确确认意图的模态弹窗。',
   demo: `<div class="demo-row">
-    <button class="demo-btn demo-btn-danger" onclick="showModal(
-      '确认删除这条记录？',
-      '此操作不可撤销。删除后数据将永久丢失，无法恢复。',
-      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
-       <button class=\\"demo-btn demo-btn-danger\\" onclick=\\"closeModal();showToast('已删除','🗑️')\\">确认删除</button>\`
-    )">删除操作（点我）</button>
-    <button class="demo-btn demo-btn-secondary" onclick="showModal(
-      '确定要退出登录吗？',
-      '退出后需要重新输入账号密码登录。',
-      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
-       <button class=\\"demo-btn demo-btn-primary\\" onclick=\\"closeModal();showToast('已退出登录','👋')\\">退出登录</button>\`
-    )">退出登录（点我）</button>
+    <button class="demo-btn demo-btn-danger" onclick="openDeleteModal()">删除操作（点我）</button>
+    <button class="demo-btn demo-btn-secondary" onclick="openLogoutModal()">退出登录（点我）</button>
   </div>`,
+  onMount: function() {
+    window.openDeleteModal = function() {
+      showModal('确认删除这条记录？', '此操作不可撤销。删除后数据将永久丢失，无法恢复。',
+        '<button class="demo-btn demo-btn-secondary" onclick="closeModal()">取消</button>' +
+        '<button class="demo-btn demo-btn-danger" onclick="closeModal();showToast(\'已删除\',\'🗑️\')">确认删除</button>');
+    };
+    window.openLogoutModal = function() {
+      showModal('确定要退出登录吗？', '退出后需要重新输入账号密码登录。',
+        '<button class="demo-btn demo-btn-secondary" onclick="closeModal()">取消</button>' +
+        '<button class="demo-btn demo-btn-primary" onclick="closeModal();showToast(\'已退出登录\',\'👋\')">退出登录</button>');
+    };
+  },
   explanation: 'Confirm Dialog（确认弹窗）强制用户暂停并做决策，适合不可逆的危险操作（删除、清空、注销）。关键原则：① 按钮文字要说明后果（"确认删除"而非"确定"）；② 危险按钮用红色；③ 取消按钮要放在左边、确认在右边。不要对每个操作都加确认弹窗，这会让用户麻木。',
   pmTip: '"删除操作需要确认弹窗：标题说清楚要做什么，描述文字说明不可逆，确认按钮红色写"确认删除"，取消按钮置左。"',
   scenarios: ['删除数据', '清空列表', '账号注销', '退出登录', '放弃未保存的编辑'],
@@ -689,14 +691,16 @@ const CONCEPTS = {
   nameCN: '模态弹窗',
   tagline: '出现在当前页面上方的浮层，背景变暗，用户必须处理后才能继续。',
   demo: `<div class="demo-row">
-    <button class="demo-btn demo-btn-primary" onclick="showModal(
-      '编辑个人信息',
-      '在下方修改你的姓名和邮箱，完成后点击保存。',
-      \`<button class=\\"demo-btn demo-btn-secondary\\" onclick=\\"closeModal()\\">取消</button>
-       <button class=\\"demo-btn demo-btn-primary\\" onclick=\\"closeModal();showToast('保存成功','✅')\\">保存</button>\`
-    )">打开 Modal 弹窗</button>
+    <button class="demo-btn demo-btn-primary" onclick="openEditModal()">打开 Modal 弹窗</button>
   </div>
   <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，感受 Modal 的遮罩和弹出效果；点击背景或取消可关闭</p>`,
+  onMount: function() {
+    window.openEditModal = function() {
+      showModal('编辑个人信息', '在下方修改你的姓名和邮箱，完成后点击保存。',
+        '<button class="demo-btn demo-btn-secondary" onclick="closeModal()">取消</button>' +
+        '<button class="demo-btn demo-btn-primary" onclick="closeModal();showToast(\'保存成功\',\'✅\')">保存</button>');
+    };
+  },
   explanation: 'Modal 是"阻断式"的——用户必须处理它才能继续原来的操作。适合需要用户专注完成的任务（填写表单、确认操作）。过度使用 Modal 会打断用户流程，引发烦躁。原则：Modal 内的任务应该简短、明确，不要在 Modal 里放太多内容或打开另一个 Modal（"弹窗套弹窗"是反模式）。',
   pmTip: '"新增记录的表单用 Modal 承载，字段不超过 5 个；字段太多的放独立页面，不要把整张表塞进 Modal。"',
   scenarios: ['新增/编辑表单', '确认操作', '图片预览', '快捷设置', '引导提示'],
@@ -708,22 +712,27 @@ const CONCEPTS = {
   nameCN: '抽屉',
   tagline: '从屏幕边缘（通常是右侧）滑入的面板，不完全遮挡原页面。',
   demo: `<div class="demo-row">
-    <button class="demo-btn demo-btn-primary" onclick="showDrawer(\`
-      <h3>筛选条件</h3>
-      <div style='margin-top:16px'>
-        <div class='demo-drawer-item'>价格区间</div>
-        <div class='demo-drawer-item'>品牌</div>
-        <div class='demo-drawer-item'>评分</div>
-        <div class='demo-drawer-item'>发货地</div>
-        <div class='demo-drawer-item'>配送方式</div>
-      </div>
-      <div style='display:flex;gap:10px;margin-top:24px'>
-        <button class='demo-btn demo-btn-secondary' onclick='closeDrawer()' style='flex:1'>重置</button>
-        <button class='demo-btn demo-btn-primary' onclick='closeDrawer();showToast(\"已应用筛选\",\"✅\")' style='flex:1'>应用</button>
-      </div>
-    \`)">打开 Drawer 抽屉</button>
+    <button class="demo-btn demo-btn-primary" onclick="openFilterDrawer()">打开 Drawer 抽屉</button>
   </div>
   <p style="font-size:12px;color:#94a3b8;margin-top:12px">↑ 点击按钮，感受从右侧滑入的 Drawer；点击背景可关闭</p>`,
+  onMount: function() {
+    window.openFilterDrawer = function() {
+      showDrawer(
+        '<h3>筛选条件</h3>' +
+        '<div style="margin-top:16px">' +
+          '<div class="demo-drawer-item">价格区间</div>' +
+          '<div class="demo-drawer-item">品牌</div>' +
+          '<div class="demo-drawer-item">评分</div>' +
+          '<div class="demo-drawer-item">发货地</div>' +
+          '<div class="demo-drawer-item">配送方式</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;margin-top:24px">' +
+          '<button class="demo-btn demo-btn-secondary" onclick="closeDrawer()" style="flex:1">重置</button>' +
+          '<button class="demo-btn demo-btn-primary" onclick="closeDrawer();showToast(\'已应用筛选\',\'✅\')" style="flex:1">应用</button>' +
+        '</div>'
+      );
+    };
+  },
   explanation: 'Drawer 和 Modal 都是覆盖层，但 Drawer 不完全遮挡原页面，用户仍能感知到背后的内容。适合"不需要完全离开当前页面"的辅助任务，如筛选条件、设置面板、详情预览。移动端 Drawer 通常从底部滑入（称为 Bottom Sheet）。',
   pmTip: '"筛选面板用右侧 Drawer，这样用户能同时看到列表在背后更新。不要用全屏 Modal 来做筛选。"',
   scenarios: ['筛选面板', '设置选项', '详情预览', '移动端导航菜单', '购物车'],
