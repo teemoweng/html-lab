@@ -136,7 +136,7 @@ nav {
   border: 1px solid var(--border); color: var(--fg3);
   transition: all 0.15s; white-space: nowrap;
 }
-.v-chip:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(180,120,60,0.2); }
+.v-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(180,120,60,0.15); transform: scale(1.08); box-shadow: 0 0 8px rgba(180,120,60,0.25); }
 .v-chip.latest {
   border-color: var(--accent); color: var(--accent);
   background: rgba(180,120,60,0.08);
@@ -155,6 +155,26 @@ footer {
 }
 footer span { color: var(--accent); }
 
+/* CUSTOM CURSOR */
+body { cursor: none; }
+a, button, .card, .v-chip { cursor: none; }
+#cur-dot {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  pointer-events: none; transition: transform 0.1s, opacity 0.2s;
+}
+#cur-ring {
+  position: fixed; top: 0; left: 0; z-index: 9998;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  transform: translate(-50%, -50%);
+  pointer-events: none; transition: transform 0.25s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  opacity: 0.5;
+}
+#cur-ring.hover { width: 40px; height: 40px; opacity: 0.8; }
+
 @media (max-width: 640px) {
   nav, .hero, .filter-bar, .grid { padding-left: 20px; padding-right: 20px; }
   .hero { padding-top: 48px; }
@@ -163,6 +183,9 @@ footer span { color: var(--accent); }
 </style>
 </head>
 <body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
 
 <nav>
   <a class="nav-logo" href="#">html<span style="color:var(--fg3)">-</span>lab</a>
@@ -281,6 +304,28 @@ footer span { color: var(--accent); }
 </footer>
 
 <script>
+// Custom cursor
+(function() {
+  const dot = document.getElementById('cur-dot');
+  const ring = document.getElementById('cur-ring');
+  let rx = 0, ry = 0, mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  });
+  function animateRing() {
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a, button, .card, .v-chip').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+})();
+
 function cardNav(e, el) {
   if (e.target.closest('a')) return; // let version chip links handle themselves
   window.location.href = el.dataset.href;
