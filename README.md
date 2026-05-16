@@ -1,28 +1,28 @@
-# 金铲铲之战 · AI 个性化活动推送方案
+# html-lab
 
-**网易互娱 AI 策略运营岗 · 笔试作品**
+Teemo 的 HTML 实验室——用可交互页面学习和呈现知识。
 
----
-
-## 项目概述
-
-本项目为网易互娱 AI 策略运营方向的笔试作品，以《金铲铲之战》为题，设计一套基于 AI 的个性化活动推送方案，并以可视化 HTML 报告的形式呈现，兼顾在线浏览与 PDF 导出。
-
-**核心问题：** 当前游戏活动推送过于泛化，缺乏基于玩家差异的个性化触达，导致不同类型玩家对活动的感知、点击和参与足。
-
-## 方案核心
-
-针对四类玩家（上分冲段 / 休闲娱乐 / 新手入坑 / 回流玩家），构建 AI 驱动的个性化活动卡片推荐系统！覆盖完整运营链路：
-
-- **用户画像** — 基于行$��特征与生命周期的玩家分层
-- **推荐决策** — 规则筛选 + 模型排序的混合推荐结构
-- **内容生成** — 模板化生成 + 大模型润色，同一活动对不同玩家输出差异化表达
-- **效果验证** — 完整指标体系（参与率 / 点击率 / 回流激活率）与 A/B 测试方案
-
-## 在线查看
-
-👉 [查看在线演示](https://teemoweng.github.io/netease_ai_game/)
+每个 topic 是一个独立文件夹，包含一份持续更新的活文档（`.md`）和一或多个版本化的 HTML 交付物（`.html`）。所有 HTML 页面完全自包含，无外部依赖，可离线打开。
 
 ---
 
-*网易互娱 · 游戏策略运营方向 · 2026*
+## 当前项目
+
+| 项目 | 说明 |
+|------|------|
+| [PM 交互设计参考库](pm-interaction-guide/pm-interaction-guide.html) | 可交互的 UI/UX 教学演示页，涵盖状态、反馈、导航、交互模式等概念，附 PM 沟通话术 |
+| [Claude Code 使用指南](claude-code-guide/claude-code-guide.html) | Claude Code CLI 工具的使用说明 |
+| [Teemo 的技术栈](tech-stack/tech-stack.html) | 个人技术栈介绍 |
+| [Ghostty 终端教程](ghostty-tutorial/ghostty-tutorial.html) | Ghostty 终端配置与使用 |
+| [Oh My Zsh 配置指南](oh-my-zsh-guide/oh-my-zsh-guide.html) | Zsh 环境配置 |
+| [网易互娱 AI 笔试](netease-ai-game/index.html) | 《金铲铲之战》AI 个性化活动推送方案 |
+
+导航页：[index.html](index.html)
+
+---
+
+## 约定
+
+- `.md` 是源，`.html` 是产物，不直接编辑 HTML 来修改内容
+- 版本只增不减，新版用 `-v2`、`-v3` 后缀
+- HTML 自包含，不依赖任何 CDN
