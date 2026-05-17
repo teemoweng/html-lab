@@ -65,7 +65,8 @@
 | 生图 | ChatGPT（GPT Image 2） | 生图能力突出，单独列出 |
 | 文生视频（AI 生成） | 即梦 AI | 从文字/图片直接生成视频，适合宣传片、创意短片、抖音内容；AI 自由发挥，产出有真实感的画面 |
 | 文生视频（代码渲染） | HyperFrames | 用 HTML + CSS + JS 编写动画，逐帧渲染成 MP4；适合产品 Demo、功能展示、数据可视化；内容完全可控，中文排版精准，由 Claude Code 生成代码并直接渲染 |
-| 演示 / 白板 | Excalidraw、Excalicord | 由张 Zara 部署建立 |
+| 演示 / 白板 | Excalidraw | 开源白板工具，定位演示与白板 |
+| 演示 / 白板 | Excalidraw Code | 张 Zara 在 Excalidraw 基础上开发；更面向小白，支持录屏，适合做展示和演示 |
 | Claude Design | 前端设计 / PPT | 可做前端页面设计，PPT 功能探索中；部分场景已被 Claude Code 替代 |
 | CleanShot X | 截屏 / 录屏 | 截屏与录屏合一 |
 
