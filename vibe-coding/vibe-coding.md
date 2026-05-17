@@ -127,8 +127,8 @@ default → acceptEdits → plan
 | 别名 | 等价命令 | 用途 |
 | --- | --- | --- |
 | `claudep` | `claude --dangerously-skip-permissions` | 启动 Claude，直接进入 bypass 模式 |
-| `ob` | `cd Teemo Obsidian && claude` | 进入 Obsidian vault 并启动 Claude（普通模式）|
-| `obx` | `cd Teemo Obsidian && claude --dangerously-skip-permissions` | 进入 Obsidian vault 并启动 Claude（bypass 模式）|
+| `ob` | `cd teemo-workspace && claude` | 进入 Obsidian vault 并启动 Claude（普通模式）|
+| `obx` | `cd teemo-workspace && claude --dangerously-skip-permissions` | 进入 Obsidian vault 并启动 Claude（bypass 模式）|
 
 ---
 

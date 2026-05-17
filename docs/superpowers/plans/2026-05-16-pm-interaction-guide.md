@@ -28,7 +28,7 @@
 - [ ] **Step 1: Create topic folder and living doc**
 
 ```bash
-mkdir -p "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab/pm-interaction-guide"
+mkdir -p "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab/pm-interaction-guide"
 ```
 
 Create `html-lab/pm-interaction-guide/pm-interaction-guide.md`:
@@ -69,7 +69,7 @@ In `html-lab/CLAUDE.md`, add a row to the topic table:
 - [ ] **Step 3: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.md CLAUDE.md
 git commit -m "feat: scaffold pm-interaction-guide topic"
 ```
@@ -481,7 +481,7 @@ Expected: Dark sidebar on left, white content area on right, no errors in consol
 - [ ] **Step 3: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.html
 git commit -m "feat: add HTML shell and all CSS for pm-interaction-guide"
 ```
@@ -672,7 +672,7 @@ Open the file. Expected: sidebar renders all chapters (concepts show "Â· id" pla
 - [ ] **Step 3: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.html
 git commit -m "feat: add JS rendering engine for pm-interaction-guide"
 ```
@@ -919,7 +919,7 @@ Open file, click through all State chapter items. Each should show its demo, exp
 - [ ] **Step 4: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.html
 git commit -m "feat: add intro and state chapter data"
 ```
@@ -1164,7 +1164,7 @@ Click all Feedback and Navigation items. Toast and Modal demos should be interac
 - [ ] **Step 4: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.html
 git commit -m "feat: add feedback and navigation chapter data"
 ```
@@ -1453,7 +1453,7 @@ Click through every item in the sidebar. All 22 items (1 intro + 8 state + 3 fee
 - [ ] **Step 4: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.html
 git commit -m "feat: add interaction patterns and glossary data"
 ```
@@ -1486,7 +1486,7 @@ Expected: Works correctly both times.
 - [ ] **Step 3: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add pm-interaction-guide/pm-interaction-guide.html
 git commit -m "fix: ensure onMount demos re-initialize on re-navigation"
 ```
@@ -1514,7 +1514,7 @@ Open `html-lab/index.html` in browser. Click the new pm-interaction-guide link â
 - [ ] **Step 4: Commit**
 
 ```bash
-cd "/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab"
+cd "/Users/teemo/Desktop/teemo-workspace/Projects/html-lab"
 git add index.html CLAUDE.md
 git commit -m "feat: add pm-interaction-guide to index and CLAUDE.md"
 ```

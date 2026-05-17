@@ -66,10 +66,10 @@ memory 按 **cwd 编码路径**严格隔离：
 ~/.claude/projects/<encoded-cwd>/memory/
 ```
 
-举例：cwd 是 `/Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab/`，对应的 memory 目录就是：
+举例：cwd 是 `/Users/teemo/Desktop/teemo-workspace/Projects/html-lab/`，对应的 memory 目录就是：
 
 ```
-~/.claude/projects/-Users-teemo-Desktop-Teemo-Obsidian-Projects-html-lab/memory/
+~/.claude/projects/-Users-teemo-Desktop-teemo-workspace-Projects-html-lab/memory/
 ```
 
 (把 `/` 全部替换成 `-`)
@@ -125,7 +125,7 @@ memory 按 **cwd 编码路径**严格隔离：
 | 写飞书随想（KB 内） | `飞书/人生无限公司/` | 全局 + Obsidian 根 + 飞书 + KB |
 | 飞书工作流跨模块讨论 | `飞书/` | 全局 + Obsidian 根 + 飞书 |
 | 处理某 GitHub 项目 | `Projects/<项目名>/` | 全局 + Obsidian 根 + 项目 |
-| 跨项目 / Wiki 维护 | `~/Desktop/Teemo Obsidian/` | 全局 + Obsidian 根 |
+| 跨项目 / Wiki 维护 | `~/Desktop/teemo-workspace/` | 全局 + Obsidian 根 |
 | 跟项目无关 | `~` 或 `/tmp` | 只有全局 |
 
 **关键启发**：宁深勿浅。CLAUDE.md 向上叠加，启动得越深越不会"漏加载"。
