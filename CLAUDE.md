@@ -52,6 +52,7 @@ html-lab/
 | `didi-ba-interview/` | *(待建)* | v1 ✅ | 滴滴 BA 国际化面试准备 |
 | `netease-ai-game/` | 多个 .md ✅ | v1 ✅ | 网易互娱 AI 笔试 |
 | `pm-interaction-guide/` | `pm-interaction-guide.md` ✅ | v1 ✅ / v2 ✅ | PM 交互设计参考库 |
+| `claude-memory-system/` | `claude-memory-system.md` ✅ | v1 ✅ | Claude Code 记忆系统操作手册（CLAUDE.md vs memory） |
 
 ---
 

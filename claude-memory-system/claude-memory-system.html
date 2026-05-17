@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Code 的"记忆"系统 · 操作手册</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0b0b0f;
+    --bg-card: #14141a;
+    --bg-card-2: #1a1a22;
+    --border: #25252f;
+    --border-strong: #34343f;
+    --text: #e8e8ec;
+    --text-dim: #888892;
+    --text-mute: #5a5a64;
+    --accent-md: #6aa6ff;       /* blue for CLAUDE.md / rules */
+    --accent-md-bg: #0f1830;
+    --accent-md-border: #1f3260;
+    --accent-mem: #f0b54a;      /* amber for memory / facts */
+    --accent-mem-bg: #261a08;
+    --accent-mem-border: #4a3414;
+    --accent-warn: #ff7676;
+    --accent-good: #6cd58c;
+    --code-bg: #0a0a10;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 56px 24px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; }
+
+  /* ── Header ── */
+  header { text-align: center; margin-bottom: 56px; }
+  header .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent-md);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    color: #fff;
+    line-height: 1.25;
+  }
+  header h1 .accent { color: var(--accent-mem); }
+  header .meta {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-mute);
+  }
+
+  /* ── Lead block ── */
+  .lead {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 56px;
+  }
+  .lead p { color: var(--text-dim); font-size: 14px; }
+  .lead p + p { margin-top: 8px; }
+  .lead strong { color: var(--text); font-weight: 600; }
+
+  /* ── Section ── */
+  section { margin-bottom: 64px; }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  h2 .num {
+    display: inline-block;
+    width: 28px;
+    color: var(--accent-md);
+    font-weight: 600;
+  }
+  h2 + .subtitle {
+    color: var(--text-mute);
+    font-size: 13px;
+    margin-left: 28px;
+    margin-bottom: 24px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin: 28px 0 12px;
+  }
+
+  /* ── Two-up cards (CLAUDE.md vs memory) ── */
+  .two-up {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0 8px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .card.md { border-color: var(--accent-md-border); background: var(--accent-md-bg); }
+  .card.mem { border-color: var(--accent-mem-border); background: var(--accent-mem-bg); }
+  .card .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .card.md .label { color: var(--accent-md); }
+  .card.mem .label { color: var(--accent-mem); }
+  .card .title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .card ul {
+    list-style: none;
+    font-size: 13px;
+  }
+  .card li {
+    padding: 6px 0;
+    color: var(--text-dim);
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  .card li:first-child { border-top: none; }
+  .card li b { color: #fff; font-weight: 600; }
+
+  /* ── Pull quote ── */
+  .pullquote {
+    text-align: center;
+    margin: 32px auto;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(106,166,255,0.08), rgba(240,181,74,0.08));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 720px;
+  }
+  .pullquote p { font-size: 15px; color: var(--text); line-height: 1.7; }
+  .pullquote .md-pill { color: var(--accent-md); font-weight: 600; }
+  .pullquote .mem-pill { color: var(--accent-mem); font-weight: 600; }
+
+  /* ── Scope table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  th {
+    color: var(--text-mute);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--bg-card);
+  }
+  td b { color: var(--text); font-weight: 600; }
+  td code { color: var(--accent-md); }
+
+  code {
+    font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+    font-size: 12.5px;
+    background: var(--code-bg);
+    color: var(--accent-mem);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code {
+    background: none;
+    color: var(--text-dim);
+    padding: 0;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  /* ── Warning callout ── */
+  .callout {
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 24px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout .icon { font-size: 20px; flex-shrink: 0; }
+  .callout.warn {
+    background: rgba(255,118,118,0.06);
+    border: 1px solid rgba(255,118,118,0.25);
+  }
+  .callout.warn .icon { color: var(--accent-warn); }
+  .callout.good {
+    background: rgba(108,213,140,0.05);
+    border: 1px solid rgba(108,213,140,0.2);
+  }
+  .callout.good .icon { color: var(--accent-good); }
+  .callout .body p { font-size: 13.5px; color: var(--text); }
+  .callout .body strong { color: #fff; }
+
+  /* ── 2x2 Quadrant ── */
+  .quad {
+    margin: 32px 0;
+    display: grid;
+    grid-template-columns: 70px 1fr 1fr;
+    grid-template-rows: 50px 1fr 1fr;
+    gap: 0;
+  }
+  .quad .corner {}
+  .quad .col-h {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    font-weight: 600;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .quad .row-h {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    font-weight: 600;
+    padding: 14px 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .quad .cell {
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    margin: -0.5px;
+    background: var(--bg-card);
+  }
+  .quad .cell .where {
+    font-family: "SF Mono", monospace;
+    font-size: 12px;
+    color: var(--accent-md);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .quad .cell .ex {
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+  .quad .cell .ex b { color: var(--text-dim); }
+  .quad .cell.global-fact { background: linear-gradient(135deg, var(--accent-md-bg), var(--accent-mem-bg)); }
+  .quad .cell.global-fact .where { color: #c89bff; }
+
+  /* ── Decision tree ── */
+  .tree {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin: 16px 0;
+    font-family: "SF Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: var(--text-dim);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .tree b { color: var(--text); font-weight: 600; }
+  .tree .blue { color: var(--accent-md); }
+  .tree .gold { color: var(--accent-mem); }
+
+  /* ── Decision matrix table for examples ── */
+  .ex-table td:nth-child(2),
+  .ex-table td:nth-child(3) {
+    font-size: 11px;
+    color: var(--text-mute);
+  }
+  .ex-table td:nth-child(4) {
+    font-family: "SF Mono", monospace;
+    font-size: 11.5px;
+    color: var(--accent-md);
+  }
+
+  /* ── Stats row ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 20px 0 32px;
+  }
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat .label {
+    font-size: 11px;
+    color: var(--text-mute);
+    letter-spacing: 0.5px;
+  }
+  .stat.highlight .num { color: var(--accent-mem); }
+
+  /* ── Cheatsheet ── */
+  .sheet {
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin: 16px 0;
+  }
+  .sheet-row + .sheet-row { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .sheet-row .head {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent-md);
+    margin-bottom: 10px;
+  }
+  .sheet-row.bad .head { color: var(--accent-warn); }
+  .sheet-row ul { list-style: none; }
+  .sheet-row li {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 4px 0;
+  }
+  .sheet-row li b { color: var(--text); font-weight: 600; }
+  .sheet-row li .arrow { color: var(--text-mute); margin: 0 6px; }
+  .sheet-row li .target {
+    font-family: "SF Mono", monospace;
+    font-size: 12px;
+    color: var(--accent-mem);
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-mute);
+    font-size: 12px;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    body { padding: 32px 16px 64px; font-size: 13px; }
+    header h1 { font-size: 26px; }
+    .two-up { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .quad { grid-template-columns: 50px 1fr 1fr; }
+    .quad .row-h { font-size: 10px; }
+    .ex-table td:nth-child(2),
+    .ex-table td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="eyebrow">CLAUDE CODE · 操作手册</div>
+    <h1>Claude 的"<span class="accent">记忆</span>"系统</h1>
+    <div class="meta">CLAUDE.md vs memory · 全局 vs 项目 · 写给 Teemo 自己看的指南</div>
+  </header>
+
+  <div class="lead">
+    <p>Claude Code 看似"记得"很多事——能叫出你的名字、知道项目结构、遵守你的工作规范。但这些"记忆"分布在<strong>两套独立机制</strong>里，新手极易混淆。</p>
+    <p>这份手册一次讲清四件事：<strong>两种记忆机制的区别</strong>、<strong>全局与项目的范围划分</strong>、<strong>四象限决策法</strong>、<strong>实战的提示词协议</strong>。</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">01</span>两种"记忆"机制</h2>
+    <div class="subtitle">叫"memory"会让人误以为它们是一回事，但它们完全不同。</div>
+
+    <div class="two-up">
+      <div class="card md">
+        <div class="label">CLAUDE.md</div>
+        <div class="title">你写给 Claude 的指令文件</div>
+        <ul>
+          <li><b>作者</b>：你（手动编辑）</li>
+          <li><b>角色</b>：规则 / 规范 / 契约</li>
+          <li><b>加载</b>：每次会话自动注入</li>
+          <li><b>典型</b>：「飞书文档默认用 XML」</li>
+        </ul>
+      </div>
+      <div class="card mem">
+        <div class="label">MEMORY</div>
+        <div class="title">Claude 自动维护的事实笔记</div>
+        <ul>
+          <li><b>作者</b>：Claude（自动写入）</li>
+          <li><b>角色</b>：事实 / 观察 / 偏好</li>
+          <li><b>加载</b>：索引注入 + 按需读</li>
+          <li><b>典型</b>：「Margin 用 Vercel 部署」</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pullquote">
+      <p>
+        <span class="md-pill">CLAUDE.md</span> 告诉 Claude "你<strong>应该</strong>怎么做"<br>
+        <span class="mem-pill">memory</span> 告诉 Claude "我们<strong>知道</strong>什么事实"
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">02</span>范围：全局 vs 项目</h2>
+    <div class="subtitle">无论哪种机制，都有"在哪些会话里加载"这个范围概念。</div>
+
+    <h3>CLAUDE.md 的范围（向上叠加）</h3>
+    <table>
+      <thead><tr><th>位置</th><th>范围</th><th>何时加载</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.claude/CLAUDE.md</code></td><td><b>全局</b></td><td>每次启动都加载</td></tr>
+        <tr><td><code>&lt;project&gt;/CLAUDE.md</code></td><td><b>项目</b></td><td>cwd 在该项目时加载</td></tr>
+        <tr><td><code>&lt;project&gt;/&lt;sub&gt;/CLAUDE.md</code></td><td><b>子目录</b></td><td>进入更深目录时叠加</td></tr>
+        <tr><td><code>&lt;project&gt;/CLAUDE.local.md</code></td><td><b>项目 + gitignored</b></td><td>同项目，不进 git</td></tr>
+      </tbody>
+    </table>
+    <p style="color: var(--text-dim); font-size: 13px; margin-top: 8px;">
+      <b style="color:#fff">关键规则</b>：CLAUDE.md 从 cwd <b style="color:#fff">向上级目录逐层叠加</b>，所有命中的层都会加载。<br>
+      所以<b style="color: var(--accent-md)">启动 cwd 越深，加载的层越多。宁深勿浅。</b>
+    </p>
+
+    <h3>memory 的范围（cwd 严格隔离）</h3>
+    <pre><code>~/.claude/projects/&lt;encoded-cwd&gt;/memory/
+
+  例：cwd = /Users/teemo/Desktop/Teemo Obsidian/Projects/html-lab/
+  对应：~/.claude/projects/-Users-teemo-Desktop-Teemo-Obsidian-Projects-html-lab/memory/
+
+  （把所有 / 替换成 -）</code></pre>
+
+    <div class="callout warn">
+      <div class="icon">⚠</div>
+      <div class="body">
+        <p><strong>反直觉的关键事实：memory 没有真正的"全局"版本。</strong></p>
+        <p style="color: var(--text-dim); margin-top: 6px;">它永远按 cwd 隔离。如果想让某个<b style="color:#fff">事实</b>在所有项目都被 Claude 知道，<b style="color:#fff">唯一办法</b>是写进全局 CLAUDE.md（即使本质是事实而不是规则）。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">03</span>四象限决策图</h2>
+    <div class="subtitle">把"性质"和"范围"两个维度交叉 → 4 个落点。</div>
+
+    <div class="quad">
+      <div class="corner"></div>
+      <div class="col-h">全局可见</div>
+      <div class="col-h">项目可见</div>
+
+      <div class="row-h">规则 / 偏好</div>
+      <div class="cell">
+        <div class="where">~/.claude/CLAUDE.md</div>
+        <div style="color: var(--text-dim); font-size: 13px;">跨所有项目都遵守的规则</div>
+        <div class="ex"><b>例</b>：默认自主执行、付费 skill 锁手动触发</div>
+      </div>
+      <div class="cell">
+        <div class="where">&lt;project&gt;/CLAUDE.md</div>
+        <div style="color: var(--text-dim); font-size: 13px;">只在该项目下生效的规则</div>
+        <div class="ex"><b>例</b>：飞书文档默认用 XML 格式</div>
+      </div>
+
+      <div class="row-h">事实 / 观察</div>
+      <div class="cell global-fact">
+        <div class="where">~/.claude/CLAUDE.md 用户区</div>
+        <div style="color: var(--text-dim); font-size: 13px;">借道 CLAUDE.md（无真全局 memory）</div>
+        <div class="ex"><b>例</b>：翁呈轩、个人站 URL</div>
+      </div>
+      <div class="cell">
+        <div class="where">~/.claude/projects/.../memory/</div>
+        <div style="color: var(--text-dim); font-size: 13px;">Claude 自动维护，按 cwd 隔离</div>
+        <div class="ex"><b>例</b>：Margin 用 Vercel 部署</div>
+      </div>
+    </div>
+
+    <p style="color: var(--text-mute); font-size: 12.5px; text-align: center;">
+      左下象限是关键反例：<b style="color: var(--text-dim)">想全局可见的"事实"也得借道 CLAUDE.md</b>，因为 memory 没有全局版本。
+    </p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">04</span>实战 Playbook</h2>
+    <div class="subtitle">三个核心问题，逐个给答案。</div>
+
+    <h3>Q1 · 新会话该在哪个目录启动？</h3>
+    <p style="color: var(--text-dim); font-size: 13.5px;">cwd 决定哪些 CLAUDE.md 被加载。<b style="color: var(--accent-md)">让 cwd = 任务的实际所在地</b>，<b style="color:#fff">宁深勿浅</b>。</p>
+
+    <table>
+      <thead><tr><th>要做的事</th><th>启动 cwd</th><th>叠加层数</th></tr></thead>
+      <tbody>
+        <tr><td>写飞书财务相关</td><td><code>飞书/人生无限公司/财务/</code></td><td><b>5 层</b></td></tr>
+        <tr><td>写飞书随想（KB 内）</td><td><code>飞书/人生无限公司/</code></td><td>4 层</td></tr>
+        <tr><td>飞书跨模块讨论</td><td><code>飞书/</code></td><td>3 层</td></tr>
+        <tr><td>处理某 GitHub 项目</td><td><code>Projects/&lt;名&gt;/</code></td><td>3 层</td></tr>
+        <tr><td>Wiki / 跨项目</td><td><code>~/Desktop/Teemo Obsidian/</code></td><td>2 层</td></tr>
+        <tr><td>无关项目</td><td><code>~</code> 或 <code>/tmp</code></td><td>1 层（仅全局）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Q2 · 怎么更新 CLAUDE.md？</h3>
+    <p style="color: var(--text-dim); font-size: 13.5px;"><b style="color:#fff">用显式提示词，不要让 Claude 猜。</b></p>
+
+    <div class="two-up" style="margin-top: 12px;">
+      <div class="card">
+        <div style="font-size: 11px; color: var(--accent-good); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 8px;">✓ 推荐</div>
+        <ul style="font-size: 13px; color: var(--text-dim); list-style: none;">
+          <li style="padding: 4px 0;">「把 X <b style="color:#fff">加到全局</b> CLAUDE.md」</li>
+          <li style="padding: 4px 0;">「把 X <b style="color:#fff">加到项目</b> CLAUDE.md」</li>
+          <li style="padding: 4px 0;">「把关于 Y 的那条改成…」</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size: 11px; color: var(--accent-warn); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 8px;">✗ 避免</div>
+        <ul style="font-size: 13px; color: var(--text-dim); list-style: none;">
+          <li style="padding: 4px 0;">「记一下 X」（无范围）</li>
+          <li style="padding: 4px 0;">让 Claude 自己判断该写全局还是项目</li>
+          <li style="padding: 4px 0;">为单步操作做 skill（过度工程）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-top: 20px;">
+      <div class="icon">⚠</div>
+      <div class="body">
+        <p><strong>为什么不让 Claude 猜？</strong>代价不对称。</p>
+        <p style="color: var(--text-dim); margin-top: 6px;">写到项目（窄）猜错 → 在其他项目失效，<b style="color:#fff">损失小</b>。<br>
+        写到全局（宽）猜错 → 污染所有项目 + 浪费 token + 影响判断，<b style="color: var(--accent-warn)">损失大</b>。</p>
+      </div>
+    </div>
+
+    <h3>Q3 · memory 还是 CLAUDE.md？</h3>
+    <p style="color: var(--text-dim); font-size: 13.5px;">按性质 + 范围两个维度判断。</p>
+
+    <div class="tree"><b>是规则 / 偏好 / 契约吗？</b>
+├─ 是 → <span class="blue">CLAUDE.md</span>
+│       ├─ 跨项目？ → 全局
+│       └─ 不跨？   → 项目
+└─ 否（是事实）
+    ├─ 跨项目？ → <span class="blue">全局 CLAUDE.md 的"用户"区</span>（借道）
+    └─ 不跨？   → <span class="gold">项目 memory</span></div>
+
+    <h3>例子对照</h3>
+    <table class="ex-table">
+      <thead><tr><th>你说的话</th><th>性质</th><th>范围</th><th>落点</th></tr></thead>
+      <tbody>
+        <tr><td>"默认回答中文"</td><td>规则</td><td>全局</td><td>~/.claude/CLAUDE.md</td></tr>
+        <tr><td>"飞书文档用 XML"</td><td>规则</td><td>项目</td><td>飞书/CLAUDE.md</td></tr>
+        <tr><td>"我女朋友叫小明"</td><td>事实</td><td>全局</td><td>~/.claude/CLAUDE.md 用户区</td></tr>
+        <tr><td>"Margin 部署在 Vercel"</td><td>事实</td><td>项目</td><td>Margin memory</td></tr>
+        <tr><td>"我喜欢用 Tailwind"</td><td>偏好</td><td>全局</td><td>~/.claude/CLAUDE.md</td></tr>
+      </tbody>
+    </table>
+
+    <h3>"记一下 X" 协议</h3>
+    <div class="callout good">
+      <div class="icon">✓</div>
+      <div class="body">
+        <p><strong>已写入 ~/.claude/CLAUDE.md v1.1</strong></p>
+        <p style="color: var(--text-dim); margin-top: 6px;">用户说"记一下 X"但没指定落点时，Claude 必须：<br>
+        ① 先问性质（规则/事实）+ 范围（全局/项目）<br>
+        ② 改全局 CLAUDE.md 前必须告知用户<br>
+        ③ 项目 memory 可自主写，写完报备</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">05</span>意外发现：memory 实际很稀疏</h2>
+    <div class="subtitle">在 Teemo 这台机器上的真实状态：</div>
+
+    <div class="stats">
+      <div class="stat"><div class="num">3</div><div class="label">有 memory 的 cwd</div></div>
+      <div class="stat"><div class="num">13</div><div class="label">memory 条目总数</div></div>
+      <div class="stat highlight"><div class="num">0</div><div class="label">飞书工作目录</div></div>
+      <div class="stat"><div class="num">7</div><div class="label">home (~) 累积</div></div>
+    </div>
+
+    <p style="color: var(--text-dim); font-size: 13.5px;">为什么这么少？几个原因叠加：</p>
+    <ul style="color: var(--text-dim); font-size: 13.5px; list-style: none; margin: 12px 0;">
+      <li style="padding: 4px 0;"><b style="color:#fff">1.</b> Auto-memory 是相对新功能</li>
+      <li style="padding: 4px 0;"><b style="color:#fff">2.</b> 维护良好的 CLAUDE.md 体系会"抢走" memory 的活</li>
+      <li style="padding: 4px 0;"><b style="color:#fff">3.</b> 讨论型对话不容易触发自动保存</li>
+      <li style="padding: 4px 0;"><b style="color:#fff">4.</b> 大部分 cwd 是一次性任务</li>
+    </ul>
+
+    <div class="callout good">
+      <div class="icon">✓</div>
+      <div class="body">
+        <p><strong>对 Teemo 这种"主动维护 CLAUDE.md"的用户，memory 重要性其实不高。</strong></p>
+        <p style="color: var(--text-dim); margin-top: 6px;">规则化沉淀已经在 CLAUDE.md 层完成。memory 累积少不是 bug，是 CLAUDE.md 体系成熟的副作用。<br>不用焦虑，继续以 CLAUDE.md 为主即可。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">06</span>备忘卡</h2>
+    <div class="subtitle">遇事不决，回这里看一眼。</div>
+
+    <div class="sheet">
+      <div class="sheet-row">
+        <div class="head">▸ 启动会话</div>
+        <ul>
+          <li><b>cwd 尽量深</b> <span class="arrow">→</span> 自动叠加所有上层 CLAUDE.md</li>
+          <li>常用入口建 <b>shell alias</b>（已有 <code>feishu</code>，可以加 <code>obs</code>、<code>margin</code>）</li>
+        </ul>
+      </div>
+
+      <div class="sheet-row">
+        <div class="head">▸ 更新规则</div>
+        <ul>
+          <li>「加到全局 CLAUDE.md：X」<span class="arrow">→</span> <span class="target">~/.claude/CLAUDE.md</span></li>
+          <li>「加到项目 CLAUDE.md：X」<span class="arrow">→</span> <span class="target">&lt;project&gt;/CLAUDE.md</span></li>
+          <li>「记一下 X」（模糊）<span class="arrow">→</span> <span class="target">Claude 先问</span></li>
+        </ul>
+      </div>
+
+      <div class="sheet-row">
+        <div class="head">▸ 更新事实</div>
+        <ul>
+          <li>跨项目事实 <span class="arrow">→</span> <span class="target">全局 CLAUDE.md（借道）</span></li>
+          <li>项目事实 <span class="arrow">→</span> <span class="target">让 Claude 自动写 memory，报备即可</span></li>
+        </ul>
+      </div>
+
+      <div class="sheet-row bad">
+        <div class="head">▸ 不要做的事</div>
+        <ul>
+          <li>✗ 让 Claude 猜该写全局还是项目</li>
+          <li>✗ 把事实写进 CLAUDE.md（除非要跨项目）</li>
+          <li>✗ 把规则写进 memory（不保证加载）</li>
+          <li>✗ 在项目文件夹里找 memory（找不到，它在 ~/.claude/）</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="num">07</span>验证全局 CLAUDE.md 是否生效</h2>
+    <div class="subtitle">随时可以做的一次性体检。</div>
+
+    <pre><code>$ cd /tmp
+$ claude</code></pre>
+
+    <p style="color: var(--text-dim); font-size: 13.5px; margin: 8px 0;">然后问：</p>
+    <pre><code>我叫什么？你现在加载了哪些 CLAUDE.md？</code></pre>
+
+    <p style="color: var(--text-dim); font-size: 13.5px; margin: 16px 0 8px;">预期回答：</p>
+    <ul style="color: var(--text-dim); font-size: 13.5px; list-style: none;">
+      <li style="padding: 4px 0;">✓ 知道你叫 <b style="color:#fff">翁呈轩（Teemo Weng）</b></li>
+      <li style="padding: 4px 0;">✓ 列出加载了 <code>~/.claude/CLAUDE.md</code></li>
+      <li style="padding: 4px 0;">✓ 没加载任何项目 CLAUDE.md（<code>/tmp</code> 不在任何项目下）</li>
+    </ul>
+
+    <p style="color: var(--text-mute); font-size: 12.5px; margin-top: 16px;">如果不符合预期，说明全局 CLAUDE.md 出了问题（被改坏、被删、路径错），需要排查。</p>
+  </section>
+
+  <footer>
+    本手册整合自 2026-05-17 与 Claude 关于"记忆系统"的深度讨论 · 收录于 html-lab
+  </footer>
+
+</div>
+</body>
+</html>
