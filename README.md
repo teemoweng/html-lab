@@ -13,6 +13,7 @@ Teemo 的 HTML 实验室——用可交互页面学习和呈现知识。
 | [PM 交互设计参考库](pm-interaction-guide/pm-interaction-guide.html) | 可交互的 UI/UX 教学演示页，涵盖状态、反馈、导航、交互模式等概念，附 PM 沟通话术 |
 | [Claude Code 使用指南](claude-code-guide/claude-code-guide.html) | Claude Code CLI 工具的使用说明 |
 | [Claude 的"记忆"系统](claude-memory-system/claude-memory-system.html) | CLAUDE.md 与 memory 操作手册：两种机制、四象限决策、实战协议 |
+| [CLI vs MCP · AI 怎么用工具](cli-vs-mcp/cli-vs-mcp.html) | 用一个建文档任务对照 CLI / MCP 两条路径，交互式 step-through 展现差异 |
 | [Teemo 的技术栈](tech-stack/tech-stack.html) | 个人技术栈介绍 |
 | [Ghostty 终端教程](ghostty-tutorial/ghostty-tutorial.html) | Ghostty 终端配置与使用 |
 | [Oh My Zsh 配置指南](oh-my-zsh-guide/oh-my-zsh-guide.html) | Zsh 环境配置 |

@@ -53,6 +53,7 @@ html-lab/
 | `netease-ai-game/` | 多个 .md ✅ | v1 ✅ | 网易互娱 AI 笔试 |
 | `pm-interaction-guide/` | `pm-interaction-guide.md` ✅ | v1 ✅ / v2 ✅ | PM 交互设计参考库 |
 | `claude-memory-system/` | `claude-memory-system.md` ✅ | v1 ✅ | Claude Code 记忆系统操作手册（CLAUDE.md vs memory） |
+| `cli-vs-mcp/` | `cli-vs-mcp.md` ✅ | v1 ✅ | API / CLI / MCP 概念拆解：用一个建文档任务对照两条路径，含交互式 step-through |
 
 ---
 

@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLI vs MCP · 从一个建文档任务看 AI 怎么用工具 · html-lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf6f0; --bg2: #f3ece1; --bg3: #e9dfd1; --bg4: #ddd0bb;
+  --fg: #1c1208; --fg2: #6b5440; --fg3: #b09a82;
+  --accent: oklch(62% 0.19 42); --accent2: oklch(52% 0.19 42); --accent-soft: oklch(62% 0.19 42 / 0.12);
+  --cli: oklch(56% 0.16 230); --cli-soft: oklch(56% 0.16 230 / 0.10);
+  --mcp: oklch(56% 0.18 310); --mcp-soft: oklch(56% 0.18 310 / 0.10);
+  --server: oklch(70% 0.17 80); --server-soft: oklch(70% 0.17 80 / 0.12);
+  --good: oklch(65% 0.16 150); --good-soft: oklch(65% 0.16 150 / 0.12);
+  --bad: oklch(60% 0.20 25); --bad-soft: oklch(60% 0.20 25 / 0.12);
+  --border: rgba(180,120,60,0.18); --card: rgba(255,255,255,0.7);
+  --shadow: 0 8px 32px rgba(100,60,20,0.10);
+  --radius: 12px; --radius-sm: 6px;
+}
+[data-theme="dark"] {
+  --bg: #14110d; --bg2: #1d1812; --bg3: #251e16; --bg4: #2d251a;
+  --fg: #f5ede0; --fg2: #b09a82; --fg3: #6b5440;
+  --accent: oklch(72% 0.18 42); --accent2: oklch(62% 0.18 42); --accent-soft: oklch(72% 0.18 42 / 0.14);
+  --cli: oklch(72% 0.16 230); --cli-soft: oklch(72% 0.16 230 / 0.14);
+  --mcp: oklch(72% 0.18 310); --mcp-soft: oklch(72% 0.18 310 / 0.14);
+  --server: oklch(78% 0.16 80); --server-soft: oklch(78% 0.16 80 / 0.16);
+  --good: oklch(72% 0.18 150); --good-soft: oklch(72% 0.18 150 / 0.14);
+  --bad: oklch(70% 0.20 25); --bad-soft: oklch(70% 0.20 25 / 0.14);
+  --border: rgba(180,120,60,0.22); --card: rgba(255,255,255,0.04);
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Space Grotesk', 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+  background: var(--bg); color: var(--fg);
+  transition: background 0.4s, color 0.4s; min-height: 100vh;
+  line-height: 1.6;
+}
+code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 60px;
+  background: rgba(20,17,13,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+[data-theme="light"] nav { background: rgba(250,246,240,0.85); }
+.nav-logo { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); letter-spacing: 0.05em; text-decoration: none; }
+.nav-logo span { color: var(--fg3); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-back { font-size: 12px; color: var(--fg3); text-decoration: none; font-family: 'JetBrains Mono', monospace; transition: color 0.2s; }
+.nav-back:hover { color: var(--accent); }
+.btn-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--fg2); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+/* SECTION COMMON */
+section { padding: 64px 40px; max-width: 1200px; margin: 0 auto; }
+section.wide { max-width: 1400px; }
+.section-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(24px, 3.4vw, 36px); font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 16px;
+}
+.section-title span.accent { color: var(--accent); }
+.section-sub { font-size: 15px; color: var(--fg2); line-height: 1.7; max-width: 720px; margin-bottom: 40px; }
+
+/* HERO */
+.hero {
+  padding: 80px 40px 32px; max-width: 1200px; margin: 0 auto;
+}
+.hero-title {
+  font-size: clamp(36px, 5.4vw, 60px); font-weight: 700;
+  letter-spacing: -0.025em; line-height: 1.05; margin-bottom: 24px;
+}
+.hero-title .accent { color: var(--accent); }
+.hero-title .cli { color: var(--cli); }
+.hero-title .mcp { color: var(--mcp); }
+.hero-desc { font-size: 17px; color: var(--fg2); line-height: 1.7; max-width: 660px; margin-bottom: 28px; }
+.hero-meta {
+  display: flex; gap: 24px; flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--fg3); letter-spacing: 0.05em;
+}
+.hero-meta span.dot { color: var(--accent); }
+
+/* CONCEPT CARDS — flip on click */
+.concepts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px; margin-top: 8px;
+}
+.flip-card {
+  perspective: 1000px; height: 240px; cursor: pointer;
+}
+.flip-card-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.7s cubic-bezier(0.5, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; display: flex; flex-direction: column; gap: 12px;
+  background: var(--card);
+  transition: border-color 0.2s, background 0.2s;
+}
+.flip-card:hover .flip-face { border-color: var(--accent); }
+.flip-face.back { transform: rotateY(180deg); background: var(--bg2); }
+.flip-face .label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+.flip-face[data-c="api"] .label, .flip-face[data-c="api"] .title { color: var(--server); }
+.flip-face[data-c="cli"] .label, .flip-face[data-c="cli"] .title { color: var(--cli); }
+.flip-face[data-c="mcp"] .label, .flip-face[data-c="mcp"] .title { color: var(--mcp); }
+.flip-face .title { font-size: 32px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+.flip-face .body { font-size: 14px; color: var(--fg2); line-height: 1.65; flex: 1; }
+.flip-face .hint {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--fg3); letter-spacing: 0.05em; margin-top: auto;
+}
+.flip-face .hint .key {
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); margin-right: 6px;
+}
+.flip-face.back .body { font-size: 14px; }
+.flip-face.back .body strong { color: var(--accent); font-weight: 600; }
+
+/* SCENE BLOCK */
+.scene {
+  margin-top: 24px;
+  padding: 32px 36px; border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent-soft), transparent);
+  border: 1px solid var(--border);
+  display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+}
+.scene-icon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+  font-size: 28px; flex-shrink: 0;
+}
+.scene-text { font-size: 16px; line-height: 1.7; flex: 1; min-width: 260px; }
+.scene-text .quote { color: var(--accent); font-weight: 500; font-style: italic; }
+
+/* THE FLOW WALKER — centerpiece */
+.walker-wrap { margin-top: 16px; }
+.walker-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; gap: 20px; flex-wrap: wrap;
+  padding: 18px 24px; background: var(--bg2); border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.walker-step-info { flex: 1; min-width: 220px; }
+.walker-step-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent); letter-spacing: 0.12em;
+}
+.walker-step-name {
+  font-size: 20px; font-weight: 600; margin-top: 4px;
+  display: flex; align-items: center; gap: 12px;
+}
+.walker-step-desc {
+  font-size: 13px; color: var(--fg2); margin-top: 6px; line-height: 1.6;
+}
+.walker-btns { display: flex; gap: 8px; align-items: center; }
+.walker-btn {
+  padding: 9px 18px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--fg); font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.walker-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.walker-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.walker-btn.primary { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.walker-btn.primary:hover:not(:disabled) { background: var(--accent); color: var(--bg); }
+.walker-progress {
+  display: flex; gap: 4px; margin-left: 12px;
+}
+.walker-pip {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--bg4); transition: all 0.3s;
+}
+.walker-pip.active { background: var(--accent); transform: scale(1.3); }
+.walker-pip.done { background: var(--accent2); }
+
+/* WALKER LANES — the two columns */
+.walker-lanes {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; align-items: start;
+}
+.lane {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; background: var(--bg2);
+  display: flex; flex-direction: column; gap: 16px;
+  min-height: 540px; position: relative; overflow: hidden;
+}
+.lane.cli { border-color: oklch(72% 0.16 230 / 0.4); }
+.lane.mcp { border-color: oklch(72% 0.18 310 / 0.4); }
+.lane-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 14px; border-bottom: 1px dashed var(--border);
+}
+.lane-title {
+  font-size: 16px; font-weight: 600; letter-spacing: 0.02em;
+  display: flex; align-items: center; gap: 10px;
+}
+.lane.cli .lane-title { color: var(--cli); }
+.lane.mcp .lane-title { color: var(--mcp); }
+.lane-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  padding: 3px 9px; border-radius: 4px; letter-spacing: 0.08em;
+}
+.lane.cli .lane-badge { background: var(--cli-soft); color: var(--cli); }
+.lane.mcp .lane-badge { background: var(--mcp-soft); color: var(--mcp); }
+
+/* ACTOR STACK inside lane */
+.actors { display: flex; flex-direction: column; gap: 10px; }
+.actor {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1px solid transparent; background: var(--bg3);
+  transition: all 0.4s cubic-bezier(0.5, 0, 0.2, 1);
+  opacity: 0.5;
+}
+.actor.active {
+  opacity: 1; border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.actor.passed { opacity: 0.65; }
+.actor.dim { opacity: 0.25; }
+.actor-emoji {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--bg4); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.actor.active .actor-emoji { background: var(--accent); color: var(--bg); }
+.actor-body { flex: 1; min-width: 0; }
+.actor-name { font-size: 13px; font-weight: 600; }
+.actor-desc { font-size: 11px; color: var(--fg2); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+/* PAYLOAD BUBBLE */
+.payload {
+  margin-top: 8px; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; line-height: 1.55; color: var(--fg2);
+  white-space: pre-wrap; overflow-x: auto;
+  max-height: 0; opacity: 0;
+  transition: max-height 0.5s, opacity 0.4s, padding 0.4s, margin 0.4s;
+  padding-top: 0; padding-bottom: 0; margin: 0;
+}
+.payload.show {
+  max-height: 220px; opacity: 1;
+  padding-top: 12px; padding-bottom: 12px;
+  margin-top: 8px;
+}
+.payload .k { color: var(--accent); }
+.payload .s { color: var(--good); }
+.payload .c { color: var(--fg3); }
+.payload .cmd { color: var(--cli); font-weight: 600; }
+.payload .flag { color: var(--accent); }
+
+/* TOKEN METER (in MCP lane) */
+.token-meter {
+  margin-top: 8px; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; display: flex; flex-direction: column; gap: 6px;
+}
+.token-meter .label { color: var(--fg3); letter-spacing: 0.05em; }
+.token-meter .value { font-size: 18px; font-weight: 600; color: var(--mcp); }
+.token-meter .bar {
+  height: 6px; border-radius: 3px;
+  background: var(--bg3); overflow: hidden;
+}
+.token-meter .bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--mcp), var(--bad));
+  width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.token-meter.cli .value { color: var(--cli); }
+.token-meter.cli .bar-fill { background: var(--cli); }
+
+/* COMPARISON TABLE */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; background: var(--bg2); }
+th, td { padding: 14px 18px; text-align: left; font-size: 13px; line-height: 1.55; vertical-align: top; }
+thead th { font-size: 11px; letter-spacing: 0.12em; font-weight: 600; text-transform: uppercase; background: var(--bg3); border-bottom: 1px solid var(--border); }
+thead th.cli-col { color: var(--cli); }
+thead th.mcp-col { color: var(--mcp); }
+tbody tr { transition: background 0.2s; border-top: 1px solid var(--border); }
+tbody tr:hover { background: var(--bg3); }
+tbody tr.win-cli td.cli-col { background: var(--good-soft); color: var(--fg); position: relative; }
+tbody tr.win-mcp td.mcp-col { background: var(--good-soft); color: var(--fg); position: relative; }
+td.label { font-weight: 600; color: var(--fg2); width: 18%; }
+td.cli-col, td.mcp-col { width: 41%; }
+
+/* TOKEN VIZ — bar chart of MCP vs CLI cost */
+.viz {
+  margin-top: 24px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+.viz-card {
+  padding: 28px; border-radius: var(--radius);
+  background: var(--bg2); border: 1px solid var(--border);
+}
+.viz-card h3 {
+  font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--fg3); font-weight: 600; margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.viz-bar-row {
+  display: grid; grid-template-columns: 60px 1fr 80px; gap: 12px;
+  align-items: center; margin-bottom: 12px; font-size: 13px;
+}
+.viz-bar-row .name { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.viz-bar-row.cli .name { color: var(--cli); }
+.viz-bar-row.mcp .name { color: var(--mcp); }
+.viz-bar { height: 18px; border-radius: 4px; background: var(--bg3); overflow: hidden; }
+.viz-bar-fill {
+  height: 100%; border-radius: 4px;
+  transform-origin: left center;
+}
+.viz-bar-row.cli .viz-bar-fill { background: var(--cli); width: 3%; }
+.viz-bar-row.mcp .viz-bar-fill { background: var(--mcp); width: 100%; }
+.viz-bar-row .val {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--fg2); text-align: right;
+}
+
+/* CONCLUSION */
+.conclusion {
+  margin-top: 16px;
+  padding: 36px 40px; border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent-soft), transparent);
+  border: 1px solid var(--border);
+}
+.conclusion h3 {
+  font-size: 22px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.01em;
+}
+.conclusion p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: 12px; }
+.conclusion p strong { color: var(--fg); font-weight: 600; }
+.conclusion .punchline {
+  margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--border);
+  font-size: 17px; font-weight: 500; color: var(--accent); line-height: 1.6;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border); padding: 28px 40px;
+  text-align: center; color: var(--fg3); font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 64px;
+}
+footer span.accent { color: var(--accent); }
+
+@media (max-width: 860px) {
+  .walker-lanes { grid-template-columns: 1fr; }
+  .viz { grid-template-columns: 1fr; }
+  section, .hero { padding-left: 20px; padding-right: 20px; }
+  td.label { width: auto; }
+  td.cli-col, td.mcp-col { width: auto; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="../index.html">html<span>-</span>lab <span>/</span> cli-vs-mcp</a>
+  <div class="nav-right">
+    <a class="nav-back" href="../index.html">← all topics</a>
+    <button class="btn-icon" onclick="toggleTheme()" id="theme-btn">☀</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="section-label">Concept · 2026</div>
+  <h1 class="hero-title">从一个建文档任务，<br>看懂 AI 怎么用 <span class="cli">CLI</span> 和 <span class="mcp">MCP</span>。</h1>
+  <p class="hero-desc">当你对 Claude Code 说"帮我在飞书里建个文档"——它到底是怎么把请求送到飞书的？用同一个任务跑两遍，把每一步拆给你看。读完你会明白，为什么 2026 年业界集体从 MCP 倒戈 CLI。</p>
+  <div class="hero-meta">
+    <span><span class="dot">·</span> 主题 / concept-explainer</span>
+    <span><span class="dot">·</span> 受众 / 非开发者也能读</span>
+    <span><span class="dot">·</span> 交互 / 双栏 step-through</span>
+  </div>
+</div>
+
+<!-- SECTION 1: CONCEPT CARDS -->
+<section>
+  <div class="section-label">Part 01 · 概念</div>
+  <h2 class="section-title">先把三个词压缩成<span class="accent">一页</span></h2>
+  <p class="section-sub">点击卡片翻面，看本质 ↔ 类比。三者<strong>不在同一个层次上</strong>，理解这一点是后面一切的前提。</p>
+  <div class="concepts">
+
+    <div class="flip-card" onclick="flip(this)">
+      <div class="flip-card-inner">
+        <div class="flip-face front" data-c="api">
+          <div class="label">本质</div>
+          <div class="title">API</div>
+          <div class="body">飞书服务器对外开放的 HTTP 接口，等着被调用。所有外部访问最终都落到这里。</div>
+          <div class="hint"><span class="key">click</span> 看生活类比 →</div>
+        </div>
+        <div class="flip-face back" data-c="api">
+          <div class="label">类比</div>
+          <div class="title">投递口</div>
+          <div class="body">飞书公司外墙上的"投递口"。<br>任何人按格式投纸条就能办事。<br><strong>API 是终点，不是工具。</strong></div>
+          <div class="hint"><span class="key">click</span> 翻回去</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card" onclick="flip(this)">
+      <div class="flip-card-inner">
+        <div class="flip-face front" data-c="cli">
+          <div class="label">本质</div>
+          <div class="title">CLI</div>
+          <div class="body">装在你电脑上的程序，把"一行命令"翻译成 API 请求。需要终端环境才能跑。</div>
+          <div class="hint"><span class="key">click</span> 看生活类比 →</div>
+        </div>
+        <div class="flip-face back" data-c="cli">
+          <div class="label">类比</div>
+          <div class="title">打印机+信封</div>
+          <div class="body">你家里的打印机+信封。<br>你说一句话，它帮你打印、装好、贴邮票、扔进邮筒。<br><strong>人和 AI 都能用同一套。</strong></div>
+          <div class="hint"><span class="key">click</span> 翻回去</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card" onclick="flip(this)">
+      <div class="flip-card-inner">
+        <div class="flip-face front" data-c="mcp">
+          <div class="label">本质</div>
+          <div class="title">MCP</div>
+          <div class="body">AI 和"工具盒子"之间的标准通信协议。不依赖终端，专门给 AI 设计。</div>
+          <div class="hint"><span class="key">click</span> 看生活类比 →</div>
+        </div>
+        <div class="flip-face back" data-c="mcp">
+          <div class="label">类比</div>
+          <div class="title">DHL 国际协议</div>
+          <div class="body">国际通用的快递协议。<br>AI 只要会说这种"黑话"就能让快递员代办。<br><strong>对讲机里的事，外人看不见。</strong></div>
+          <div class="hint"><span class="key">click</span> 翻回去</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top: 32px; padding: 20px 24px; border-radius: var(--radius); background: var(--bg2); border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.7; color: var(--fg2);">
+    <strong style="color: var(--fg);">关键差异：</strong>CLI 需要终端才能跑，MCP 不需要。这就是为什么 <span style="color: var(--accent); font-weight: 600;">Claude Code</span>（活在终端里）两条路都能走，而 <span style="color: var(--accent); font-weight: 600;">Claude Desktop</span>（活在 GUI 沙盒里）只能走 MCP。
+  </div>
+</section>
+
+<!-- SECTION 2: SCENE + WALKER -->
+<section class="wide">
+  <div class="section-label">Part 02 · 同一任务，两条路径</div>
+  <h2 class="section-title">让 Claude Code 在飞书<span class="accent">建一个文档</span></h2>
+
+  <div class="scene">
+    <div class="scene-icon">🗣</div>
+    <div class="scene-text">
+      你对 Claude Code 说：<br>
+      <span class="quote">"帮我在飞书里创建一个文档，标题叫『本周计划』，里面写三条待办：① 写周报 ② 对接客户 ③ 准备会议"</span>
+    </div>
+  </div>
+
+  <div class="walker-wrap">
+    <div class="walker-controls">
+      <div class="walker-step-info">
+        <div class="walker-step-num" id="stepNum">Step 0 / 8</div>
+        <div class="walker-step-name" id="stepName">准备就绪 — 点 Next 开始走流程</div>
+        <div class="walker-step-desc" id="stepDesc">两条路径同时呈现，每一步同步推进。注意观察 token 计数、调用方式、结果回传形式的差异。</div>
+      </div>
+      <div class="walker-btns">
+        <button class="walker-btn" id="prevBtn" onclick="step(-1)" disabled>← Prev</button>
+        <button class="walker-btn primary" id="nextBtn" onclick="step(1)">Next →</button>
+        <button class="walker-btn" id="resetBtn" onclick="reset()">↻</button>
+        <div class="walker-progress" id="pips"></div>
+      </div>
+    </div>
+
+    <div class="walker-lanes">
+
+      <!-- CLI LANE -->
+      <div class="lane cli">
+        <div class="lane-header">
+          <div class="lane-title">⌨ 方案 A · CLI 路径</div>
+          <div class="lane-badge">terminal · transparent</div>
+        </div>
+
+        <div class="token-meter cli">
+          <div class="label">Claude 上下文已被占用</div>
+          <div class="value" id="cliTokens">0 tokens</div>
+          <div class="bar"><div class="bar-fill" id="cliBar"></div></div>
+        </div>
+
+        <div class="actors" id="cliActors">
+          <div class="actor" data-actor="user">
+            <div class="actor-emoji">🧑</div>
+            <div class="actor-body">
+              <div class="actor-name">你</div>
+              <div class="actor-desc">提出需求</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="claude">
+            <div class="actor-emoji">🤖</div>
+            <div class="actor-body">
+              <div class="actor-name">Claude Code</div>
+              <div class="actor-desc">活在终端里</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="terminal">
+            <div class="actor-emoji">▶</div>
+            <div class="actor-body">
+              <div class="actor-name">终端 Terminal</div>
+              <div class="actor-desc">$ lark docs +create …</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="cli">
+            <div class="actor-emoji">⚙</div>
+            <div class="actor-body">
+              <div class="actor-name">lark-cli (program)</div>
+              <div class="actor-desc">读 token → 拼 HTTP → 发送</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="server">
+            <div class="actor-emoji">🏢</div>
+            <div class="actor-body">
+              <div class="actor-name">飞书服务器</div>
+              <div class="actor-desc">api.feishu.cn</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="payload" id="cliPayload"></div>
+      </div>
+
+      <!-- MCP LANE -->
+      <div class="lane mcp">
+        <div class="lane-header">
+          <div class="lane-title">📡 方案 B · MCP 路径</div>
+          <div class="lane-badge">protocol · opaque</div>
+        </div>
+
+        <div class="token-meter">
+          <div class="label">Claude 上下文已被占用</div>
+          <div class="value" id="mcpTokens">0 tokens</div>
+          <div class="bar"><div class="bar-fill" id="mcpBar"></div></div>
+        </div>
+
+        <div class="actors" id="mcpActors">
+          <div class="actor" data-actor="user">
+            <div class="actor-emoji">🧑</div>
+            <div class="actor-body">
+              <div class="actor-name">你</div>
+              <div class="actor-desc">提出需求</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="claude">
+            <div class="actor-emoji">🤖</div>
+            <div class="actor-body">
+              <div class="actor-name">Claude Code</div>
+              <div class="actor-desc">脑子里装着 200+ 工具说明书</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="server-mcp">
+            <div class="actor-emoji">📻</div>
+            <div class="actor-body">
+              <div class="actor-name">feishu-mcp-server</div>
+              <div class="actor-desc">常驻进程，对讲机协议</div>
+            </div>
+          </div>
+          <div class="actor" data-actor="server">
+            <div class="actor-emoji">🏢</div>
+            <div class="actor-body">
+              <div class="actor-name">飞书服务器</div>
+              <div class="actor-desc">api.feishu.cn</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="payload" id="mcpPayload"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <p style="margin-top: 24px; text-align: center; font-size: 13px; color: var(--fg3); font-family: 'JetBrains Mono', monospace;">
+    使用 ← → 方向键也可以推进步骤
+  </p>
+</section>
+
+<!-- SECTION 3: COMPARISON TABLE -->
+<section>
+  <div class="section-label">Part 03 · 对照</div>
+  <h2 class="section-title">两条路径的<span class="accent">八处不同</span></h2>
+  <p class="section-sub">绿色高亮 = 该环节的赢家。最后一行注意看：飞书服务器从头到尾根本不知道是 MCP 还是 CLI 在调它——这一切的差异只发生在「Claude 怎么把请求送过去」这一段。</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 18%;">环节</th>
+          <th class="cli-col">⌨ CLI 流程</th>
+          <th class="mcp-col">📡 MCP 流程</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="win-cli">
+          <td class="label">配置成本</td>
+          <td class="cli-col">装好 lark-cli，登录一次</td>
+          <td class="mcp-col">装 Server + 改配置 + 由 Claude Code 拉起进程</td>
+        </tr>
+        <tr class="win-cli">
+          <td class="label">启动时</td>
+          <td class="cli-col">啥也不发生</td>
+          <td class="mcp-col">Server 把全部工具说明书塞进 Claude 脑子（吃 token）</td>
+        </tr>
+        <tr>
+          <td class="label">Claude 怎么调用</td>
+          <td class="cli-col"><code style="color: var(--cli);">lark docs +create …</code></td>
+          <td class="mcp-col"><code style="color: var(--mcp);">{tool, args} JSON</code></td>
+        </tr>
+        <tr>
+          <td class="label">谁来执行</td>
+          <td class="cli-col">终端启动 lark-cli，跑一次就结束</td>
+          <td class="mcp-col">常驻的 mcp-server 进程接收调用</td>
+        </tr>
+        <tr>
+          <td class="label">结果怎么回来</td>
+          <td class="cli-col">打印到终端，Claude 看屏读到</td>
+          <td class="mcp-col">协议响应，Claude 直接拿到结构化数据</td>
+        </tr>
+        <tr class="win-cli">
+          <td class="label">出错时</td>
+          <td class="cli-col">错误直接打印，Claude 像人一样看着改</td>
+          <td class="mcp-col">错误包在协议里，Claude 不一定知道怎么调整</td>
+        </tr>
+        <tr class="win-cli">
+          <td class="label">你能不能围观</td>
+          <td class="cli-col">能。每条命令、每段输出都看得到</td>
+          <td class="mcp-col">看不到。中间通信全在对讲机里</td>
+        </tr>
+        <tr>
+          <td class="label">飞书服务器视角</td>
+          <td class="cli-col">带 token 的 HTTP 请求</td>
+          <td class="mcp-col">带 token 的 HTTP 请求（一模一样）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 4: HARD DATA -->
+<section>
+  <div class="section-label">Part 04 · 硬数据</div>
+  <h2 class="section-title">ScaleKit 基准测试给的<span class="accent">实战数字</span></h2>
+  <p class="section-sub">2026 年 3 月，ScaleKit 跑了一批相同的 Agent 任务对比两种调用方式。这两张图是为什么业界集体倒戈的原因。</p>
+  <div class="viz">
+
+    <div class="viz-card">
+      <h3>Token 成本 · 同一批任务</h3>
+      <div class="viz-bar-row cli">
+        <div class="name">CLI</div>
+        <div class="viz-bar"><div class="viz-bar-fill"></div></div>
+        <div class="val">基准 1×</div>
+      </div>
+      <div class="viz-bar-row mcp">
+        <div class="name">MCP</div>
+        <div class="viz-bar"><div class="viz-bar-fill"></div></div>
+        <div class="val">10 ~ 32×</div>
+      </div>
+      <p style="margin-top: 14px; font-size: 12px; color: var(--fg3); line-height: 1.6;">
+        MCP 每次会话都要先加载完整工具 schema，仅 GitHub MCP Server 就吃掉 55,000 tokens——Claude 200K 上下文还没干活已被削掉 1/4。
+      </p>
+    </div>
+
+    <div class="viz-card">
+      <h3>任务一次成功率</h3>
+      <div class="viz-bar-row cli">
+        <div class="name">CLI</div>
+        <div class="viz-bar"><div class="viz-bar-fill" style="width: 100%;"></div></div>
+        <div class="val">100%</div>
+      </div>
+      <div class="viz-bar-row mcp">
+        <div class="name">MCP</div>
+        <div class="viz-bar"><div class="viz-bar-fill" style="width: 72%;"></div></div>
+        <div class="val">72%</div>
+      </div>
+      <p style="margin-top: 14px; font-size: 12px; color: var(--fg3); line-height: 1.6;">
+        CLI 出错时报错信息直接打印在终端，Claude 像人一样看着报错调整；MCP 错误被包装在协议里，难自我修复。
+      </p>
+    </div>
+
+  </div>
+
+  <div class="conclusion">
+    <h3>核心结论</h3>
+    <p><strong>CLI</strong> 是 Claude Code 用"人类操作电脑的方式"（敲命令、看屏幕）来调飞书。</p>
+    <p><strong>MCP</strong> 是 Claude Code 用"专门给 AI 设计的协议"（对讲机通话）来调飞书。</p>
+    <p>两者最底层都落到同一个飞书 API 上，但<strong>怎么把请求送过去</strong>走的是两条完全不同的路。</p>
+    <div class="punchline">
+      下次再有人争"该用 MCP 还是 CLI"——他们争的是用哪种方式把 API 喂给 AI，而不是某个东西要不要存在。<br>
+      <span style="opacity: 0.7;">API 永远在最下面。</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="accent">html-lab</span> · cli-vs-mcp · <span class="accent">2026</span> · 翁呈轩 / Teemo Weng
+</footer>
+
+<script>
+// ===== THEME =====
+const savedTheme = localStorage.getItem('hl-theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀' : '☾';
+  localStorage.setItem('hl-theme', next);
+}
+document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀' : '☾';
+
+// ===== FLIP CARDS =====
+function flip(el) { el.classList.toggle('flipped'); }
+
+// ===== WALKER STATE MACHINE =====
+const STEPS = [
+  {
+    name: '准备就绪',
+    desc: '两条路径同时呈现，每一步同步推进。注意观察 token 计数、调用方式、结果回传形式的差异。',
+    cli: { active: null, payload: null, tokens: 0 },
+    mcp: { active: null, payload: null, tokens: 0 },
+  },
+  {
+    name: '一次性配置',
+    desc: 'CLI 只装个工具加登录一次。MCP 要装 Server + 改配置文件 + 让 Claude Code 学会怎么拉起这个进程。',
+    cli: {
+      active: 'cli',
+      payload: { type: 'shell', text: '<span class="c"># 一次性，装好就完事</span>\n$ <span class="cmd">brew install</span> lark-cli\n$ <span class="cmd">lark-cli auth login</span>\n<span class="s">✓ logged in as teemo@…</span>' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'claude',
+      payload: { type: 'json', text: '<span class="c">// Claude Code 配置文件</span>\n{\n  "mcpServers": {\n    "feishu": {\n      "command": "feishu-mcp-server",\n      "args": ["--token", "..."]\n    }\n  }\n}' },
+      tokens: 0,
+    },
+  },
+  {
+    name: 'Claude Code 启动',
+    desc: 'CLI 这边什么都不发生——lark-cli 是按需才被调用的工具。MCP 这边，Server 被自动拉起，立刻把全部 200+ 个工具的 schema 塞进 Claude 上下文。',
+    cli: {
+      active: 'claude',
+      payload: { type: 'text', text: '<span class="c">// Claude Code 已启动\n// 上下文里啥也没装，干净\n// 等待用户提需求</span>' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'server-mcp',
+      payload: { type: 'json', text: '<span class="c">// MCP Server 自报家门</span>\n{\n  "tools": [\n    { "name": "<span class="k">feishu_create_document</span>", "params": {…} },\n    { "name": "<span class="k">feishu_update_document</span>", "params": {…} },\n    { "name": "<span class="k">feishu_send_message</span>",    "params": {…} },\n    <span class="c">// …还有 200+ 个</span>\n  ]\n}\n<span class="c">// 全部塞进 Claude 脑子 → 55K tokens 飞了 →</span>' },
+      tokens: 55000,
+    },
+  },
+  {
+    name: '你提需求',
+    desc: '"帮我建个文档，标题叫『本周计划』，写三条待办。" 两边的 Claude Code 同时收到。',
+    cli: {
+      active: 'user',
+      payload: { type: 'text', text: '<span class="cmd">你:</span> 帮我在飞书里创建一个文档，标题叫『本周计划』，里面写三条待办：写周报、对接客户、准备会议' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'user',
+      payload: { type: 'text', text: '<span class="cmd">你:</span> 帮我在飞书里创建一个文档，标题叫『本周计划』，里面写三条待办：写周报、对接客户、准备会议' },
+      tokens: 55000,
+    },
+  },
+  {
+    name: 'Claude 决定怎么调用',
+    desc: 'CLI 这边 Claude 想"用 lark docs +create"；MCP 这边 Claude 翻脑子里那份说明书，找到 feishu_create_document。',
+    cli: {
+      active: 'claude',
+      payload: { type: 'text', text: '<span class="c">// Claude 心里想：</span>\n创建文档要用 <span class="cmd">lark docs +create</span>\n参数：<span class="flag">--title</span> "本周计划"\n先建空文档拿 ID，再写入待办内容。' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'claude',
+      payload: { type: 'text', text: '<span class="c">// Claude 翻脑子里的工具清单：</span>\n找到 <span class="k">feishu_create_document</span>\n参数：title (string, required)\n准备生成 tool_call 结构化指令。' },
+      tokens: 55000,
+    },
+  },
+  {
+    name: 'Claude 发出调用',
+    desc: '这是两条路径的分叉点：CLI 真的在终端打命令（跟人一模一样），MCP 输出一段 JSON 走对讲机协议。',
+    cli: {
+      active: 'terminal',
+      payload: { type: 'shell', text: '$ <span class="cmd">lark</span> docs +create <span class="flag">--title</span> "本周计划"' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'server-mcp',
+      payload: { type: 'json', text: '<span class="c">// MCP 协议格式的工具调用</span>\n{\n  "tool_call": {\n    "name": "<span class="k">feishu_create_document</span>",\n    "arguments": {\n      "title": <span class="s">"本周计划"</span>\n    }\n  }\n}' },
+      tokens: 55000,
+    },
+  },
+  {
+    name: '翻译成 HTTP，飞书干活',
+    desc: '从这里往下，两条路径殊途同归。中间层（lark-cli / mcp-server）都做同样的事：读 token → 拼 HTTP → 发请求。飞书服务器根本不知道是哪种方式调用。',
+    cli: {
+      active: 'server',
+      payload: { type: 'http', text: '<span class="cmd">POST</span> https://open.feishu.cn/open-apis/docx/v1/documents\nAuthorization: Bearer &lt;token&gt;\n\n{ "title": "本周计划" }\n\n<span class="c">// 飞书返回</span>\n<span class="s">{ "document_id": "doxcnAbC…", "url": "…" }</span>' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'server',
+      payload: { type: 'http', text: '<span class="cmd">POST</span> https://open.feishu.cn/open-apis/docx/v1/documents\nAuthorization: Bearer &lt;token&gt;\n\n{ "title": "本周计划" }\n\n<span class="c">// 飞书返回</span>\n<span class="s">{ "document_id": "doxcnAbC…", "url": "…" }</span>' },
+      tokens: 55000,
+    },
+  },
+  {
+    name: '结果回到 Claude',
+    desc: '这里又分叉了：CLI 把 JSON 打印到终端（Claude 像人一样看屏读），MCP 把结果包装成协议响应直接喂给 Claude。',
+    cli: {
+      active: 'claude',
+      payload: { type: 'shell', text: '<span class="c"># 终端打印（你也能看到）</span>\n{\n  "document_id": "doxcnAbCdEf123456",\n  "url": "https://my.feishu.cn/docx/doxcnAbCdEf123456"\n}\n\n<span class="c"># Claude 看到 document_id，决定下一步：</span>\n<span class="c"># 再敲一条 lark docs +update 写入待办</span>' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'claude',
+      payload: { type: 'json', text: '<span class="c">// MCP 协议响应（你看不到）</span>\n{\n  "tool_result": {\n    "name": "<span class="k">feishu_create_document</span>",\n    "content": {\n      "document_id": <span class="s">"doxcnAbCdEf123456"</span>,\n      "url": <span class="s">"https://…"</span>\n    }\n  }\n}\n<span class="c">// Claude 再发一次 tool_call 写入待办</span>' },
+      tokens: 55000,
+    },
+  },
+  {
+    name: '搞定，回复你',
+    desc: '两边任务都完成了。链接一致，结果一致。但中间这一路走过来——CLI 完全透明，MCP 全程黑盒。这就是 2026 年业界倒戈 CLI 的原因。',
+    cli: {
+      active: 'user',
+      payload: { type: 'text', text: '<span class="cmd">Claude:</span> ✅ 已经在飞书里创建好了文档《本周计划》，三条待办已经写进去了。\n链接：https://my.feishu.cn/docx/doxcnAbCdEf123456' },
+      tokens: 0,
+    },
+    mcp: {
+      active: 'user',
+      payload: { type: 'text', text: '<span class="cmd">Claude:</span> ✅ 已经在飞书里创建好了文档《本周计划》，三条待办已经写进去了。\n链接：https://my.feishu.cn/docx/doxcnAbCdEf123456' },
+      tokens: 55000,
+    },
+  },
+];
+
+let current = 0;
+
+function renderPips() {
+  const pips = document.getElementById('pips');
+  pips.innerHTML = STEPS.map((_, i) =>
+    `<div class="walker-pip ${i === current ? 'active' : i < current ? 'done' : ''}"></div>`
+  ).join('');
+}
+
+function renderLane(laneId, actorsId, payloadId, tokenId, barId, data, maxTokens) {
+  // Actors
+  const actors = document.querySelectorAll(`#${actorsId} .actor`);
+  actors.forEach(a => {
+    a.classList.remove('active', 'passed', 'dim');
+    if (data.active === a.dataset.actor) a.classList.add('active');
+  });
+
+  // Payload
+  const p = document.getElementById(payloadId);
+  if (data.payload) {
+    p.innerHTML = data.payload.text;
+    p.classList.add('show');
+  } else {
+    p.classList.remove('show');
+  }
+
+  // Tokens
+  const tEl = document.getElementById(tokenId);
+  const bEl = document.getElementById(barId);
+  const t = data.tokens || 0;
+  tEl.textContent = t.toLocaleString() + ' tokens';
+  // bar fill — % of 200K context window
+  bEl.style.width = Math.min(100, (t / 200000) * 100) + '%';
+}
+
+function render() {
+  const s = STEPS[current];
+  document.getElementById('stepNum').textContent = `Step ${current} / ${STEPS.length - 1}`;
+  document.getElementById('stepName').textContent = s.name;
+  document.getElementById('stepDesc').textContent = s.desc;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === STEPS.length - 1;
+
+  renderLane('cli', 'cliActors', 'cliPayload', 'cliTokens', 'cliBar', s.cli);
+  renderLane('mcp', 'mcpActors', 'mcpPayload', 'mcpTokens', 'mcpBar', s.mcp);
+  renderPips();
+}
+
+function step(delta) {
+  const n = current + delta;
+  if (n < 0 || n >= STEPS.length) return;
+  current = n;
+  render();
+}
+
+function reset() {
+  current = 0;
+  render();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') step(1);
+  else if (e.key === 'ArrowLeft') step(-1);
+});
+
+render();
+</script>
+</body>
+</html>
