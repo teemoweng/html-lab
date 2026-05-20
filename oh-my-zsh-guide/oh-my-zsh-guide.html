@@ -500,9 +500,47 @@
       th, td { padding: 10px 16px; }
       .hero-stat { padding: 16px 24px; }
     }
+    /* ── Breadcrumb nav ── */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      padding: 14px 32px;
+      background: rgba(247,247,245,0.85);
+      backdrop-filter: saturate(140%) blur(12px);
+      -webkit-backdrop-filter: saturate(140%) blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.18s;
+    }
+    .topnav a:hover { color: var(--accent); }
+    .topnav .crumb-sep { color: #cfd3d0; }
+    .topnav .crumb-current {
+      color: var(--text);
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    #progress { top: 49px; }
   </style>
 </head>
 <body>
+
+<nav class="topnav">
+  <a href="../index.html"><span>html-lab</span><span class="crumb-sep">/</span><span class="crumb-current">oh-my-zsh-guide</span></a>
+</nav>
 
 <div id="progress"></div>
 

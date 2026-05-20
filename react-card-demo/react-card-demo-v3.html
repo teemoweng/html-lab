@@ -31,6 +31,44 @@
       font-weight: 300;
     }
 
+    /* ── BACK NAV ── */
+    .back-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 56px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-nav:hover { color: var(--accent); }
+    .back-nav-arrow {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: var(--accent);
+      font-size: 16px;
+      line-height: 1;
+    }
+    .back-nav-sep { color: var(--border); }
+    .back-nav-current {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 13px;
+      color: var(--text);
+    }
+
     /* ── MASTHEAD ── */
     .masthead {
       border-bottom: 3px solid var(--text);
@@ -412,6 +450,12 @@
   </style>
 </head>
 <body>
+<a class="back-nav" href="../index.html">
+  <span class="back-nav-arrow">←</span>
+  <span>html-lab</span>
+  <span class="back-nav-sep">/</span>
+  <span class="back-nav-current">react-card-demo</span>
+</a>
 <div id="root"></div>
 
 <script type="text/babel">

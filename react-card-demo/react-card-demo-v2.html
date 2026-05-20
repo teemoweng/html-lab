@@ -33,6 +33,31 @@
       overflow-x: hidden;
     }
 
+    /* ── BACK NAV ── */
+    .back-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 48px;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      font-family: 'Azeret Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-nav:hover { color: var(--accent); }
+    .back-nav-arrow { color: var(--accent); font-size: 13px; }
+    .back-nav-sep { color: var(--border); }
+    .back-nav-current { color: var(--text); }
+
     /* ── HEADER ── */
     .header {
       border-bottom: 1px solid var(--border);
@@ -376,6 +401,13 @@
   </style>
 </head>
 <body>
+
+<a class="back-nav" href="../index.html">
+  <span class="back-nav-arrow">←</span>
+  <span>html-lab</span>
+  <span class="back-nav-sep">/</span>
+  <span class="back-nav-current">react-card-demo</span>
+</a>
 
 <div id="root"></div>
 

@@ -769,6 +769,21 @@
     cursor: none;
   }
 
+  .nav-crumbs {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-dim);
+    cursor: none;
+    transition: color 0.2s;
+  }
+  .nav-crumbs .crumb-sep { color: var(--border); margin: 0 8px; }
+  .nav-crumbs .crumb-current { color: var(--accent); }
+  .nav-crumbs:hover { color: var(--accent2); }
+  .nav-crumbs:hover .crumb-sep { color: var(--text-dim); }
+
   .nav-links {
     display: flex;
     gap: 32px;
@@ -820,7 +835,7 @@
 <div class="progress-bar" id="progressBar"></div>
 
 <nav>
-  <a class="nav-logo" href="#">GHOSTTY//</a>
+  <a class="nav-crumbs" href="../index.html"><span>html-lab</span><span class="crumb-sep">/</span><span class="crumb-current">ghostty-tutorial</span></a>
   <ul class="nav-links">
     <li><a href="#compare">对比</a></li>
     <li><a href="#features">特性</a></li>

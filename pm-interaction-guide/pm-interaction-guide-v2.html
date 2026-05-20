@@ -441,10 +441,27 @@
   /* Checkbox/Radio labels */
   .pop-cr-label { font-size: 12px; color: #374151; display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 0; }
   .pop-cr-label input { accent-color: #6366f1; }
+
+  .lab-breadcrumb {
+    display: block;
+    padding: 14px 16px 14px;
+    border-bottom: 1px solid #313244;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #6c7086;
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+  }
+  .lab-breadcrumb:hover { color: #cba6f7; background: #292940; }
+  .lab-breadcrumb .lab-breadcrumb-sep { color: #45475a; margin: 0 6px; }
+  .lab-breadcrumb .lab-breadcrumb-current { color: #a6adc8; }
+  .lab-breadcrumb:hover .lab-breadcrumb-current { color: #cdd6f4; }
+  .lab-breadcrumb + .brand { padding-top: 20px; }
 </style>
 </head>
 <body>
 <nav id="sidebar">
+  <a class="lab-breadcrumb" href="../index.html">← html-lab</a>
   <div class="brand">
     <div class="brand-name">🎨 交互设计参考库</div>
     <div class="brand-sub">PM 向 · 可交互</div>

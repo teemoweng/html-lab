@@ -29,6 +29,46 @@
     line-height: 1.7;
   }
 
+  .lab-breadcrumb {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: flex-start;
+    padding: 10px 24px;
+    background: rgba(247, 248, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .lab-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    border-radius: 24px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sub);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+  }
+  .lab-breadcrumb a:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .lab-breadcrumb .crumb-arrow {
+    color: var(--border);
+    font-weight: 700;
+  }
+  .lab-breadcrumb .crumb-root { color: var(--sub); }
+  .lab-breadcrumb .crumb-here { color: var(--text); }
+  .lab-breadcrumb a:hover .crumb-root,
+  .lab-breadcrumb a:hover .crumb-here { color: var(--orange); }
+
   /* ── Header ── */
   .header {
     background: linear-gradient(135deg, #1A1A2E 0%, #16213E 60%, #0F3460 100%);
@@ -516,6 +556,13 @@
 </style>
 </head>
 <body>
+<nav class="lab-breadcrumb">
+  <a href="../index.html">
+    <span class="crumb-root">html-lab</span>
+    <span class="crumb-arrow">/</span>
+    <span class="crumb-here">didi-ba-interview</span>
+  </a>
+</nav>
 
 <!-- Header -->
 <div class="header">
